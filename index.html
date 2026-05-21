@@ -24,6 +24,20 @@
   </div>
 
   <div class="header-actions">
+    <div class="alertas-container">
+      <button class="btn btn-ghost" id="btn-alertas" title="Central de Alertas" aria-label="Central de alertas" type="button">
+        🔔<span id="alert-count" class="alert-count-badge hidden">0</span>
+      </button>
+      <div id="alerts-dropdown" class="alerts-dropdown hidden">
+        <div class="alerts-dropdown-header">
+          <h3>Central de Alertas 🔔</h3>
+          <button class="dropdown-close" id="btn-fechar-alertas" aria-label="Fechar painel de alertas" type="button">✕</button>
+        </div>
+        <div id="alerts-list" class="alerts-list">
+          <!-- Dinamicamente preenchido -->
+        </div>
+      </div>
+    </div>
     <button class="btn btn-primary" id="btn-novo-cliente" aria-label="Adicionar novo cliente">
       ＋ Novo Cliente
     </button>
@@ -564,6 +578,70 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL: MODELOS DE WHATSAPP (QUICK REPLIES ✨)
+     ============================================================ -->
+<div class="modal-overlay hidden" id="modal-wa-templates" role="dialog" aria-modal="true" aria-labelledby="modal-wa-title">
+  <div class="modal-box modal-box-md">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-wa-title">
+        ✨ Mensagem Rápida (WhatsApp)
+      </h2>
+      <button class="modal-close" id="btn-fechar-modal-wa" aria-label="Fechar modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="wa-lead-id" />
+      <p id="wa-lead-nome" style="font-weight:700; color:var(--text-primary); margin-bottom:1rem; font-size:1.05rem;"></p>
+      
+      <div class="wa-templates-grid">
+        <div class="wa-template-card active" data-template-idx="0">
+          <span class="template-card-icon">✨</span>
+          <div class="template-card-info">
+            <span class="template-card-title">Apresentação</span>
+            <span class="template-card-desc">Primeiro contato com o lead</span>
+          </div>
+        </div>
+        
+        <div class="wa-template-card" data-template-idx="1">
+          <span class="template-card-icon">📅</span>
+          <div class="template-card-info">
+            <span class="template-card-title">Visita</span>
+            <span class="template-card-desc">Confirmar agendamento de visita</span>
+          </div>
+        </div>
+        
+        <div class="wa-template-card" data-template-idx="2">
+          <span class="template-card-icon">📈</span>
+          <div class="template-card-info">
+            <span class="template-card-title">Acompanhamento</span>
+            <span class="template-card-desc">Follow-up das opções enviadas</span>
+          </div>
+        </div>
+        
+        <div class="wa-template-card" data-template-idx="3">
+          <span class="template-card-icon">🏠</span>
+          <div class="template-card-info">
+            <span class="template-card-title">Novas Opções</span>
+            <span class="template-card-desc">Novidades dentro do perfil</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group" style="margin-top:1.25rem;">
+        <label for="wa-preview-text" style="font-weight:600; margin-bottom:0.5rem; display:block; color:var(--text-secondary);">Edite a mensagem antes de enviar:</label>
+        <textarea id="wa-preview-text" class="form-control" rows="8" placeholder="O texto da mensagem aparecerá aqui..." style="font-family:inherit; font-size:0.9rem; line-height:1.5; resize:vertical;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex; justify-content:space-between; gap:0.5rem; align-items:center;">
+      <button class="btn btn-secondary" id="btn-copiar-wa" type="button">📋 Copiar Texto</button>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="btn btn-secondary" id="btn-cancelar-wa" type="button">Cancelar</button>
+        <button class="btn btn-success" id="btn-enviar-wa" type="button">💬 Enviar pelo WhatsApp</button>
+      </div>
+    </div>
   </div>
 </div>
 

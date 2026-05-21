@@ -40,6 +40,32 @@ const CSV_HEADERS = [
 ];
 
 /* ============================================================
+   WHATSAPP TEMPLATES ✨
+   ============================================================ */
+const WA_TEMPLATES = [
+  {
+    title: "Apresentação",
+    desc: "Primeiro contato com o lead",
+    text: "Olá, {nome}! Aqui é a Loreny, tudo bem? Vi seu interesse no imóvel ({tipo}) na região de {regiao}. Como posso te ajudar na sua busca hoje?"
+  },
+  {
+    title: "Visita",
+    desc: "Confirmar agendamento de visita",
+    text: "Oi, {nome}! Gostaria de confirmar nossa visita ao imóvel no bairro {regiao}. Qual o melhor horário para você: na parte da manhã ou da tarde?"
+  },
+  {
+    title: "Acompanhamento",
+    desc: "Follow-up das opções enviadas",
+    text: "Olá, {nome}! Passando para saber se conseguiu analisar as opções de {tipo} que te enviei. Ficou alguma dúvida sobre as condições ou valores?"
+  },
+  {
+    title: "Novas Opções",
+    desc: "Novidades dentro do perfil",
+    text: "Oi, {nome}! Acabaram de entrar novas opções de {tipo} na faixa de {valor} na região de {regiao} que se encaixam exatamente no que procura. Posso te enviar as fotos?"
+  }
+];
+
+/* ============================================================
    STATE
    ============================================================ */
 let leads          = [];
@@ -462,7 +488,7 @@ function renderTable() {
   tbody.innerHTML = filteredLeads.map(l => {
     const cfg   = STATUS_CONFIG[l.status] || {};
     const color = cfg.color || '#999';
-    const wa    = l.whatsapp ? `<a href="${waUrl(l.whatsapp)}" target="_blank" rel="noopener" class="action-btn btn-wa" title="Abrir WhatsApp">💬</a>` : '';
+    const wa    = l.whatsapp ? `<a href="${waUrl(l.whatsapp)}" target="_blank" rel="noopener" class="action-btn btn-wa" title="Abrir WhatsApp Direto">💬</a><button class="action-btn btn-wa-templates" onclick="openWaTemplates('${l.id}')" title="Modelos Rápidos ✨">✨</button>` : '';
 
     return `
     <tr data-id="${l.id}" style="animation: fadeInUp 0.2s ease both;">
@@ -548,7 +574,8 @@ function renderMobileCards() {
       </div>
       <div class="mc-actions">
         ${l.whatsapp
-          ? `<a href="${waUrl(l.whatsapp)}" target="_blank" rel="noopener" class="btn btn-sm btn-success">💬 WhatsApp</a>`
+          ? `<a href="${waUrl(l.whatsapp)}" target="_blank" rel="noopener" class="btn btn-sm btn-success" title="Abrir WhatsApp Direto">💬 WhatsApp</a>
+             <button class="btn btn-sm btn-gold" onclick="openWaTemplates('${l.id}')" title="Modelos Rápidos ✨">✨ Modelo</button>`
           : ''}
         <button class="btn btn-sm btn-secondary" onclick="openEditModal('${l.id}')">✏️ Editar</button>
         <button class="btn btn-sm btn-secondary" onclick="openHistorico('${l.id}')">📋</button>
@@ -608,7 +635,8 @@ function kanbanCardHtml(l, color) {
     ${l.proximaAcao ? `<div class="kc-row" style="white-space:normal;line-height:1.4;">⚡ ${esc(l.proximaAcao)}</div>` : ''}
     <div class="kc-actions">
       ${l.whatsapp
-        ? `<a href="${waUrl(l.whatsapp)}" target="_blank" rel="noopener" class="action-btn btn-wa" title="WhatsApp">💬</a>`
+        ? `<a href="${waUrl(l.whatsapp)}" target="_blank" rel="noopener" class="action-btn btn-wa" title="Abrir WhatsApp Direto">💬</a>
+           <button class="action-btn btn-wa-templates" onclick="openWaTemplates('${l.id}')" title="Modelos Rápidos ✨">✨</button>`
         : ''}
       <button class="action-btn btn-edit"  onclick="openEditModal('${l.id}')" title="Editar">✏️</button>
       <button class="action-btn btn-hist"  onclick="openHistorico('${l.id}')" title="Histórico">📋</button>
@@ -635,6 +663,7 @@ function renderAll() {
   renderTable();
   renderMobileCards();
   if (currentView === 'kanban') renderKanban();
+  updateAlerts();
 }
 
 /* ============================================================
@@ -1156,18 +1185,23 @@ function setupEvents() {
   $('btn-confirm-cancelar').addEventListener('click', () => closeModal('modal-confirm'));
 
   // Close modals clicking backdrop
-  ['modal-cliente', 'modal-historico', 'modal-confirm', 'modal-supabase'].forEach(id => {
+  ['modal-cliente', 'modal-historico', 'modal-confirm', 'modal-supabase', 'modal-wa-templates'].forEach(id => {
     $(id).addEventListener('click', e => {
       if (e.target === $(id)) closeModal(id);
     });
   });
 
-  // Escape key closes any open modal
+  // Escape key closes any open modal or dropdown
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    ['modal-cliente', 'modal-historico', 'modal-confirm', 'modal-supabase'].forEach(id => {
+    ['modal-cliente', 'modal-historico', 'modal-confirm', 'modal-supabase', 'modal-wa-templates'].forEach(id => {
       if ($(id) && !$(id).classList.contains('hidden')) closeModal(id);
     });
+    // Also close alerts dropdown on Escape
+    const dropdown = $('alerts-dropdown');
+    if (dropdown && !dropdown.classList.contains('hidden')) {
+      dropdown.classList.add('hidden');
+    }
   });
 
   // Modal: Supabase (Nuvem)
@@ -1177,6 +1211,42 @@ function setupEvents() {
   $('btn-salvar-supabase').addEventListener('click', testAndSaveSupabase);
   $('btn-desconectar-supabase').addEventListener('click', disconnectSupabase);
   $('btn-sincronizar-leads').addEventListener('click', syncLocalToSupabase);
+
+  // Modal: WhatsApp templates
+  $('btn-fechar-modal-wa').addEventListener('click', () => closeModal('modal-wa-templates'));
+  $('btn-cancelar-wa').addEventListener('click', () => closeModal('modal-wa-templates'));
+  $('btn-copiar-wa').addEventListener('click', copiarWaText);
+  $('btn-enviar-wa').addEventListener('click', enviarWaMessage);
+
+  // Wire up template cards click inside modal
+  document.querySelectorAll('.wa-template-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.wa-template-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const idx = parseInt(card.dataset.templateIdx, 10);
+      updateWaPreview(idx);
+    });
+  });
+
+  // Central de Alertas 🔔: Toggle dropdown
+  $('btn-alertas').addEventListener('click', e => {
+    e.stopPropagation();
+    $('alerts-dropdown').classList.toggle('hidden');
+  });
+
+  // Close button inside dropdown
+  $('btn-fechar-alertas').addEventListener('click', e => {
+    e.stopPropagation();
+    $('alerts-dropdown').classList.add('hidden');
+  });
+
+  // Close alerts dropdown when clicking outside
+  document.addEventListener('click', e => {
+    const container = document.querySelector('.alertas-container');
+    if (container && !container.contains(e.target)) {
+      $('alerts-dropdown').classList.add('hidden');
+    }
+  });
 }
 
 /* ============================================================
@@ -1323,6 +1393,183 @@ async function syncLocalToSupabase() {
     console.error("Erro na sincronização:", e);
     toast("Falha ao sincronizar dados locais com a nuvem.", "error");
   }
+}
+
+/* ============================================================
+   WHATSAPP QUICK REPLIES ✨ LOGIC
+   ============================================================ */
+function openWaTemplates(leadId) {
+  const lead = leads.find(l => l.id === leadId);
+  if (!lead) return;
+
+  $('wa-lead-id').value = leadId;
+  $('wa-lead-nome').textContent = `👤 Lead: ${lead.nome} (${lead.whatsapp || 'sem número'})`;
+
+  // Default to the first template card
+  document.querySelectorAll('.wa-template-card').forEach((c, idx) => {
+    c.classList.toggle('active', idx === 0);
+  });
+
+  updateWaPreview(0);
+  openModal('modal-wa-templates');
+}
+
+function updateWaPreview(templateIdx) {
+  const leadId = $('wa-lead-id').value;
+  const lead = leads.find(l => l.id === leadId);
+  if (!lead) return;
+
+  const tmplText = WA_TEMPLATES[templateIdx].text;
+  const formattedText = fillTemplateVariables(tmplText, lead, templateIdx);
+  $('wa-preview-text').value = formattedText;
+}
+
+function fillTemplateVariables(text, lead, templateIdx) {
+  const firstName = lead.nome ? lead.nome.trim().split(/\s+/)[0] : 'Cliente';
+  
+  let tipoFallback = 'imóvel';
+  if (templateIdx === 2) { // Acompanhamento / Follow-up
+    tipoFallback = 'imóveis';
+  }
+  const tipo = lead.tipo ? lead.tipo.toLowerCase() : tipoFallback;
+  
+  const regiao = lead.regiao ? lead.regiao.trim() : 'excelente região';
+  const valor = lead.valor ? lead.valor.trim() : 'sua faixa de interesse';
+  
+  return text
+    .replace(/{nome}/g, firstName)
+    .replace(/{tipo}/g, tipo)
+    .replace(/{regiao}/g, regiao)
+    .replace(/{valor}/g, valor);
+}
+
+function copiarWaText() {
+  const text = $('wa-preview-text').value;
+  if (!text) {
+    toast('Nenhum texto para copiar.', 'warning');
+    return;
+  }
+
+  navigator.clipboard.writeText(text)
+    .then(() => toast('Texto copiado com sucesso! ✨', 'success'))
+    .catch(err => {
+      console.error('Falha ao copiar texto:', err);
+      toast('Erro ao copiar texto.', 'error');
+    });
+}
+
+function enviarWaMessage() {
+  const leadId = $('wa-lead-id').value;
+  const lead = leads.find(l => l.id === leadId);
+  if (!lead) return;
+
+  const text = $('wa-preview-text').value;
+  if (!text) {
+    toast('Escreva uma mensagem antes de enviar.', 'warning');
+    return;
+  }
+
+  if (!lead.whatsapp) {
+    toast('Este lead não possui número de WhatsApp cadastrado.', 'warning');
+    return;
+  }
+
+  // Auto-log message in lead interaction history
+  const activeCard = document.querySelector('.wa-template-card.active');
+  const tmplIdx = activeCard ? parseInt(activeCard.dataset.templateIdx, 10) : 0;
+  const tmplTitle = WA_TEMPLATES[tmplIdx].title;
+
+  lead.historico = lead.historico || [];
+  lead.historico.unshift({
+    id: uid(),
+    data: new Date().toISOString(),
+    tipo: 'WhatsApp',
+    obs: `Envio rápido ("${tmplTitle}"): "${text.substring(0, 80)}..."`
+  });
+
+  saveLeads();
+
+  // Redirect to WhatsApp web/app
+  const digits = cleanPhone(lead.whatsapp);
+  const full = digits.startsWith('55') ? digits : '55' + digits;
+  const url = `https://wa.me/${full}?text=${encodeURIComponent(text)}`;
+
+  window.open(url, '_blank', 'noopener');
+  closeModal('modal-wa-templates');
+  renderAll(); // Re-render to update UI with history
+}
+
+/* ============================================================
+   CENTRAL DE ALERTAS 🔔 LOGIC
+   ============================================================ */
+function updateAlerts() {
+  const t = today();
+  const alertsList = $('alerts-list');
+  const alertCountEl = $('alert-count');
+  if (!alertsList || !alertCountEl) return;
+
+  // Filter active leads (exclude Fechado/Perdido)
+  const activeLeads = leads.filter(l => l.status !== 'Fechado' && l.status !== 'Perdido');
+  const activeAlerts = [];
+
+  activeLeads.forEach(l => {
+    // 1. Overdue return date
+    if (l.dataRetorno && l.dataRetorno <= t) {
+      activeAlerts.push({
+        leadId: l.id,
+        type: 'overdue',
+        title: `Retorno Pendente: ${l.nome}`,
+        desc: l.dataRetorno === t 
+          ? 'O contato está agendado para HOJE!' 
+          : `Retorno atrasado desde ${fmtDate(l.dataRetorno)}!`,
+        tag: l.dataRetorno === t ? 'Hoje 📅' : 'Atrasado ⚠️'
+      });
+    }
+
+    // 2. Missing next action
+    if (!l.proximaAcao || !l.proximaAcao.trim()) {
+      activeAlerts.push({
+        leadId: l.id,
+        type: 'no-action',
+        title: `Sem Ação: ${l.nome}`,
+        desc: 'Nenhuma próxima ação de atendimento foi definida.',
+        tag: 'Definir Ação ✏__'
+      });
+    }
+  });
+
+  // Render alerts list
+  if (activeAlerts.length === 0) {
+    alertsList.innerHTML = `
+      <div class="alerts-empty">
+        <span class="alerts-empty-icon">🎉</span>
+        <div style="font-weight: 700; color: var(--text-primary);">Tudo em dia!</div>
+        <div style="font-size:0.75rem; color: var(--text-muted); margin-top:0.25rem;">Nenhum retorno atrasado ou lead sem ação.</div>
+      </div>
+    `;
+    alertCountEl.textContent = '0';
+    alertCountEl.classList.add('hidden');
+  } else {
+    alertsList.innerHTML = activeAlerts.map(a => `
+      <div class="alert-item ${a.type === 'overdue' ? 'alert-overdue' : 'alert-no-action'}" onclick="handleAlertClick('${a.leadId}')">
+        <div class="alert-item-title">${esc(a.title)}</div>
+        <div class="alert-item-desc">${esc(a.desc)}</div>
+        <span class="alert-item-tag">${esc(a.tag)}</span>
+      </div>
+    `).join('');
+
+    alertCountEl.textContent = activeAlerts.length;
+    alertCountEl.classList.remove('hidden');
+  }
+}
+
+function handleAlertClick(leadId) {
+  // Close the alerts dropdown overlay
+  const dropdown = $('alerts-dropdown');
+  if (dropdown) dropdown.classList.add('hidden');
+
+  // Open the edit modal for the respective lead
+  openEditModal(leadId);
 }
 
 /* ============================================================
