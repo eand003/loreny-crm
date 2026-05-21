@@ -6,6 +6,8 @@
   <meta name="description" content="CRM Loreny Imóveis — Sistema de gestão de leads para corretora de imóveis autônoma. Organize clientes, acompanhe negociações e aumente sua produtividade comercial." />
   <title>CRM Loreny Imóveis</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -24,6 +26,9 @@
   <div class="header-actions">
     <button class="btn btn-primary" id="btn-novo-cliente" aria-label="Adicionar novo cliente">
       ＋ Novo Cliente
+    </button>
+    <button class="btn btn-ghost" id="btn-config-supabase" title="Configurar Banco de Dados na Nuvem" aria-label="Configurar banco de dados na nuvem">
+      ☁️ Nuvem
     </button>
     <button class="btn btn-ghost" id="btn-exportar-csv" aria-label="Exportar dados em CSV">
       ↑ Exportar CSV
@@ -488,6 +493,77 @@
       <button class="btn btn-secondary" id="btn-confirm-cancelar">Cancelar</button>
       <button class="btn btn-danger" id="btn-confirm-excluir">🗑️ Sim, excluir</button>
     </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL: CONFIGURAÇÃO SUPABASE (NUVEM)
+     ============================================================ -->
+<div class="modal-overlay hidden" id="modal-supabase" role="dialog" aria-modal="true" aria-labelledby="modal-supa-title">
+  <div class="modal-box modal-box-sm">
+
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-supa-title">
+        ☁️ Banco de Dados na Nuvem
+      </h2>
+      <button class="modal-close" id="btn-fechar-modal-supa" aria-label="Fechar configurações">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.4;">
+        Conecte seu CRM ao Supabase para compartilhar dados em tempo real com a Loreny.
+      </p>
+
+      <div class="form-group">
+        <label for="supa-url">Supabase URL</label>
+        <input
+          type="url"
+          id="supa-url"
+          class="form-control"
+          placeholder="https://xxxxxx.supabase.co"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="form-group" style="margin-top:0.85rem;">
+        <label for="supa-key">Supabase Anon Key</label>
+        <input
+          type="password"
+          id="supa-key"
+          class="form-control"
+          placeholder="Sua chave anônima (Anon Key)"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Status Indicator -->
+      <div id="supa-status-box" style="margin-top:1.25rem; padding:0.75rem; border-radius:6px; font-size:0.85rem; display:flex; align-items:center; gap:0.5rem; background:rgba(0,0,0,0.05); color:var(--text-primary);">
+        <span id="supa-status-indicator">🟡</span>
+        <span id="supa-status-text">Usando armazenamento local (Offline)</span>
+      </div>
+
+      <!-- Local Data Sync Option -->
+      <div id="supa-sync-box" class="hidden" style="margin-top:1rem; padding:0.85rem; border-radius:6px; border:1px dashed var(--accent-gold); background:rgba(212,175,55,0.05); text-align:center;">
+        <p style="font-size:0.8rem; color:var(--text-primary); margin-bottom:0.5rem; font-weight:600;">
+          Você tem leads salvos localmente!
+        </p>
+        <button class="btn btn-sm btn-gold" id="btn-sincronizar-leads" style="width:100%; border:none; padding:0.5rem; border-radius:4px; font-weight:600; cursor:pointer;" type="button">
+          ⚡ Enviar leads locais para a nuvem
+        </button>
+      </div>
+
+    </div>
+
+    <div class="modal-footer" style="display:flex; justify-content:space-between; gap:0.5rem; align-items:center;">
+      <button class="btn btn-danger" id="btn-desconectar-supabase" style="padding: 0.5rem 0.75rem;" title="Desconectar e voltar ao modo offline" type="button">
+        Desconectar
+      </button>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="btn btn-secondary" id="btn-cancelar-supabase" type="button">Cancelar</button>
+        <button class="btn btn-primary" id="btn-salvar-supabase" type="button">💾 Conectar</button>
+      </div>
+    </div>
+
   </div>
 </div>
 

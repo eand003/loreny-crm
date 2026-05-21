@@ -150,24 +150,127 @@ function esc(str) {
 }
 
 /* ============================================================
-   LOCAL STORAGE
+   LOCAL STORAGE & SUPABASE STORAGE
    ============================================================ */
-function saveLeads() {
+let supabaseClient = null;
+
+function initSupabase() {
+  const url = localStorage.getItem('loreny_crm_supabase_url');
+  const key = localStorage.getItem('loreny_crm_supabase_key');
+  if (url && key && window.supabase) {
+    try {
+      supabaseClient = window.supabase.createClient(url, key);
+      return true;
+    } catch (e) {
+      console.error("Falha ao inicializar o Supabase:", e);
+      supabaseClient = null;
+    }
+  }
+  supabaseClient = null;
+  return false;
+}
+
+function updateSupabaseUI(connected) {
+  const indicator = $('supa-status-indicator');
+  const text      = $('supa-status-text');
+  const supaBtn   = $('btn-config-supabase');
+  
+  if (connected) {
+    if (indicator) indicator.textContent = '🟢';
+    if (text) text.textContent = 'Conectado à nuvem (Supabase)';
+    if (supaBtn) {
+      supaBtn.innerHTML = '☁️ Online';
+      supaBtn.style.color = '#27ae60';
+    }
+  } else {
+    if (indicator) indicator.textContent = '🟡';
+    if (text) text.textContent = 'Usando armazenamento local (Offline)';
+    if (supaBtn) {
+      supaBtn.innerHTML = '☁️ Nuvem';
+      supaBtn.style.color = '';
+    }
+  }
+}
+
+function saveLeadsLocal() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(leads));
 }
 
-function loadLeads() {
+function loadLeadsLocal() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       leads = JSON.parse(raw);
     } else {
       leads = sampleData();
-      saveLeads();
+      saveLeadsLocal();
     }
   } catch (e) {
     leads = sampleData();
-    saveLeads();
+    saveLeadsLocal();
+  }
+}
+
+async function loadLeads() {
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('leads')
+        .select('*')
+        .order('criado_em', { ascending: false });
+      if (error) throw error;
+      
+      leads = data.map(l => ({
+        id:          l.id,
+        nome:        l.nome,
+        whatsapp:    l.whatsapp    || '',
+        origem:      l.origem      || '',
+        tipo:        l.tipo        || '',
+        regiao:      l.regiao      || '',
+        valor:       l.valor       || '',
+        status:      l.status      || 'Novo lead',
+        proximaAcao: l.proxima_acao || '',
+        dataRetorno: l.data_retorno || '',
+        observacoes: l.observacoes || '',
+        historico:   l.historico   || [],
+        criadoEm:    l.criado_em   || new Date().toISOString()
+      }));
+    } catch (e) {
+      console.error("Erro ao carregar do Supabase:", e);
+      toast("Falha na sincronização online. Carregando dados locais.", "warning");
+      loadLeadsLocal();
+    }
+  } else {
+    loadLeadsLocal();
+  }
+}
+
+async function saveLeads() {
+  if (supabaseClient) {
+    try {
+      const dbLeads = leads.map(l => ({
+        id:           l.id,
+        nome:         l.nome,
+        whatsapp:     l.whatsapp,
+        origem:       l.origem,
+        tipo:         l.tipo,
+        regiao:       l.regiao,
+        valor:        l.valor,
+        status:       l.status,
+        proxima_acao: l.proximaAcao,
+        data_retorno: l.dataRetorno,
+        observacoes:  l.observacoes,
+        historico:    l.historico || [],
+        criado_em:    l.criadoEm || new Date().toISOString()
+      }));
+      const { error } = await supabaseClient.from('leads').upsert(dbLeads);
+      if (error) throw error;
+    } catch (e) {
+      console.error("Erro ao sincronizar com o Supabase:", e);
+      toast("Erro de conexão ao salvar na nuvem.", "error");
+    }
+  } else {
+    saveLeadsLocal();
   }
 }
 
@@ -735,13 +838,25 @@ function confirmDelete(id) {
   openModal('modal-confirm');
 }
 
-function executeDelete() {
+async function executeDelete() {
   if (!deleteTargetId) return;
   const l    = leads.find(x => x.id === deleteTargetId);
   const nome = l ? l.nome : 'Cliente';
   leads = leads.filter(x => x.id !== deleteTargetId);
+  
+  if (supabaseClient) {
+    try {
+      const { error } = await supabaseClient.from('leads').delete().eq('id', deleteTargetId);
+      if (error) throw error;
+    } catch (e) {
+      console.error("Erro ao deletar lead do Supabase:", e);
+      toast("Erro de conexão ao remover da nuvem.", "error");
+    }
+  } else {
+    saveLeadsLocal();
+  }
+  
   deleteTargetId = null;
-  saveLeads();
   closeModal('modal-confirm');
   renderAll();
   toast(`"${nome}" removido.`, 'info');
@@ -1032,7 +1147,7 @@ function setupEvents() {
   $('btn-confirm-cancelar').addEventListener('click', () => closeModal('modal-confirm'));
 
   // Close modals clicking backdrop
-  ['modal-cliente', 'modal-historico', 'modal-confirm'].forEach(id => {
+  ['modal-cliente', 'modal-historico', 'modal-confirm', 'modal-supabase'].forEach(id => {
     $(id).addEventListener('click', e => {
       if (e.target === $(id)) closeModal(id);
     });
@@ -1041,17 +1156,172 @@ function setupEvents() {
   // Escape key closes any open modal
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    ['modal-cliente', 'modal-historico', 'modal-confirm'].forEach(id => {
+    ['modal-cliente', 'modal-historico', 'modal-confirm', 'modal-supabase'].forEach(id => {
       if ($(id) && !$(id).classList.contains('hidden')) closeModal(id);
     });
   });
+
+  // Modal: Supabase (Nuvem)
+  $('btn-config-supabase').addEventListener('click', openSupabaseModal);
+  $('btn-fechar-modal-supa').addEventListener('click', () => closeModal('modal-supabase'));
+  $('btn-cancelar-supabase').addEventListener('click', () => closeModal('modal-supabase'));
+  $('btn-salvar-supabase').addEventListener('click', testAndSaveSupabase);
+  $('btn-desconectar-supabase').addEventListener('click', disconnectSupabase);
+  $('btn-sincronizar-leads').addEventListener('click', syncLocalToSupabase);
+}
+
+/* ============================================================
+   SUPABASE HELPER FUNCTIONS
+   ============================================================ */
+function openSupabaseModal() {
+  $('supa-url').value = localStorage.getItem('loreny_crm_supabase_url') || '';
+  $('supa-key').value = localStorage.getItem('loreny_crm_supabase_key') || '';
+  
+  // Show sync box if offline leads exist and we are currently connected to Supabase
+  $('supa-sync-box').classList.add('hidden');
+  if (supabaseClient) {
+    const localRaw = localStorage.getItem(STORAGE_KEY);
+    if (localRaw) {
+      const localLeads = JSON.parse(localRaw);
+      if (localLeads && localLeads.length > 0) {
+        $('supa-sync-box').classList.remove('hidden');
+      }
+    }
+  }
+  
+  openModal('modal-supabase');
+  setTimeout(() => $('supa-url').focus(), 100);
+}
+
+async function testAndSaveSupabase() {
+  const url = ($('supa-url').value || '').trim();
+  const key = ($('supa-key').value || '').trim();
+  
+  if (!url || !key) {
+    toast("Preencha todos os campos do Supabase.", "warning");
+    return;
+  }
+  
+  try {
+    toast("Testando conexão com o Supabase...", "info");
+    
+    // Create a temporary client
+    const tempClient = window.supabase.createClient(url, key);
+    
+    // Attempt a simple select query to check if credentials are valid and 'leads' table exists
+    const { data, error } = await tempClient.from('leads').select('id').limit(1);
+    if (error) throw error;
+    
+    // Connection successful! Save credentials
+    localStorage.setItem('loreny_crm_supabase_url', url);
+    localStorage.setItem('loreny_crm_supabase_key', key);
+    
+    supabaseClient = tempClient;
+    updateSupabaseUI(true);
+    
+    toast("Supabase conectado com sucesso! 🟢", "success");
+    
+    // Show sync box if offline leads exist
+    const localRaw = localStorage.getItem(STORAGE_KEY);
+    if (localRaw) {
+      const localLeads = JSON.parse(localRaw);
+      if (localLeads && localLeads.length > 0) {
+        $('supa-sync-box').classList.remove('hidden');
+      }
+    }
+    
+    closeModal('modal-supabase');
+    
+    // Load leads from Supabase and render
+    await loadLeads();
+    renderAll();
+  } catch (e) {
+    console.error("Erro de conexão com o Supabase:", e);
+    toast("Falha na conexão. Verifique a URL, Anon Key e se a tabela 'leads' existe no banco.", "error");
+  }
+}
+
+function disconnectSupabase() {
+  localStorage.removeItem('loreny_crm_supabase_url');
+  localStorage.removeItem('loreny_crm_supabase_key');
+  supabaseClient = null;
+  updateSupabaseUI(false);
+  
+  $('supa-url').value = '';
+  $('supa-key').value = '';
+  $('supa-sync-box').classList.add('hidden');
+  
+  toast("Desconectado da nuvem. Usando modo offline local.", "info");
+  closeModal('modal-supabase');
+  
+  // Reload local storage data
+  loadLeadsLocal();
+  renderAll();
+}
+
+async function syncLocalToSupabase() {
+  if (!supabaseClient) {
+    toast("Supabase não conectado.", "warning");
+    return;
+  }
+  
+  try {
+    toast("Sincronizando leads locais com a nuvem...", "info");
+    
+    const localRaw = localStorage.getItem(STORAGE_KEY);
+    if (!localRaw) {
+      toast("Nenhum dado local encontrado para sincronizar.", "info");
+      return;
+    }
+    
+    const localLeads = JSON.parse(localRaw);
+    if (!localLeads || localLeads.length === 0) {
+      toast("Nenhum cliente local para sincronizar.", "info");
+      return;
+    }
+    
+    const dbLeads = localLeads.map(l => ({
+      id:           l.id,
+      nome:         l.nome,
+      whatsapp:     l.whatsapp || '',
+      origem:       l.origem || '',
+      tipo:         l.tipo || '',
+      regiao:       l.regiao || '',
+      valor:        l.valor || '',
+      status:       l.status || 'Novo lead',
+      proxima_acao: l.proximaAcao || '',
+      data_retorno: l.dataRetorno || '',
+      observacoes:  l.observacoes || '',
+      historico:    l.historico || [],
+      criado_em:    l.criadoEm || new Date().toISOString()
+    }));
+    
+    const { error } = await supabaseClient.from('leads').upsert(dbLeads);
+    if (error) throw error;
+    
+    // Clear the local leads from localStorage since they are now on Supabase
+    localStorage.removeItem(STORAGE_KEY);
+    
+    toast(`${localLeads.length} leads sincronizados com sucesso! ⚡`, "success");
+    $('supa-sync-box').classList.add('hidden');
+    
+    // Refresh leads from Supabase and render
+    await loadLeads();
+    renderAll();
+  } catch (e) {
+    console.error("Erro na sincronização:", e);
+    toast("Falha ao sincronizar dados locais com a nuvem.", "error");
+  }
 }
 
 /* ============================================================
    INIT
    ============================================================ */
-function init() {
-  loadLeads();
+async function init() {
+  const isSupaActive = initSupabase();
+  updateSupabaseUI(isSupaActive);
+  
+  await loadLeads();
   setupEvents();
   renderAll();
 

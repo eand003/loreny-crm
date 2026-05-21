@@ -1233,3 +1233,31 @@ textarea.form-control {
   .brand-title { font-size: 1rem; }
   .modal-box { border-radius: var(--radius-xl); }
 }
+
+/* ============================================================
+   SUPABASE NUVEM
+   ============================================================ */
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%) !important;
+  color: #0d2137 !important;
+  border: none;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(201,153,26,0.3);
+  transition: var(--transition);
+}
+
+.btn-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(201,153,26,0.45);
+}
+
+#supa-status-box {
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+@media (prefers-color-scheme: dark) {
+  #supa-status-box {
+    background: rgba(255,255,255,0.03) !important;
+  }
+}
