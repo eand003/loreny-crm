@@ -154,10 +154,19 @@ function esc(str) {
    ============================================================ */
 let supabaseClient = null;
 
+function sanitizeSupabaseUrl(url) {
+  if (!url) return '';
+  let clean = url.trim();
+  clean = clean.replace(/\/rest\/v1\/?$/, ''); // strips /rest/v1 or /rest/v1/
+  clean = clean.replace(/\/+$/, ''); // strips trailing slashes
+  return clean;
+}
+
 function initSupabase() {
-  const url = localStorage.getItem('loreny_crm_supabase_url');
+  let url = localStorage.getItem('loreny_crm_supabase_url');
   const key = localStorage.getItem('loreny_crm_supabase_key');
   if (url && key && window.supabase) {
+    url = sanitizeSupabaseUrl(url);
     try {
       supabaseClient = window.supabase.createClient(url, key);
       return true;
@@ -1194,13 +1203,15 @@ function openSupabaseModal() {
 }
 
 async function testAndSaveSupabase() {
-  const url = ($('supa-url').value || '').trim();
+  let url = ($('supa-url').value || '').trim();
   const key = ($('supa-key').value || '').trim();
   
   if (!url || !key) {
     toast("Preencha todos os campos do Supabase.", "warning");
     return;
   }
+  
+  url = sanitizeSupabaseUrl(url);
   
   try {
     toast("Testando conexão com o Supabase...", "info");
