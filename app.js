@@ -42,7 +42,7 @@ const CSV_HEADERS = [
 /* ============================================================
    WHATSAPP TEMPLATES ✨
    ============================================================ */
-const WA_TEMPLATES = [
+const WA_TEMPLATES_DEFAULTS = [
   {
     title: "Apresentação",
     desc: "Primeiro contato com o lead",
@@ -64,6 +64,27 @@ const WA_TEMPLATES = [
     text: "Oi, {nome}! Acabaram de entrar novas opções de {tipo} na faixa de {valor} na região de {regiao} que se encaixam exatamente no que procura. Posso te enviar as fotos?"
   }
 ];
+
+let waTemplates = [];
+
+function loadWaTemplates() {
+  try {
+    const raw = localStorage.getItem('loreny_crm_wa_templates');
+    if (raw) {
+      waTemplates = JSON.parse(raw);
+    } else {
+      waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
+      saveWaTemplatesToStorage();
+    }
+  } catch (e) {
+    waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
+    saveWaTemplatesToStorage();
+  }
+}
+
+function saveWaTemplatesToStorage() {
+  localStorage.setItem('loreny_crm_wa_templates', JSON.stringify(waTemplates));
+}
 
 /* ============================================================
    STATE
@@ -1218,13 +1239,17 @@ function setupEvents() {
   $('btn-copiar-wa').addEventListener('click', copiarWaText);
   $('btn-enviar-wa').addEventListener('click', enviarWaMessage);
 
-  // Wire up template cards click inside modal
-  document.querySelectorAll('.wa-template-card').forEach(card => {
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.wa-template-card').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-      const idx = parseInt(card.dataset.templateIdx, 10);
-      updateWaPreview(idx);
+  // Toggle dynamic templates manager panes
+  $('btn-wa-toggle-pane').addEventListener('click', () => switchWaPane(true));
+  $('btn-wa-back-to-send').addEventListener('click', () => switchWaPane(false));
+  $('btn-wa-restore-defaults').addEventListener('click', restoreWaTemplatesDefaults);
+  $('btn-wa-form-clear').addEventListener('click', clearWaForm);
+  $('btn-wa-form-save').addEventListener('click', saveWaTemplate);
+
+  // Wire up variable badges click inside custom text editor
+  document.querySelectorAll('.wa-var-badge').forEach(btn => {
+    btn.addEventListener('click', () => {
+      insertVarAtCursor(btn.dataset.var);
     });
   });
 
@@ -1398,6 +1423,9 @@ async function syncLocalToSupabase() {
 /* ============================================================
    WHATSAPP QUICK REPLIES ✨ LOGIC
    ============================================================ */
+/* ============================================================
+   WHATSAPP QUICK REPLIES ✨ LOGIC
+   ============================================================ */
 function openWaTemplates(leadId) {
   const lead = leads.find(l => l.id === leadId);
   if (!lead) return;
@@ -1405,13 +1433,68 @@ function openWaTemplates(leadId) {
   $('wa-lead-id').value = leadId;
   $('wa-lead-nome').textContent = `👤 Lead: ${lead.nome} (${lead.whatsapp || 'sem número'})`;
 
-  // Default to the first template card
-  document.querySelectorAll('.wa-template-card').forEach((c, idx) => {
-    c.classList.toggle('active', idx === 0);
-  });
+  // Retorna para o painel de envio e esconde o painel de gerenciamento
+  switchWaPane(false);
 
-  updateWaPreview(0);
+  // Renderiza o grid de templates
+  renderWaTemplatesGrid();
+
+  if (waTemplates.length > 0) {
+    selectWaTemplate(0);
+  } else {
+    $('wa-preview-text').value = '';
+  }
+
   openModal('modal-wa-templates');
+}
+
+function renderWaTemplatesGrid() {
+  const container = $('wa-templates-list-grid');
+  if (!container) return;
+
+  if (waTemplates.length === 0) {
+    container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.85rem;">Nenhum modelo cadastrado. Clique em "⚙️ Personalizar" para criar!</div>`;
+    $('wa-preview-text').value = '';
+    return;
+  }
+
+  const getIcon = (title, idx) => {
+    const titles = {
+      'apresentação': '✨',
+      'visita': '📅',
+      'acompanhamento': '📈',
+      'novas opções': '🏠'
+    };
+    const t = (title || '').toLowerCase().trim();
+    if (titles[t]) return titles[t];
+    const icons = ['💬', '✉️', '🚀', '🔑', '🎯', '📢'];
+    return icons[idx % icons.length];
+  };
+
+  container.innerHTML = waTemplates.map((t, idx) => `
+    <div class="wa-template-card" data-template-idx="${idx}">
+      <span class="template-card-icon">${getIcon(t.title, idx)}</span>
+      <div class="template-card-info">
+        <span class="template-card-title" title="${esc(t.title)}">${esc(t.title)}</span>
+        <span class="template-card-desc" title="${esc(t.desc)}">${esc(t.desc) || 'Sem descrição'}</span>
+      </div>
+    </div>
+  `).join('');
+
+  // Adiciona os event listeners aos cards gerados
+  container.querySelectorAll('.wa-template-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const idx = parseInt(card.dataset.templateIdx, 10);
+      selectWaTemplate(idx);
+    });
+  });
+}
+
+function selectWaTemplate(idx) {
+  document.querySelectorAll('.wa-template-card').forEach((c, i) => {
+    c.classList.toggle('active', i === idx);
+  });
+  updateWaPreview(idx);
 }
 
 function updateWaPreview(templateIdx) {
@@ -1419,8 +1502,12 @@ function updateWaPreview(templateIdx) {
   const lead = leads.find(l => l.id === leadId);
   if (!lead) return;
 
-  const tmplText = WA_TEMPLATES[templateIdx].text;
-  const formattedText = fillTemplateVariables(tmplText, lead, templateIdx);
+  const tmpl = waTemplates[templateIdx];
+  if (!tmpl) {
+    $('wa-preview-text').value = '';
+    return;
+  }
+  const formattedText = fillTemplateVariables(tmpl.text, lead, templateIdx);
   $('wa-preview-text').value = formattedText;
 }
 
@@ -1474,10 +1561,9 @@ function enviarWaMessage() {
     return;
   }
 
-  // Auto-log message in lead interaction history
   const activeCard = document.querySelector('.wa-template-card.active');
-  const tmplIdx = activeCard ? parseInt(activeCard.dataset.templateIdx, 10) : 0;
-  const tmplTitle = WA_TEMPLATES[tmplIdx].title;
+  const tmplIdx = activeCard ? parseInt(activeCard.dataset.templateIdx, 10) : -1;
+  const tmplTitle = waTemplates[tmplIdx] ? waTemplates[tmplIdx].title : 'Personalizado';
 
   lead.historico = lead.historico || [];
   lead.historico.unshift({
@@ -1489,14 +1575,161 @@ function enviarWaMessage() {
 
   saveLeads();
 
-  // Redirect to WhatsApp web/app
   const digits = cleanPhone(lead.whatsapp);
   const full = digits.startsWith('55') ? digits : '55' + digits;
   const url = `https://wa.me/${full}?text=${encodeURIComponent(text)}`;
 
   window.open(url, '_blank', 'noopener');
   closeModal('modal-wa-templates');
-  renderAll(); // Re-render to update UI with history
+  renderAll();
+}
+
+/* ---- WhatsApp Management logic ---- */
+function switchWaPane(showManage) {
+  const sendPane = $('wa-pane-send');
+  const managePane = $('wa-pane-manage');
+  const footerSend = $('wa-footer-send');
+  const footerManage = $('wa-footer-manage');
+  const toggleBtn = $('btn-wa-toggle-pane');
+  const modalTitle = $('modal-wa-title');
+
+  if (showManage) {
+    sendPane.classList.add('hidden');
+    managePane.classList.remove('hidden');
+    footerSend.classList.add('hidden');
+    footerManage.classList.remove('hidden');
+    toggleBtn.classList.add('hidden');
+    modalTitle.textContent = '⚙️ Personalizar Modelos';
+    
+    clearWaForm();
+    renderWaManageList();
+  } else {
+    sendPane.classList.remove('hidden');
+    managePane.classList.add('hidden');
+    footerSend.classList.remove('hidden');
+    footerManage.classList.add('hidden');
+    toggleBtn.classList.remove('hidden');
+    modalTitle.textContent = '✨ Mensagem Rápida (WhatsApp)';
+    
+    renderWaTemplatesGrid();
+    if (waTemplates.length > 0) {
+      selectWaTemplate(0);
+    }
+  }
+}
+
+function renderWaManageList() {
+  const container = $('wa-manage-list-container');
+  if (!container) return;
+
+  if (waTemplates.length === 0) {
+    container.innerHTML = `<div style="text-align:center; padding:1.25rem; color:var(--text-muted); font-size:0.85rem; border: 1px dashed var(--border); border-radius: 8px;">Nenhum modelo cadastrado. Crie um abaixo!</div>`;
+    return;
+  }
+
+  container.innerHTML = waTemplates.map((t, idx) => `
+    <div class="wa-manage-item" style="animation: fadeInUp 0.15s ease both;">
+      <div class="wa-item-info">
+        <span class="wa-item-title" title="${esc(t.title)}">${esc(t.title)}</span>
+        <span class="wa-item-desc" title="${esc(t.desc)}">${esc(t.desc) || 'Sem descrição curta'}</span>
+      </div>
+      <div class="wa-item-actions">
+        <button class="wa-item-btn edit" onclick="editWaTemplate(${idx})" title="Editar modelo" type="button">✏️</button>
+        <button class="wa-item-btn del" onclick="deleteWaTemplate(${idx})" title="Excluir modelo" type="button">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function clearWaForm() {
+  $('wa-form-idx').value = '';
+  $('wa-form-title-input').value = '';
+  $('wa-form-desc-input').value = '';
+  $('wa-form-text-input').value = '';
+  $('wa-form-title').innerHTML = '➕ Criar Novo Modelo';
+}
+
+window.editWaTemplate = function(idx) {
+  const t = waTemplates[idx];
+  if (!t) return;
+
+  $('wa-form-idx').value = idx;
+  $('wa-form-title-input').value = t.title || '';
+  $('wa-form-desc-input').value = t.desc || '';
+  $('wa-form-text-input').value = t.text || '';
+  $('wa-form-title').innerHTML = `✏️ Editar Modelo: ${esc(t.title)}`;
+  
+  $('wa-form-title-input').focus();
+};
+
+window.deleteWaTemplate = function(idx) {
+  const t = waTemplates[idx];
+  if (!t) return;
+
+  if (confirm(`Excluir permanentemente o modelo "${t.title}"?`)) {
+    waTemplates.splice(idx, 1);
+    saveWaTemplatesToStorage();
+    renderWaManageList();
+    toast(`Modelo "${t.title}" excluído!`, 'info');
+    clearWaForm();
+  }
+};
+
+function saveWaTemplate() {
+  const title = ($('wa-form-title-input').value || '').trim();
+  const desc = ($('wa-form-desc-input').value || '').trim();
+  const text = ($('wa-form-text-input').value || '').trim();
+
+  if (!title) {
+    $('wa-form-title-input').focus();
+    toast('Preencha o título do modelo.', 'warning');
+    return;
+  }
+  if (!text) {
+    $('wa-form-text-input').focus();
+    toast('Preencha o texto da mensagem.', 'warning');
+    return;
+  }
+
+  const idxVal = $('wa-form-idx').value;
+  const tData = { title, desc, text };
+
+  if (idxVal !== '') {
+    const idx = parseInt(idxVal, 10);
+    waTemplates[idx] = tData;
+    toast(`Modelo "${title}" atualizado!`, 'success');
+  } else {
+    waTemplates.push(tData);
+    toast(`Novo modelo "${title}" criado!`, 'success');
+  }
+
+  saveWaTemplatesToStorage();
+  clearWaForm();
+  renderWaManageList();
+}
+
+function restoreWaTemplatesDefaults() {
+  if (confirm('Deseja restaurar todos os modelos originais premium? Isso apagará suas edições e modelos criados.')) {
+    waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
+    saveWaTemplatesToStorage();
+    renderWaManageList();
+    clearWaForm();
+    toast('Modelos originais restaurados!', 'success');
+  }
+}
+
+function insertVarAtCursor(varName) {
+  const textarea = $('wa-form-text-input');
+  if (!textarea) return;
+
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const text = textarea.value;
+
+  textarea.value = text.substring(0, start) + varName + text.substring(end);
+  
+  textarea.selectionStart = textarea.selectionEnd = start + varName.length;
+  textarea.focus();
 }
 
 /* ============================================================
@@ -1579,6 +1812,7 @@ async function init() {
   const isSupaActive = initSupabase();
   updateSupabaseUI(isSupaActive);
   
+  loadWaTemplates();
   await loadLeads();
   setupEvents();
   renderAll();

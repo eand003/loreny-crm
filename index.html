@@ -590,57 +590,92 @@
       <h2 class="modal-title" id="modal-wa-title">
         ✨ Mensagem Rápida (WhatsApp)
       </h2>
+      <div style="display:flex; gap:0.5rem; align-items:center; margin-left:auto; margin-right:1rem;">
+        <button class="btn btn-xs btn-secondary" id="btn-wa-toggle-pane" style="font-size:0.75rem; padding:5px 10px; border-radius:4px;" type="button">⚙️ Personalizar Modelos</button>
+      </div>
       <button class="modal-close" id="btn-fechar-modal-wa" aria-label="Fechar modal">✕</button>
     </div>
+    
     <div class="modal-body">
       <input type="hidden" id="wa-lead-id" />
-      <p id="wa-lead-nome" style="font-weight:700; color:var(--text-primary); margin-bottom:1rem; font-size:1.05rem;"></p>
       
-      <div class="wa-templates-grid">
-        <div class="wa-template-card active" data-template-idx="0">
-          <span class="template-card-icon">✨</span>
-          <div class="template-card-info">
-            <span class="template-card-title">Apresentação</span>
-            <span class="template-card-desc">Primeiro contato com o lead</span>
-          </div>
+      <!-- PANE 1: SEND MESSAGE -->
+      <div id="wa-pane-send">
+        <p id="wa-lead-nome" style="font-weight:700; color:var(--text-primary); margin-bottom:1rem; font-size:1.05rem;"></p>
+        
+        <div class="wa-templates-grid" id="wa-templates-list-grid">
+          <!-- Dinamicamente preenchido pelo JS -->
         </div>
         
-        <div class="wa-template-card" data-template-idx="1">
-          <span class="template-card-icon">📅</span>
-          <div class="template-card-info">
-            <span class="template-card-title">Visita</span>
-            <span class="template-card-desc">Confirmar agendamento de visita</span>
-          </div>
-        </div>
-        
-        <div class="wa-template-card" data-template-idx="2">
-          <span class="template-card-icon">📈</span>
-          <div class="template-card-info">
-            <span class="template-card-title">Acompanhamento</span>
-            <span class="template-card-desc">Follow-up das opções enviadas</span>
-          </div>
-        </div>
-        
-        <div class="wa-template-card" data-template-idx="3">
-          <span class="template-card-icon">🏠</span>
-          <div class="template-card-info">
-            <span class="template-card-title">Novas Opções</span>
-            <span class="template-card-desc">Novidades dentro do perfil</span>
-          </div>
+        <div class="form-group" style="margin-top:1.25rem;">
+          <label for="wa-preview-text" style="font-weight:600; margin-bottom:0.5rem; display:block; color:var(--text-secondary);">Edite a mensagem antes de enviar:</label>
+          <textarea id="wa-preview-text" class="form-control" rows="8" placeholder="O texto da mensagem aparecerá aqui..." style="font-family:inherit; font-size:0.9rem; line-height:1.5; resize:vertical;"></textarea>
         </div>
       </div>
-      
-      <div class="form-group" style="margin-top:1.25rem;">
-        <label for="wa-preview-text" style="font-weight:600; margin-bottom:0.5rem; display:block; color:var(--text-secondary);">Edite a mensagem antes de enviar:</label>
-        <textarea id="wa-preview-text" class="form-control" rows="8" placeholder="O texto da mensagem aparecerá aqui..." style="font-family:inherit; font-size:0.9rem; line-height:1.5; resize:vertical;"></textarea>
+
+      <!-- PANE 2: MANAGE TEMPLATES -->
+      <div id="wa-pane-manage" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h3 style="font-size:0.95rem; color:var(--text-primary); margin:0;">Seus Modelos de Mensagem</h3>
+          <button class="btn btn-xs btn-gold" id="btn-wa-restore-defaults" style="font-size:0.7rem; padding:4px 8px; border-radius:4px;" type="button">🔄 Restaurar Padrões</button>
+        </div>
+        
+        <div class="wa-manage-list" id="wa-manage-list-container">
+          <!-- Dinamicamente preenchido pelo JS -->
+        </div>
+
+        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.08); margin:1.25rem 0;" />
+        
+        <div class="wa-manage-form" id="wa-manage-form-box">
+          <h3 id="wa-form-title" style="font-size:0.95rem; color:var(--text-primary); margin-bottom:0.75rem;">➕ Criar Novo Modelo</h3>
+          <input type="hidden" id="wa-form-idx" value="" />
+          
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+              <label for="wa-form-title-input" style="font-size:0.8rem; font-weight:600;">Título <span class="form-required">*</span></label>
+              <input type="text" id="wa-form-title-input" class="form-control" placeholder="Ex: Apresentação" style="font-size:0.85rem;" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label for="wa-form-desc-input" style="font-size:0.8rem; font-weight:600;">Descrição Curta</label>
+              <input type="text" id="wa-form-desc-input" class="form-control" placeholder="Ex: Primeiro contato" style="font-size:0.85rem;" autocomplete="off" />
+            </div>
+          </div>
+          
+          <div class="form-group" style="margin-top:0.75rem;">
+            <label for="wa-form-text-input" style="font-size:0.8rem; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+              <span>Texto do Modelo <span class="form-required">*</span></span>
+              <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">Campos automáticos:</span>
+            </label>
+            <textarea id="wa-form-text-input" class="form-control" rows="5" placeholder="Olá, {nome}! Vi seu interesse em {tipo}..." style="font-family:inherit; font-size:0.85rem; line-height:1.4; resize:vertical; margin-top:0.25rem;"></textarea>
+          </div>
+
+          <!-- Quick variables helper tags -->
+          <div class="wa-variables-helper" style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.5rem; align-items:center;">
+            <span style="font-size:0.75rem; color:var(--text-muted); margin-right:0.25rem;">Inserir no texto:</span>
+            <button type="button" class="wa-var-badge" data-var="{nome}" title="Primeiro nome do cliente">{nome}</button>
+            <button type="button" class="wa-var-badge" data-var="{tipo}" title="Tipo de imóvel (casa, apartamento...)">{tipo}</button>
+            <button type="button" class="wa-var-badge" data-var="{regiao}" title="Região ou Bairro">{regiao}</button>
+            <button type="button" class="wa-var-badge" data-var="{valor}" title="Faixa de valor">{valor}</button>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.25rem;">
+            <button class="btn btn-secondary btn-sm" id="btn-wa-form-clear" type="button" style="font-size:0.8rem; padding:6px 12px;">Limpar</button>
+            <button class="btn btn-primary btn-sm" id="btn-wa-form-save" type="button" style="font-size:0.8rem; padding:6px 12px;">💾 Salvar Modelo</button>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="modal-footer" style="display:flex; justify-content:space-between; gap:0.5rem; align-items:center;">
+    
+    <div class="modal-footer" id="wa-footer-send" style="display:flex; justify-content:space-between; gap:0.5rem; align-items:center;">
       <button class="btn btn-secondary" id="btn-copiar-wa" type="button">📋 Copiar Texto</button>
       <div style="display:flex; gap:0.5rem;">
         <button class="btn btn-secondary" id="btn-cancelar-wa" type="button">Cancelar</button>
         <button class="btn btn-success" id="btn-enviar-wa" type="button">💬 Enviar pelo WhatsApp</button>
       </div>
+    </div>
+
+    <div class="modal-footer hidden" id="wa-footer-manage" style="display:flex; justify-content:flex-end; gap:0.5rem; align-items:center;">
+      <button class="btn btn-secondary" id="btn-wa-back-to-send" type="button">← Voltar ao Envio</button>
     </div>
   </div>
 </div>

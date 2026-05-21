@@ -1525,3 +1525,129 @@ textarea.form-control {
     right: -60px; /* offset slightly so it stays on screen on mobile */
   }
 }
+
+/* ============================================================
+   WHATSAPP TEMPLATE MANAGER
+   ============================================================ */
+.wa-manage-list {
+  max-height: 180px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.wa-manage-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  transition: var(--transition);
+}
+
+.wa-manage-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.wa-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  overflow: hidden;
+  max-width: 75%;
+}
+
+.wa-item-title {
+  font-weight: 700;
+  font-size: 0.825rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wa-item-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wa-item-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.wa-item-btn {
+  background: none;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  transition: var(--transition);
+}
+
+.wa-item-btn.edit {
+  background: rgba(52, 152, 219, 0.1);
+  color: #3498db;
+}
+.wa-item-btn.edit:hover {
+  background: #3498db;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.wa-item-btn.del {
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+}
+.wa-item-btn.del:hover {
+  background: #e74c3c;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.wa-var-badge {
+  background: rgba(201, 153, 26, 0.08);
+  color: var(--gold);
+  border: 1px solid rgba(201, 153, 26, 0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: monospace;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.wa-var-badge:hover {
+  background: var(--gold);
+  color: #0d2137;
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
+.wa-manage-form {
+  background: rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .wa-manage-form {
+    background: rgba(255, 255, 255, 0.01);
+  }
+}
