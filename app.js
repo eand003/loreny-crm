@@ -44,21 +44,25 @@ const CSV_HEADERS = [
    ============================================================ */
 const WA_TEMPLATES_DEFAULTS = [
   {
+    id: "wa-apresentacao",
     title: "Apresentação",
     desc: "Primeiro contato com o lead",
     text: "Olá, {nome}! Aqui é a Loreny, tudo bem? Vi seu interesse no imóvel ({tipo}) na região de {regiao}. Como posso te ajudar na sua busca hoje?"
   },
   {
+    id: "wa-visita",
     title: "Visita",
     desc: "Confirmar agendamento de visita",
     text: "Oi, {nome}! Gostaria de confirmar nossa visita ao imóvel no bairro {regiao}. Qual o melhor horário para você: na parte da manhã ou da tarde?"
   },
   {
+    id: "wa-acompanhamento",
     title: "Acompanhamento",
     desc: "Follow-up das opções enviadas",
     text: "Olá, {nome}! Passando para saber se conseguiu analisar as opções de {tipo} que te enviei. Ficou alguma dúvida sobre as condições ou valores?"
   },
   {
+    id: "wa-novas-opcoes",
     title: "Novas Opções",
     desc: "Novidades dentro do perfil",
     text: "Oi, {nome}! Acabaram de entrar novas opções de {tipo} na faixa de {valor} na região de {regiao} que se encaixam exatamente no que procura. Posso te enviar as fotos?"
@@ -67,8 +71,46 @@ const WA_TEMPLATES_DEFAULTS = [
 
 let waTemplates = [];
 
-function loadWaTemplates() {
+async function loadWaTemplates() {
   try {
+    if (supabaseClient) {
+      const { data, error } = await supabaseClient
+        .from('wa_templates')
+        .select('*')
+        .order('criado_em', { ascending: true });
+      
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        waTemplates = data.map(t => ({
+          id:   t.id,
+          title: t.title,
+          desc:  t.description || '',
+          text:  t.text_content
+        }));
+      } else {
+        // Table is empty, check if we have local custom templates first
+        const raw = localStorage.getItem('loreny_crm_wa_templates');
+        if (raw) {
+          waTemplates = JSON.parse(raw);
+        } else {
+          waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
+        }
+        await saveWaTemplatesToStorage();
+      }
+    } else {
+      // Local fallback
+      const raw = localStorage.getItem('loreny_crm_wa_templates');
+      if (raw) {
+        waTemplates = JSON.parse(raw);
+      } else {
+        waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
+        saveWaTemplatesToStorage();
+      }
+    }
+  } catch (e) {
+    console.error("Erro ao carregar templates do Supabase, usando local:", e);
+    // Fallback to local storage
     const raw = localStorage.getItem('loreny_crm_wa_templates');
     if (raw) {
       waTemplates = JSON.parse(raw);
@@ -76,14 +118,38 @@ function loadWaTemplates() {
       waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
       saveWaTemplatesToStorage();
     }
-  } catch (e) {
-    waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
-    saveWaTemplatesToStorage();
   }
 }
 
-function saveWaTemplatesToStorage() {
+async function saveWaTemplatesToStorage() {
+  // Always save to localStorage as backup
   localStorage.setItem('loreny_crm_wa_templates', JSON.stringify(waTemplates));
+  
+  if (supabaseClient) {
+    try {
+      const dbTemplates = waTemplates.map((t, idx) => ({
+        id:           t.id || uid(),
+        title:        t.title,
+        description:  t.desc || '',
+        text_content: t.text,
+        criado_em:    new Date(Date.now() + idx * 1000).toISOString()
+      }));
+
+      // Make sure all current local templates have IDs
+      waTemplates.forEach((t, idx) => {
+        if (!t.id) t.id = dbTemplates[idx].id;
+      });
+      localStorage.setItem('loreny_crm_wa_templates', JSON.stringify(waTemplates));
+
+      const { error } = await supabaseClient
+        .from('wa_templates')
+        .upsert(dbTemplates);
+      
+      if (error) throw error;
+    } catch (e) {
+      console.error("Erro ao sincronizar templates com o Supabase:", e);
+    }
+  }
 }
 
 /* ============================================================
@@ -1338,7 +1404,8 @@ async function testAndSaveSupabase() {
     
     closeModal('modal-supabase');
     
-    // Load leads from Supabase and render
+    // Load templates and leads from Supabase and render
+    await loadWaTemplates();
     await loadLeads();
     renderAll();
   } catch (e) {
@@ -1347,7 +1414,7 @@ async function testAndSaveSupabase() {
   }
 }
 
-function disconnectSupabase() {
+async function disconnectSupabase() {
   localStorage.removeItem('loreny_crm_supabase_url');
   localStorage.removeItem('loreny_crm_supabase_key');
   supabaseClient = null;
@@ -1361,6 +1428,7 @@ function disconnectSupabase() {
   closeModal('modal-supabase');
   
   // Reload local storage data
+  await loadWaTemplates();
   loadLeadsLocal();
   renderAll();
 }
@@ -1662,20 +1730,34 @@ window.editWaTemplate = function(idx) {
   $('wa-form-title-input').focus();
 };
 
-window.deleteWaTemplate = function(idx) {
+window.deleteWaTemplate = async function(idx) {
   const t = waTemplates[idx];
   if (!t) return;
 
   if (confirm(`Excluir permanentemente o modelo "${t.title}"?`)) {
+    const deletedId = t.id;
     waTemplates.splice(idx, 1);
-    saveWaTemplatesToStorage();
+    await saveWaTemplatesToStorage();
+    
+    if (supabaseClient && deletedId) {
+      try {
+        const { error } = await supabaseClient
+          .from('wa_templates')
+          .delete()
+          .eq('id', deletedId);
+        if (error) throw error;
+      } catch (e) {
+        console.error("Erro ao deletar template do Supabase:", e);
+      }
+    }
+    
     renderWaManageList();
     toast(`Modelo "${t.title}" excluído!`, 'info');
     clearWaForm();
   }
 };
 
-function saveWaTemplate() {
+async function saveWaTemplate() {
   const title = ($('wa-form-title-input').value || '').trim();
   const desc = ($('wa-form-desc-input').value || '').trim();
   const text = ($('wa-form-text-input').value || '').trim();
@@ -1692,10 +1774,11 @@ function saveWaTemplate() {
   }
 
   const idxVal = $('wa-form-idx').value;
-  const tData = { title, desc, text };
+  const idx = idxVal !== '' ? parseInt(idxVal, 10) : -1;
+  const existingId = idx !== -1 ? waTemplates[idx].id : uid();
+  const tData = { id: existingId, title, desc, text };
 
-  if (idxVal !== '') {
-    const idx = parseInt(idxVal, 10);
+  if (idx !== -1) {
     waTemplates[idx] = tData;
     toast(`Modelo "${title}" atualizado!`, 'success');
   } else {
@@ -1703,15 +1786,27 @@ function saveWaTemplate() {
     toast(`Novo modelo "${title}" criado!`, 'success');
   }
 
-  saveWaTemplatesToStorage();
+  await saveWaTemplatesToStorage();
   clearWaForm();
   renderWaManageList();
 }
 
-function restoreWaTemplatesDefaults() {
+async function restoreWaTemplatesDefaults() {
   if (confirm('Deseja restaurar todos os modelos originais premium? Isso apagará suas edições e modelos criados.')) {
+    if (supabaseClient) {
+      try {
+        const { error } = await supabaseClient
+          .from('wa_templates')
+          .delete()
+          .neq('id', 'placeholder');
+        if (error) throw error;
+      } catch (e) {
+        console.error("Erro ao limpar templates no Supabase:", e);
+      }
+    }
+    
     waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
-    saveWaTemplatesToStorage();
+    await saveWaTemplatesToStorage();
     renderWaManageList();
     clearWaForm();
     toast('Modelos originais restaurados!', 'success');
@@ -1812,7 +1907,7 @@ async function init() {
   const isSupaActive = initSupabase();
   updateSupabaseUI(isSupaActive);
   
-  loadWaTemplates();
+  await loadWaTemplates();
   await loadLeads();
   setupEvents();
   renderAll();
