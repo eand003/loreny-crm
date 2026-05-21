@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CRM Loreny Imóveis — Sistema de gestão de leads para corretora de imóveis autônoma. Organize clientes, acompanhe negociações e aumente sua produtividade comercial." />
+  <title>CRM Loreny Imóveis</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header id="header">
+  <div class="header-brand">
+    <div class="logo" aria-hidden="true">LI</div>
+    <div>
+      <div class="brand-title">Loreny Imóveis</div>
+      <div class="brand-subtitle">CRM · Gestão de Leads</div>
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <button class="btn btn-primary" id="btn-novo-cliente" aria-label="Adicionar novo cliente">
+      ＋ Novo Cliente
+    </button>
+    <button class="btn btn-ghost" id="btn-config-supabase" title="Configurar Banco de Dados na Nuvem" aria-label="Configurar banco de dados na nuvem">
+      ☁️ Nuvem
+    </button>
+    <button class="btn btn-ghost" id="btn-exportar-csv" aria-label="Exportar dados em CSV">
+      ↑ Exportar CSV
+    </button>
+    <button class="btn btn-ghost" id="btn-importar-csv" aria-label="Importar dados de CSV">
+      ↓ Importar CSV
+    </button>
+    <input type="file" id="input-csv-file" accept=".csv" style="display:none" aria-hidden="true" />
+  </div>
+</header>
+
+<!-- ============================================================
+     MAIN
+     ============================================================ -->
+<main>
+
+  <!-- Quote Banner -->
+  <div class="quote-banner" role="note">
+    <span class="quote-icon">💡</span>
+    <span>Nunca deixe um cliente sem próxima ação e data de retorno. O segredo do CRM é saber <strong>quem chamar</strong> e <strong>quando chamar</strong>.</span>
+  </div>
+
+  <!-- ── DASHBOARD CARDS ── -->
+  <section id="dashboard" aria-label="Resumo de leads">
+
+    <div class="dash-card" id="card-total"
+         style="--card-color:#1a3a5c; --card-color-bg:rgba(26,58,92,0.09)"
+         data-filter-status="" title="Ver todos os leads">
+      <div class="dash-card-icon">🏠</div>
+      <div class="dash-card-value" id="count-total">0</div>
+      <div class="dash-card-label">Total de Leads</div>
+    </div>
+
+    <div class="dash-card" id="card-retorno"
+         style="--card-color:#e67e22; --card-color-bg:rgba(230,126,34,0.09)"
+         data-filter-retorno="hoje" title="Clientes para contato hoje">
+      <div class="dash-card-icon">📅</div>
+      <div class="dash-card-value" id="count-retorno">0</div>
+      <div class="dash-card-label">Retorno Hoje</div>
+      <div class="dash-card-badge" id="badge-retorno" style="display:none">!</div>
+    </div>
+
+    <div class="dash-card" id="card-visitas"
+         style="--card-color:#8e44ad; --card-color-bg:rgba(142,68,173,0.09)"
+         data-filter-status="Agendou visita" title="Visitas agendadas">
+      <div class="dash-card-icon">🗓️</div>
+      <div class="dash-card-value" id="count-visitas">0</div>
+      <div class="dash-card-label">Visitas Agendadas</div>
+    </div>
+
+    <div class="dash-card" id="card-propostas"
+         style="--card-color:#e67e22; --card-color-bg:rgba(230,126,34,0.09)"
+         data-filter-status="Proposta feita" title="Propostas em andamento">
+      <div class="dash-card-icon">📝</div>
+      <div class="dash-card-value" id="count-propostas">0</div>
+      <div class="dash-card-label">Propostas Feitas</div>
+    </div>
+
+    <div class="dash-card" id="card-fechados"
+         style="--card-color:#27ae60; --card-color-bg:rgba(39,174,96,0.09)"
+         data-filter-status="Fechado" title="Negócios fechados">
+      <div class="dash-card-icon">✅</div>
+      <div class="dash-card-value" id="count-fechados">0</div>
+      <div class="dash-card-label">Fechados</div>
+    </div>
+
+    <div class="dash-card" id="card-perdidos"
+         style="--card-color:#e74c3c; --card-color-bg:rgba(231,76,60,0.09)"
+         data-filter-status="Perdido" title="Leads perdidos">
+      <div class="dash-card-icon">❌</div>
+      <div class="dash-card-value" id="count-perdidos">0</div>
+      <div class="dash-card-label">Perdidos</div>
+    </div>
+
+  </section>
+
+  <!-- ── FILTERS ── -->
+  <section id="filters" aria-label="Filtros de busca">
+
+    <div class="filter-search-wrap">
+      <span class="filter-search-icon" aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        id="filtro-busca"
+        class="filter-input"
+        placeholder="Buscar por nome, região, observação…"
+        aria-label="Buscar clientes"
+        autocomplete="off"
+      />
+    </div>
+
+    <select id="filtro-status" class="filter-select" aria-label="Filtrar por status">
+      <option value="">Todos os status</option>
+      <option value="Novo lead">Novo lead</option>
+      <option value="Contato feito">Contato feito</option>
+      <option value="Entendeu necessidade">Entendeu necessidade</option>
+      <option value="Enviou opções">Enviou opções</option>
+      <option value="Agendou visita">Agendou visita</option>
+      <option value="Visitou imóvel">Visitou imóvel</option>
+      <option value="Proposta feita">Proposta feita</option>
+      <option value="Fechado">Fechado</option>
+      <option value="Perdido">Perdido</option>
+      <option value="Nutrição futura">Nutrição futura</option>
+    </select>
+
+    <select id="filtro-origem" class="filter-select" aria-label="Filtrar por origem">
+      <option value="">Todas as origens</option>
+      <option value="Instagram">Instagram</option>
+      <option value="WhatsApp">WhatsApp</option>
+      <option value="Indicação">Indicação</option>
+      <option value="OLX">OLX</option>
+      <option value="Placa">Placa</option>
+      <option value="Site">Site</option>
+      <option value="Facebook">Facebook</option>
+      <option value="Outro">Outro</option>
+    </select>
+
+    <select id="filtro-tipo" class="filter-select" aria-label="Filtrar por tipo de imóvel">
+      <option value="">Todos os tipos</option>
+      <option value="Casa">Casa</option>
+      <option value="Apartamento">Apartamento</option>
+      <option value="Lote">Lote</option>
+      <option value="Chácara">Chácara</option>
+      <option value="Comercial">Comercial</option>
+      <option value="Aluguel">Aluguel</option>
+      <option value="Outro">Outro</option>
+    </select>
+
+    <div class="filter-divider" aria-hidden="true"></div>
+
+    <button class="btn btn-secondary" id="btn-retorno-hoje" aria-label="Ver retornos de hoje" title="Clientes para contato hoje">
+      📅 Retornos Hoje
+    </button>
+
+    <button class="btn btn-secondary" id="btn-sem-acao" aria-label="Ver clientes sem próxima ação" title="Leads sem próxima ação definida">
+      ⚠️ Sem Ação
+    </button>
+
+    <button class="btn btn-secondary" id="btn-limpar-filtros" aria-label="Limpar todos os filtros">
+      ✕ Limpar
+    </button>
+  </section>
+
+  <!-- ── VIEW CONTROLS ── -->
+  <div class="view-controls">
+    <p class="results-count" id="results-count">
+      Mostrando <strong id="results-num">0</strong> clientes
+    </p>
+    <div class="view-toggle" role="tablist" aria-label="Modo de visualização">
+      <button class="toggle-btn active" id="btn-view-tabela" role="tab" aria-selected="true">
+        ☰ Tabela
+      </button>
+      <button class="toggle-btn" id="btn-view-kanban" role="tab" aria-selected="false">
+        ⬛ Kanban
+      </button>
+    </div>
+  </div>
+
+  <!-- ── TABLE VIEW ── -->
+  <div id="view-tabela">
+    <div class="table-container" role="region" aria-label="Tabela de clientes">
+      <table aria-label="Lista de clientes">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>WhatsApp</th>
+            <th>Origem</th>
+            <th>Tipo</th>
+            <th>Região</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Retorno</th>
+            <th>Próxima Ação</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-body">
+          <!-- Preenchido pelo JS -->
+        </tbody>
+      </table>
+      <div id="tabela-empty" class="empty-state" style="display:none">
+        <span class="empty-icon">🔍</span>
+        <p class="empty-title">Nenhum cliente encontrado</p>
+        <p class="empty-sub">Tente ajustar os filtros ou cadastre um novo cliente.</p>
+      </div>
+    </div>
+
+    <!-- Mobile Cards -->
+    <div id="mobile-cards">
+      <!-- Preenchido pelo JS -->
+    </div>
+  </div>
+
+  <!-- ── KANBAN VIEW ── -->
+  <div id="view-kanban" style="display:none" role="region" aria-label="Visualização Kanban">
+    <div class="kanban-board" id="kanban-board">
+      <!-- Colunas geradas pelo JS -->
+    </div>
+  </div>
+
+</main>
+
+<!-- ============================================================
+     MODAL: NOVO / EDITAR CLIENTE
+     ============================================================ -->
+<div class="modal-overlay hidden" id="modal-cliente" role="dialog" aria-modal="true" aria-labelledby="modal-cliente-title">
+  <div class="modal-box modal-box-md">
+
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-cliente-title">
+        <span id="modal-cliente-icon">➕</span>
+        <span id="modal-cliente-titulo">Novo Cliente</span>
+      </h2>
+      <button class="modal-close" id="btn-fechar-modal-cliente" aria-label="Fechar modal">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <form id="form-cliente" novalidate>
+        <input type="hidden" id="campo-id" />
+
+        <div class="form-grid">
+
+          <!-- Nome -->
+          <div class="form-group full">
+            <label for="campo-nome">Nome do cliente <span class="form-required">*</span></label>
+            <input
+              type="text"
+              id="campo-nome"
+              class="form-control"
+              placeholder="Ex: João da Silva"
+              required
+              autocomplete="off"
+            />
+          </div>
+
+          <!-- WhatsApp -->
+          <div class="form-group">
+            <label for="campo-whatsapp">WhatsApp</label>
+            <input
+              type="tel"
+              id="campo-whatsapp"
+              class="form-control"
+              placeholder="65999990000"
+              autocomplete="off"
+            />
+          </div>
+
+          <!-- Origem -->
+          <div class="form-group">
+            <label for="campo-origem">Origem do lead</label>
+            <select id="campo-origem" class="form-control">
+              <option value="">Selecione…</option>
+              <option>Instagram</option>
+              <option>WhatsApp</option>
+              <option>Indicação</option>
+              <option>OLX</option>
+              <option>Placa</option>
+              <option>Site</option>
+              <option>Facebook</option>
+              <option>Outro</option>
+            </select>
+          </div>
+
+          <!-- Tipo de imóvel -->
+          <div class="form-group">
+            <label for="campo-tipo">Tipo de imóvel</label>
+            <select id="campo-tipo" class="form-control">
+              <option value="">Selecione…</option>
+              <option>Casa</option>
+              <option>Apartamento</option>
+              <option>Lote</option>
+              <option>Chácara</option>
+              <option>Comercial</option>
+              <option>Aluguel</option>
+              <option>Outro</option>
+            </select>
+          </div>
+
+          <!-- Região -->
+          <div class="form-group">
+            <label for="campo-regiao">Região / Bairro</label>
+            <input
+              type="text"
+              id="campo-regiao"
+              class="form-control"
+              placeholder="Ex: Centro, Jardim Europa…"
+              autocomplete="off"
+            />
+          </div>
+
+          <!-- Faixa de valor -->
+          <div class="form-group">
+            <label for="campo-valor">Faixa de valor</label>
+            <input
+              type="text"
+              id="campo-valor"
+              class="form-control"
+              list="lista-valores"
+              placeholder="Ex: Até 450 mil"
+              autocomplete="off"
+            />
+            <datalist id="lista-valores">
+              <option value="Até 250 mil" />
+              <option value="250 a 400 mil" />
+              <option value="400 a 700 mil" />
+              <option value="Acima de 700 mil" />
+            </datalist>
+          </div>
+
+          <!-- Status -->
+          <div class="form-group">
+            <label for="campo-status">Status do atendimento</label>
+            <select id="campo-status" class="form-control">
+              <option value="">Selecione…</option>
+              <option>Novo lead</option>
+              <option>Contato feito</option>
+              <option>Entendeu necessidade</option>
+              <option>Enviou opções</option>
+              <option>Agendou visita</option>
+              <option>Visitou imóvel</option>
+              <option>Proposta feita</option>
+              <option>Fechado</option>
+              <option>Perdido</option>
+              <option>Nutrição futura</option>
+            </select>
+          </div>
+
+          <!-- Data de retorno -->
+          <div class="form-group">
+            <label for="campo-data-retorno">Data de retorno</label>
+            <input
+              type="date"
+              id="campo-data-retorno"
+              class="form-control"
+            />
+          </div>
+
+          <!-- Próxima ação -->
+          <div class="form-group full">
+            <label for="campo-proxima-acao">Próxima ação</label>
+            <input
+              type="text"
+              id="campo-proxima-acao"
+              class="form-control"
+              list="lista-acoes"
+              placeholder="Ex: Chamar no WhatsApp, Enviar opções…"
+              autocomplete="off"
+            />
+            <datalist id="lista-acoes">
+              <option value="Chamar no WhatsApp" />
+              <option value="Enviar opções" />
+              <option value="Confirmar visita" />
+              <option value="Cobrar resposta" />
+              <option value="Mandar novo imóvel" />
+              <option value="Fazer follow-up" />
+              <option value="Fazer primeiro contato" />
+              <option value="Agendar visita" />
+            </datalist>
+          </div>
+
+          <!-- Observações -->
+          <div class="form-group full">
+            <label for="campo-observacoes">Observações</label>
+            <textarea
+              id="campo-observacoes"
+              class="form-control"
+              rows="3"
+              placeholder="Informações adicionais sobre o cliente, imóvel desejado, preferências…"
+            ></textarea>
+          </div>
+
+        </div><!-- /form-grid -->
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-cliente">Cancelar</button>
+      <button class="btn btn-primary" id="btn-salvar-cliente">💾 Salvar Cliente</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL: HISTÓRICO DE INTERAÇÕES
+     ============================================================ -->
+<div class="modal-overlay hidden" id="modal-historico" role="dialog" aria-modal="true" aria-labelledby="modal-hist-title">
+  <div class="modal-box modal-box-md">
+
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-hist-title">
+        📋 Histórico de Interações
+      </h2>
+      <button class="modal-close" id="btn-fechar-modal-hist" aria-label="Fechar histórico">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <input type="hidden" id="hist-lead-id" />
+
+      <p id="hist-lead-nome" style="font-weight:700; color:var(--text-primary); margin-bottom:1.25rem; font-size:1rem;"></p>
+
+      <!-- Add interaction form -->
+      <div class="history-add-form">
+        <p class="history-add-title">✏️ Registrar nova interação</p>
+        <div class="history-form-row">
+          <div class="form-group">
+            <label for="hist-tipo">Tipo</label>
+            <select id="hist-tipo" class="form-control">
+              <option>WhatsApp</option>
+              <option>Ligação</option>
+              <option>Visita</option>
+              <option>Proposta</option>
+              <option>E-mail</option>
+              <option>Outro</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:3; min-width:200px;">
+            <label for="hist-obs">Observação</label>
+            <input
+              type="text"
+              id="hist-obs"
+              class="form-control"
+              placeholder="O que aconteceu nesta interação?"
+              autocomplete="off"
+            />
+          </div>
+          <div>
+            <button class="btn btn-primary" id="btn-salvar-interacao" style="height:42px; margin-top:1.5rem;">
+              + Adicionar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- History list -->
+      <div class="history-list" id="hist-lista">
+        <div class="history-empty">Nenhuma interação registrada ainda.</div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-fechar-hist">Fechar</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL: CONFIRMAR EXCLUSÃO
+     ============================================================ -->
+<div class="modal-overlay hidden" id="modal-confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-body" style="padding-top: 2rem;">
+      <span class="confirm-icon" aria-hidden="true">🗑️</span>
+      <h2 class="confirm-title" id="confirm-title">Excluir cliente?</h2>
+      <p class="confirm-text" id="confirm-text">
+        Esta ação não pode ser desfeita. O cliente e todo seu histórico serão removidos permanentemente.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-confirm-cancelar">Cancelar</button>
+      <button class="btn btn-danger" id="btn-confirm-excluir">🗑️ Sim, excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL: CONFIGURAÇÃO SUPABASE (NUVEM)
+     ============================================================ -->
+<div class="modal-overlay hidden" id="modal-supabase" role="dialog" aria-modal="true" aria-labelledby="modal-supa-title">
+  <div class="modal-box modal-box-sm">
+
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-supa-title">
+        ☁️ Banco de Dados na Nuvem
+      </h2>
+      <button class="modal-close" id="btn-fechar-modal-supa" aria-label="Fechar configurações">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.4;">
+        Conecte seu CRM ao Supabase para compartilhar dados em tempo real com a Loreny.
+      </p>
+
+      <div class="form-group">
+        <label for="supa-url">Supabase URL</label>
+        <input
+          type="url"
+          id="supa-url"
+          class="form-control"
+          placeholder="https://xxxxxx.supabase.co"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="form-group" style="margin-top:0.85rem;">
+        <label for="supa-key">Supabase Anon Key</label>
+        <input
+          type="password"
+          id="supa-key"
+          class="form-control"
+          placeholder="Sua chave anônima (Anon Key)"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Status Indicator -->
+      <div id="supa-status-box" style="margin-top:1.25rem; padding:0.75rem; border-radius:6px; font-size:0.85rem; display:flex; align-items:center; gap:0.5rem; background:rgba(0,0,0,0.05); color:var(--text-primary);">
+        <span id="supa-status-indicator">🟡</span>
+        <span id="supa-status-text">Usando armazenamento local (Offline)</span>
+      </div>
+
+      <!-- Local Data Sync Option -->
+      <div id="supa-sync-box" class="hidden" style="margin-top:1rem; padding:0.85rem; border-radius:6px; border:1px dashed var(--accent-gold); background:rgba(212,175,55,0.05); text-align:center;">
+        <p style="font-size:0.8rem; color:var(--text-primary); margin-bottom:0.5rem; font-weight:600;">
+          Você tem leads salvos localmente!
+        </p>
+        <button class="btn btn-sm btn-gold" id="btn-sincronizar-leads" style="width:100%; border:none; padding:0.5rem; border-radius:4px; font-weight:600; cursor:pointer;" type="button">
+          ⚡ Enviar leads locais para a nuvem
+        </button>
+      </div>
+
+    </div>
+
+    <div class="modal-footer" style="display:flex; justify-content:space-between; gap:0.5rem; align-items:center;">
+      <button class="btn btn-danger" id="btn-desconectar-supabase" style="padding: 0.5rem 0.75rem;" title="Desconectar e voltar ao modo offline" type="button">
+        Desconectar
+      </button>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="btn btn-secondary" id="btn-cancelar-supabase" type="button">Cancelar</button>
+        <button class="btn btn-primary" id="btn-salvar-supabase" type="button">💾 Conectar</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     TOAST NOTIFICATIONS
+     ============================================================ -->
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<!-- ============================================================
+     SCRIPT
+     ============================================================ -->
+<script src="app.js"></script>
+</body>
+</html>
