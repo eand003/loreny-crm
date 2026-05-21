@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apresentação e Manual do Usuário — CRM Loreny Imóveis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #090e14;
+      --surface: rgba(18, 26, 38, 0.6);
+      --surface-border: rgba(255, 255, 255, 0.08);
+      --surface-glow: rgba(212, 175, 55, 0.15);
+      --text-primary: #ffffff;
+      --text-secondary: #a0aec0;
+      --text-muted: #718096;
+      --gold: #d4af37;
+      --gold-hover: #f3e5ab;
+      --success: #27ae60;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+      --info: #3498db;
+      --font-title: 'Outfit', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(52, 152, 219, 0.05) 0%, transparent 40%);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      padding-bottom: 5rem;
+    }
+
+    /* ============================================================
+       CONTAINER & HEADER
+       ============================================================ */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 4rem;
+      position: relative;
+    }
+
+    .badge-exclusiva {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--gold), #aa7c11);
+      color: #000;
+      font-weight: 700;
+      font-family: var(--font-title);
+      font-size: 0.75rem;
+      padding: 0.35rem 1rem;
+      border-radius: 50px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    h1 {
+      font-family: var(--font-title);
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.15;
+      background: linear-gradient(135deg, #ffffff 30%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+
+    /* ============================================================
+       NAVIGATION TABS
+       ============================================================ */
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 0.5rem;
+      border-radius: 50px;
+      border: 1px solid var(--surface-border);
+      backdrop-filter: blur(10px);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-title);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--gold), #b8901e);
+      color: #000;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+    }
+
+    /* ============================================================
+       SLIDE / CONTENT BOX
+       ============================================================ */
+    .content-box {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 24px;
+      padding: 3rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      min-height: 500px;
+    }
+
+    .content-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .slide {
+      display: none;
+      animation: fadeIn 0.5s ease both;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================================
+       ELEMENTS & TYPOGRAPHY
+       ============================================================ */
+    .slide-header {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .slide-icon {
+      font-size: 2.5rem;
+      background: rgba(212, 175, 55, 0.1);
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.05);
+    }
+
+    .slide-title-wrap h2 {
+      font-family: var(--font-title);
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .slide-title-wrap p {
+      color: var(--gold);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+
+    .slide-body {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+    }
+
+    .slide-body p {
+      margin-bottom: 1.5rem;
+    }
+
+    /* Highlight Card Grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin: 2rem 0;
+    }
+
+    .feature-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(212, 175, 55, 0.2);
+      transform: translateY(-3px);
+    }
+
+    .feature-card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card-title {
+      font-family: var(--font-title);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    .feature-card-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* List item visual style */
+    .custom-list {
+      list-style: none;
+      margin: 1.5rem 0;
+    }
+
+    .custom-list li {
+      position: relative;
+      padding-left: 2rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .custom-list li::before {
+      content: '⚡';
+      position: absolute;
+      left: 0;
+      top: 2px;
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    .custom-list li strong {
+      color: var(--text-primary);
+    }
+
+    /* Quote alert block */
+    .quote-block {
+      background: rgba(212, 175, 55, 0.05);
+      border-left: 4px solid var(--gold);
+      border-radius: 0 12px 12px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 2rem 0;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .quote-block strong {
+      color: var(--text-primary);
+    }
+
+    /* ============================================================
+       SLIDE CONTROLS (Footer buttons)
+       ============================================================ */
+    .slide-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--surface-border);
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--surface-border);
+      color: var(--text-primary);
+      font-family: var(--font-title);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .ctrl-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .ctrl-btn.primary {
+      background: linear-gradient(135deg, var(--gold), #aa7c11);
+      color: #000;
+      border: none;
+    }
+
+    .ctrl-btn.primary:hover {
+      background: linear-gradient(135deg, var(--gold-hover), var(--gold));
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .slide-counter {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    /* ============================================================
+       RESPONSIVE ADJUSTMENTS
+       ============================================================ */
+    @media (max-width: 768px) {
+      h1 { font-size: 2.2rem; }
+      .content-box { padding: 1.5rem; min-height: auto; }
+      .slide-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+      .slide-icon { width: 50px; height: 50px; font-size: 1.75rem; border-radius: 10px; }
+      .slide-title-wrap h2 { font-size: 1.45rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <header>
+    <div class="badge-exclusiva">Exclusivo Loreny Imóveis</div>
+    <h1>Conheça Seu Novo CRM</h1>
+    <p class="subtitle">Um guia interativo e manual do usuário projetado para simplificar sua navegação e turbinar suas vendas.</p>
+  </header>
+
+  <!-- Navegação por abas estilo Slides -->
+  <nav class="nav-tabs" id="tabs-container">
+    <button class="tab-btn active" onclick="goToSlide(0)">✨ Introdução</button>
+    <button class="tab-btn" onclick="goToSlide(1)">⬜ Kanban</button>
+    <button class="tab-btn" onclick="goToSlide(2)">🔔 Alertas</button>
+    <button class="tab-btn" onclick="goToSlide(3)">💬 WhatsApp</button>
+    <button class="tab-btn" onclick="goToSlide(4)">☁️ Nuvem</button>
+    <button class="tab-btn" onclick="goToSlide(5)">💡 Dicas de Ouro</button>
+  </nav>
+
+  <!-- Caixa de Conteúdo dos Slides -->
+  <div class="content-box">
+    
+    <!-- SLIDE 0: INTRODUÇÃO -->
+    <div class="slide active">
+      <div class="slide-header">
+        <div class="slide-icon">🏠</div>
+        <div class="slide-title-wrap">
+          <h2>Bem-vinda ao CRM Loreny Imóveis!</h2>
+          <p>O Coração Comercial dos Seus Negócios</p>
+        </div>
+      </div>
+      <div class="slide-body">
+        <p>Este CRM foi planejado e desenhado exclusivamente para atender ao dinamismo de uma corretora de imóveis de sucesso. Chega de planilhas confusas ou blocos de notas espalhados! A partir de agora, você tem controle total de sua carteira de clientes de forma centralizada, elegante e inteligente.</p>
+        
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-card-icon">⚡</div>
+            <div class="feature-card-title">Rapidez & Fluidez</div>
+            <div class="feature-card-desc">Construído em código nativo ultra veloz. Abre instantaneamente em qualquer computador ou celular.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-icon">🤝</div>
+            <div class="feature-card-title">Híbrido & Colaborativo</div>
+            <div class="feature-card-desc">Funciona 100% offline se faltar internet, e sincroniza em tempo real com a nuvem quando conectado.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-icon">🌟</div>
+            <div class="feature-card-title">Aparência Premium</div>
+            <div class="feature-card-desc">Visual escuro moderno com transparência vítrea, pensado para ser extremamente confortável no uso diário.</div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          💡 <strong>Como começar?</strong> Ao abrir o CRM pela primeira vez, você verá o dashboard geral mostrando o total de clientes e retornos pendentes. Para alternar entre a tabela clássica de clientes e o quadro visual de cartões, use os botões <strong>☰ Tabela</strong> e <strong>⬛ Kanban</strong> no centro da tela.
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 1: KANBAN -->
+    <div class="slide">
+      <div class="slide-header">
+        <div class="slide-icon">⬛</div>
+        <div class="slide-title-wrap">
+          <h2>O Funil de Vendas Visual (Kanban)</h2>
+          <p>Controle Visual do Progresso das Negociações</p>
+        </div>
+      </div>
+      <div class="slide-body">
+        <p>O Kanban organiza seus leads em colunas coloridas horizontais que representam a jornada do cliente, desde o primeiro contato até o fechamento da venda ou perda da negociação.</p>
+        
+        <ul class="custom-list">
+          <li><strong>Arrastar e Soltar (Drag & Drop)</strong>: Se um cliente agendou uma visita, basta clicar no cartão dele e arrastá-lo da coluna <em>"Enviou opções"</em> para a coluna <em>"Agendou visita"</em>.</li>
+          <li><strong>Histórico Automático</strong>: O CRM é inteligente! Sempre que você arrasta um cliente para uma nova etapa, ele registra automaticamente no histórico do lead a data, a hora e a alteração feita para que você nunca perca o histórico da negociação.</li>
+          <li><strong>Ações Rápidas nos Cartões</strong>: Cada cartão possui botões rápidos para que você possa abrir o WhatsApp direto, enviar mensagens rápidas, editar a ficha do lead ou registrar novas interações.</li>
+        </ul>
+
+        <div class="quote-block">
+          🔄 <strong>Lembrete Comercial</strong>: Mantenha seus cartões atualizados. Visualizar a distribuição dos seus clientes nas colunas ajuda a entender onde focar sua força de vendas hoje!
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: ALERTAS -->
+    <div class="slide">
+      <div class="slide-header">
+        <div class="slide-icon">🔔</div>
+        <div class="slide-title-wrap">
+          <h2>Central de Alertas e Pendências</h2>
+          <p>Nenhum Cliente Fica Esquecido no Limbo</p>
+        </div>
+      </div>
+      <div class="slide-body">
+        <p>No canto superior direito da tela, você verá um ícone de sino <code>🔔</code> com um contador dinâmico vermelho. Ele funciona como o seu **assistente pessoal**, lembrando-a de todas as suas pendências diárias.</p>
+        
+        <ul class="custom-list">
+          <li><strong>Retornos para HOJE 📅</strong>: Alerta automaticamente quando há um cliente cuja data de retorno planejada seja o dia de hoje (marcação em amarelo).</li>
+          <li><strong>Retornos Atrasados ⚠️</strong>: Identifica imediatamente clientes cujas datas de contato ficaram no passado sem que você registrasse o retorno (marcação em vermelho).</li>
+          <li><strong>Sem Próxima Ação ✏️</strong>: O CRM escaneia sua carteira e alerta se houver algum cliente ativo que esteja sem uma <em>"Próxima Ação"</em> escrita na ficha técnica.</li>
+          <li><strong>Foco Total</strong>: Leads que já tiveram o negócio <em>"Fechado"</em> ou <em>"Perdido"</em> são automaticamente ocultados dos alertas para não poluir sua lista de trabalho.</li>
+        </ul>
+
+        <div class="quote-block">
+          🖱️ <strong>Dica Prática</strong>: Clique no sino <code>🔔</code>, visualize a lista de alertas e clique sobre qualquer item pendente. O CRM abrirá instantaneamente a ficha de edição desse cliente para você resolver o problema na hora!
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: WHATSAPP QUICK REPLIES -->
+    <div class="slide">
+      <div class="slide-header">
+        <div class="slide-icon">✨</div>
+        <div class="slide-title-wrap">
+          <h2>Modelos de Mensagens Rápidas</h2>
+          <p>Envie Mensagens Altamente Personalizadas em 2 Segundos</p>
+        </div>
+      </div>
+      <div class="slide-body">
+        <p>Economize horas de digitação cansativa! Clicando no ícone de varinha mágica <code>✨</code> presente ao lado do ícone do WhatsApp de qualquer lead, você ativa o nosso motor inteligente de mensagens:</p>
+        
+        <ul class="custom-list">
+          <li><strong>Placeholders Dinâmicos Automáticos</strong>: O CRM lê os dados do lead e preenche sozinho:
+            <br>· <code>{nome}</code> com o primeiro nome do lead.
+            <br>· <code>{tipo}</code> com o tipo do imóvel (casa, lote, chácara) em letras minúsculas.
+            <br>· <code>{regiao}</code> com a região ou bairro desejado.
+            <br>· <code>{valor}</code> com a faixa de orçamento de interesse.
+          </li>
+          <li><strong>Termos Amigáveis de Fallback</strong>: Se você não preencheu o bairro ou valor na ficha do lead, não se preocupe! O sistema substituirá de forma natural por expressões comerciais sutis como <em>"imóvel"</em>, <em>"excelente região"</em> ou <em>"sua faixa de interesse"</em>.</li>
+          <li><strong>Personalização Total ⚙️</strong>: Clique em <em>"⚙️ Personalizar Modelos"</em> dentro do modal para criar novos modelos personalizados ou editar os existentes com facilidade usando as tags rápidas clicáveis de variáveis.</li>
+          <li><strong>Auto-Registro de Histórico</strong>: Ao enviar uma mensagem rápida, o CRM **salva automaticamente o teor da mensagem e o horário** no histórico de interações do lead.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: SUPABASE NUVEM -->
+    <div class="slide">
+      <div class="slide-header">
+        <div class="slide-icon">☁️</div>
+        <div class="slide-title-wrap">
+          <h2>Sincronização na Nuvem em Tempo Real</h2>
+          <p>Loreny e Eduardo Compartilhando a Mesma Tela</p>
+        </div>
+      </div>
+      <div class="slide-body">
+        <p>O CRM possui uma conexão robusta com o banco de dados do **Supabase**. Isso significa que todas as informações adicionadas no computador do Eduardo aparecem instantaneamente no computador ou celular da Loreny, e vice-versa!</p>
+        
+        <ul class="custom-list">
+          <li><strong>Conexão Facilitada</strong>: Basta clicar no botão <strong>☁️ Nuvem</strong> no topo da tela, inserir a URL do Supabase e a Anon Key fornecidas, e clicar em <strong>Conectar</strong>.</li>
+          <li><strong>Envio de Dados Locais</strong>: Se você usou o CRM no computador offline, criou leads e depois conectou o Supabase, o sistema identificará e mostrará o botão <code>⚡ Enviar leads locais para a nuvem</code> para unificar tudo com segurança.</li>
+          <li><strong>Segurança Absoluta (RLS)</strong>: O banco de dados possui regras rígidas de segurança protegendo suas informações comerciais contra acessos externos não autorizados.</li>
+          <li><strong>Fallback Offline</strong>: Sem internet na rua? O CRM salva tudo no navegador e sincroniza com a nuvem assim que você reestabelecer a conexão!</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: DICAS DE OURO -->
+    <div class="slide">
+      <div class="slide-header">
+        <div class="slide-icon">💡</div>
+        <div class="slide-title-wrap">
+          <h2>Dicas de Ouro para Sucesso Comercial</h2>
+          <p>Como Dominar o Mercado Imobiliário Usando o CRM</p>
+        </div>
+      </div>
+      <div class="slide-body">
+        <p>Ter um CRM premium à sua disposição é excelente, mas a consistência na utilização é o que transforma leads frios em comissões no bolso. Siga estas diretrizes recomendadas:</p>
+        
+        <ul class="custom-list">
+          <li><strong>Regra de Ouro nº 1</strong>: Nunca, em hipótese alguma, deixe um cliente ativo sem uma **Próxima Ação** e uma **Data de Retorno** configuradas. Se você não sabe quando e o que fará com o cliente a seguir, a negociação esfriará.</li>
+          <li><strong>Registre Tudo no Histórico</strong>: Conversou no WhatsApp? Ligou? Realizou visita? Clique em <code>📋</code> (Histórico) e gaste 10 segundos escrevendo uma breve observação. No futuro, reler o histórico ajudará a reconectar com o cliente sabendo tudo o que ele valoriza.</li>
+          <li><strong>Faça Higienizações de Rotina</strong>: Uma vez por semana, clique no sino <code>🔔</code> e resolva todas as pendências que ficaram atrasadas ou sem ação configurada.</li>
+          <li><strong>Use os Filtros de Busca Rapida</strong>: A barra de pesquisa busca por nome, bairro, observação e até telefone. Se um cliente te ligar, digite o nome dele e encontre a ficha técnica dele em segundos antes de começar a falar!</li>
+        </ul>
+
+        <div class="quote-block" style="text-align: center; background: rgba(39, 174, 96, 0.05); border-left-color: var(--success);">
+          🚀 <strong>Boas Vendas!</strong> Agora você está munida com a melhor tecnologia sob medida do mercado. Aproveite ao máximo!
+        </div>
+      </div>
+    </div>
+
+    <!-- Controles inferiores de navegação -->
+    <div class="slide-controls">
+      <button class="ctrl-btn" id="btn-prev" onclick="changeSlide(-1)" disabled>← Anterior</button>
+      <span class="slide-counter" id="slide-indicator">Slide 1 de 6</span>
+      <button class="ctrl-btn primary" id="btn-next" onclick="changeSlide(1)">Próximo →</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+  const tabs = document.querySelectorAll('.tab-btn');
+  const totalSlides = slides.length;
+  
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+  const indicator = document.getElementById('slide-indicator');
+
+  function goToSlide(idx) {
+    if (idx < 0 || idx >= totalSlides) return;
+    
+    // Atualiza estado do slide atual
+    slides[currentSlide].classList.remove('active');
+    tabs[currentSlide].classList.remove('active');
+    
+    currentSlide = idx;
+    
+    // Ativa novo slide
+    slides[currentSlide].classList.add('active');
+    tabs[currentSlide].classList.add('active');
+    
+    // Atualiza controles
+    btnPrev.disabled = currentSlide === 0;
+    
+    if (currentSlide === totalSlides - 1) {
+      btnNext.textContent = 'Entendido! 🚀';
+      btnNext.classList.remove('primary');
+      btnNext.style.backgroundColor = 'var(--success)';
+      btnNext.style.color = '#fff';
+    } else {
+      btnNext.textContent = 'Próximo →';
+      btnNext.classList.add('primary');
+      btnNext.style.backgroundColor = '';
+      btnNext.style.color = '';
+    }
+    
+    indicator.textContent = `Slide ${currentSlide + 1} de ${totalSlides}`;
+  }
+
+  function changeSlide(direction) {
+    const nextIdx = currentSlide + direction;
+    if (nextIdx >= 0 && nextIdx < totalSlides) {
+      goToSlide(nextIdx);
+    } else if (nextIdx === totalSlides) {
+      alert("Apresentação concluída! Desejamos excelentes vendas no CRM Loreny Imóveis! 🏠✨");
+    }
+  }
+</script>
+
+</body>
+</html>
