@@ -295,18 +295,21 @@ function updateSupabaseUI(connected) {
   const authBtn   = $('btn-auth-account');
   const authBox   = $('auth-status-box');
 
+  // UX v2.3: o botão Conta/Login deve aparecer SEMPRE.
+  // Se não houver Supabase configurado, ao clicar ele orienta a configurar a nuvem.
+  if (authBtn) {
+    authBtn.classList.remove('hidden');
+    authBtn.innerHTML = currentUser ? '👤 Conta' : '🔐 Login';
+  }
+
   if (connected) {
     if (indicator) indicator.textContent = currentUser ? '🟢' : '🟠';
     if (text) text.textContent = currentUser
       ? `Conectado como ${currentUser.email}`
       : 'Supabase conectado — faça login para carregar os dados';
     if (supaBtn) {
-      supaBtn.innerHTML = currentUser ? '☁️ Online' : '☁️ Conectar Login';
+      supaBtn.innerHTML = currentUser ? '☁️ Online' : '☁️ Nuvem';
       supaBtn.style.color = currentUser ? '#27ae60' : '#f39c12';
-    }
-    if (authBtn) {
-      authBtn.classList.remove('hidden');
-      authBtn.innerHTML = currentUser ? '👤 Conta' : '🔐 Login';
     }
     if (authBox) authBox.textContent = currentUser ? `Logado: ${currentUser.email}` : 'Sem login ativo';
   } else {
@@ -316,8 +319,7 @@ function updateSupabaseUI(connected) {
       supaBtn.innerHTML = '☁️ Nuvem';
       supaBtn.style.color = '';
     }
-    if (authBtn) authBtn.classList.add('hidden');
-    if (authBox) authBox.textContent = 'Modo local/offline';
+    if (authBox) authBox.textContent = 'Configure o Supabase primeiro para usar login.';
   }
 }
 
@@ -1462,7 +1464,14 @@ function setupEvents() {
   $('btn-sincronizar-leads').addEventListener('click', syncLocalToSupabase);
 
   // Auth
-  $('btn-auth-account').addEventListener('click', () => openAuthModal(currentUser ? 'login' : 'login'));
+  $('btn-auth-account').addEventListener('click', () => {
+    if (!supabaseClient) {
+      toast('Configure a nuvem primeiro para usar login.', 'warning');
+      openSupabaseModal();
+      return;
+    }
+    openAuthModal('login');
+  });
   $('btn-fechar-modal-auth').addEventListener('click', () => closeModal('modal-auth'));
   $('auth-primary-btn').addEventListener('click', submitAuth);
   $('auth-switch-btn').addEventListener('click', () => setAuthMode($('auth-mode').value === 'signup' ? 'login' : 'signup'));
@@ -2097,7 +2106,7 @@ function handleAlertClick(leadId) {
 
 function registerServiceWorker() {
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=2.2').catch(err => console.warn('Service Worker não registrado:', err));
+    navigator.serviceWorker.register('./sw.js?v=2.3').catch(err => console.warn('Service Worker não registrado:', err));
   }
 }
 

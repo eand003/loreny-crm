@@ -1,5 +1,5 @@
-const CACHE_NAME = 'crm-loreny-v2-2';
-const APP_SHELL = ['./', './index.html', './style.css?v=2.2', './app.js?v=2.2', './manifest.json?v=2.2'];
+const CACHE_NAME = 'crm-loreny-v2-3';
+const APP_SHELL = ['./', './index.html', './style.css?v=2.3', './app.js?v=2.3', './manifest.json?v=2.3'];
 
 self.addEventListener('install', event => {
   self.skipWaiting();

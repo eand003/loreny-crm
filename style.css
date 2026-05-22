@@ -1877,7 +1877,7 @@ textarea.form-control {
 
 
 /* ============================================================
-   MOBILE UX FIX v2.2
+   MOBILE UX FIX v2.3
    Objetivo: corrigir corte dos cards, reduzir poluição no topo,
    melhorar leitura e evitar sobreposição dos filtros/barra inferior.
    ============================================================ */
@@ -2222,5 +2222,35 @@ textarea.form-control {
 
   #btn-novo-cliente {
     grid-column: 1 / -1;
+  }
+}
+
+
+/* ============================================================
+   LOGIN FIX v2.3
+   O botão Conta/Login fica sempre disponível.
+   ============================================================ */
+#btn-auth-account {
+  display: inline-flex;
+}
+
+@media (max-width: 768px) {
+  #btn-auth-account {
+    display: inline-flex !important;
+  }
+
+  /* Nesta versão, deixo exportar/importar visíveis também para evitar confusão.
+     Depois podemos mover para um menu "Mais". */
+  #btn-exportar-csv,
+  #btn-importar-csv {
+    display: inline-flex !important;
+  }
+
+  .header-actions {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  #btn-novo-cliente {
+    grid-column: 1 / -1 !important;
   }
 }
