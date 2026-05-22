@@ -5,6 +5,13 @@
 
 'use strict';
 
+// Captura de Erros Global — Mostra alertas visíveis para depuração rápida
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error("Global Error:", message, "at", source, ":", lineno);
+  alert("Erro no CRM: " + message + " (Linha " + lineno + ")");
+  return false;
+};
+
 /* ============================================================
    CONSTANTS
    ============================================================ */
@@ -256,6 +263,12 @@ function esc(str) {
 /* ============================================================
    LOCAL STORAGE & SUPABASE STORAGE
    ============================================================ */
+// Credenciais centrais do Supabase (SaaS Comercial).
+// Deixe vazias ou como placeholders "SUA_SUPABASE..." para testar localmente.
+// Quando preenchidas com chaves reais, o botão "☁️ Nuvem" é ocultado automaticamente dos corretores.
+const MASTER_SUPABASE_URL = "https://bcaltkoimnapblaiykaw.supabase.co"; 
+const MASTER_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjYWx0a29pbW5hcGJsYWl5a2F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNzkxNzUsImV4cCI6MjA5NDk1NTE3NX0.q7LGWM3NKb-q--XwjZRi3OhBGDaptTJxo2rBYcMjfNc";
+
 let supabaseClient = null;
 let currentUser = null;
 let realtimeChannel = null;
@@ -270,8 +283,16 @@ function sanitizeSupabaseUrl(url) {
 }
 
 function initSupabase() {
-  let url = localStorage.getItem('loreny_crm_supabase_url');
-  const key = localStorage.getItem('loreny_crm_supabase_key');
+  let url = MASTER_SUPABASE_URL;
+  let key = MASTER_SUPABASE_KEY;
+
+  const isHardcoded = url && !url.includes("SUA_SUPABASE") && key && !key.includes("SUA_SUPABASE");
+
+  if (!isHardcoded) {
+    url = localStorage.getItem('loreny_crm_supabase_url');
+    key = localStorage.getItem('loreny_crm_supabase_key');
+  }
+
   if (url && key && window.supabase) {
     url = sanitizeSupabaseUrl(url);
     try {
@@ -295,12 +316,23 @@ function updateSupabaseUI(connected) {
   const authBtn   = $('btn-auth-account');
   const authBox   = $('auth-status-box');
 
+  const isHardcoded = MASTER_SUPABASE_URL && !MASTER_SUPABASE_URL.includes("SUA_SUPABASE") && MASTER_SUPABASE_KEY && !MASTER_SUPABASE_KEY.includes("SUA_SUPABASE");
+
+  // Ocultar botão de configuração do banco se estiver rodando no modo SaaS comercial
+  if (supaBtn) {
+    if (isHardcoded) {
+      supaBtn.style.display = 'none';
+    } else {
+      supaBtn.style.display = '';
+    }
+  }
+
   if (connected) {
     if (indicator) indicator.textContent = currentUser ? '🟢' : '🟠';
     if (text) text.textContent = currentUser
       ? `Conectado como ${currentUser.email}`
       : 'Supabase conectado — faça login para carregar os dados';
-    if (supaBtn) {
+    if (supaBtn && !isHardcoded) {
       supaBtn.innerHTML = currentUser ? '☁️ Online' : '☁️ Conectar Login';
       supaBtn.style.color = currentUser ? '#27ae60' : '#f39c12';
     }
@@ -312,11 +344,14 @@ function updateSupabaseUI(connected) {
   } else {
     if (indicator) indicator.textContent = '🟡';
     if (text) text.textContent = 'Usando armazenamento local (Offline)';
-    if (supaBtn) {
+    if (supaBtn && !isHardcoded) {
       supaBtn.innerHTML = '☁️ Nuvem';
       supaBtn.style.color = '';
     }
-    if (authBtn) authBtn.classList.add('hidden');
+    if (authBtn) {
+      authBtn.classList.remove('hidden');
+      authBtn.innerHTML = '🔐 Login';
+    }
     if (authBox) authBox.textContent = 'Modo local/offline';
   }
 }
@@ -365,10 +400,35 @@ function requireAuthForCloud() {
 
 function openAuthModal(mode = 'login') {
   if (!$('modal-auth')) return;
-  $('auth-email').value = localStorage.getItem('loreny_crm_last_email') || '';
+  
+  if (currentUser) {
+    // Show logged-in pane
+    $('auth-pane-logged-in').classList.remove('hidden');
+    $('auth-pane-logged-out').classList.add('hidden');
+    $('auth-title').textContent = 'Sua Conta';
+    $('auth-logged-email').textContent = currentUser.email || 'Conectado';
+    $('auth-logged-leads-count').textContent = leads.length;
+  } else {
+    // Show login form
+    $('auth-pane-logged-in').classList.add('hidden');
+    $('auth-pane-logged-out').classList.remove('hidden');
+    $('auth-email').value = localStorage.getItem('loreny_crm_last_email') || '';
+    $('auth-password').value = '';
+    setAuthMode(mode);
+  }
+  openModal('modal-auth');
+  if (!currentUser) {
+    setTimeout(() => $('auth-email').focus(), 100);
+  }
+}
+
+function showAuthLoginForm(mode = 'login') {
+  $('auth-pane-logged-in').classList.add('hidden');
+  $('auth-pane-logged-out').classList.remove('hidden');
+  $('auth-title').textContent = 'Entrar no CRM';
+  $('auth-email').value = '';
   $('auth-password').value = '';
   setAuthMode(mode);
-  openModal('modal-auth');
   setTimeout(() => $('auth-email').focus(), 100);
 }
 
@@ -419,21 +479,22 @@ async function submitAuth() {
 }
 
 async function signOutAuth() {
-  if (!supabaseClient) return;
-  try {
-    await supabaseClient.auth.signOut();
-    currentUser = null;
-    leads = [];
-    waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
-    teardownRealtime();
-    updateSupabaseUI(true);
-    renderAll();
-    closeModal('modal-auth');
-    toast('Você saiu da conta.', 'info');
-  } catch (e) {
-    console.error('Erro ao sair:', e);
-    toast('Não foi possível sair agora.', 'error');
+  currentUser = null;
+  leads = [];
+  waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
+  teardownRealtime();
+  updateSupabaseUI(true);
+  renderAll();
+  closeModal('modal-auth');
+  
+  if (supabaseClient) {
+    try {
+      await supabaseClient.auth.signOut();
+    } catch (e) {
+      console.error('Erro de rede ou banco ao sair do Supabase:', e);
+    }
   }
+  toast('Você saiu da conta.', 'info');
 }
 
 function teardownRealtime() {
@@ -901,6 +962,39 @@ function renderResultsCount() {
 }
 
 /* ============================================================
+   MOBILE BOTTOM NAV STATE SYNC
+   ============================================================ */
+function updateMobileBottomNav() {
+  const navRetorno = $('mobile-nav-retorno');
+  const navKanban = $('mobile-nav-kanban');
+  const navAlertas = $('mobile-nav-alertas');
+
+  if (navRetorno) {
+    navRetorno.classList.toggle('active', !!filters.retornoHoje);
+  }
+  if (navKanban) {
+    const isKanban = currentView === 'kanban';
+    navKanban.classList.toggle('active', isKanban);
+    
+    // Smoothly swap icon and text based on active view!
+    const label = navKanban.querySelector('small');
+    const icon = navKanban.querySelector('span');
+    if (isKanban) {
+      if (label) label.textContent = 'Tabela';
+      if (icon) icon.textContent = '☰';
+    } else {
+      if (label) label.textContent = 'Kanban';
+      if (icon) icon.textContent = '⬛';
+    }
+  }
+  if (navAlertas) {
+    const dropdown = $('alerts-dropdown');
+    const isOpen = dropdown && !dropdown.classList.contains('hidden');
+    navAlertas.classList.toggle('active', !!isOpen);
+  }
+}
+
+/* ============================================================
    RENDER: ALL (main entrypoint)
    ============================================================ */
 function renderAll() {
@@ -911,6 +1005,7 @@ function renderAll() {
   renderMobileCards();
   if (currentView === 'kanban') renderKanban();
   updateAlerts();
+  updateMobileBottomNav();
 }
 
 /* ============================================================
@@ -1464,16 +1559,33 @@ function setupEvents() {
   $('btn-fechar-modal-auth').addEventListener('click', () => closeModal('modal-auth'));
   $('auth-primary-btn').addEventListener('click', submitAuth);
   $('auth-switch-btn').addEventListener('click', () => setAuthMode($('auth-mode').value === 'signup' ? 'login' : 'signup'));
-  $('auth-logout-btn').addEventListener('click', signOutAuth);
+  $('btn-auth-logout-action').addEventListener('click', signOutAuth);
+  $('btn-auth-switch-account').addEventListener('click', () => showAuthLoginForm('login'));
+  $('btn-auth-cancel-out').addEventListener('click', () => closeModal('modal-auth'));
   $('auth-password').addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
 
   // Mobile bottom nav
   $('mobile-nav-new').addEventListener('click', openNewModal);
   $('mobile-nav-retorno').addEventListener('click', () => {
-    clearFilters(); filters.retornoHoje = true; $('btn-retorno-hoje').classList.add('btn-filter-active'); renderAll(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    const isToday = filters.retornoHoje;
+    clearFilters();
+    if (!isToday) {
+      filters.retornoHoje = true;
+      $('btn-retorno-hoje').classList.add('btn-filter-active');
+    }
+    renderAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
-  $('mobile-nav-kanban').addEventListener('click', () => { switchView(currentView === 'kanban' ? 'tabela' : 'kanban'); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-  $('mobile-nav-alertas').addEventListener('click', e => { e.stopPropagation(); $('alerts-dropdown').classList.toggle('hidden'); });
+  $('mobile-nav-kanban').addEventListener('click', () => { 
+    switchView(currentView === 'kanban' ? 'tabela' : 'kanban'); 
+    renderAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+  });
+  $('mobile-nav-alertas').addEventListener('click', e => { 
+    e.stopPropagation(); 
+    $('alerts-dropdown').classList.toggle('hidden'); 
+    updateMobileBottomNav();
+  });
 
   // Modal: WhatsApp templates
   $('btn-fechar-modal-wa').addEventListener('click', () => closeModal('modal-wa-templates'));
@@ -1499,19 +1611,25 @@ function setupEvents() {
   $('btn-alertas').addEventListener('click', e => {
     e.stopPropagation();
     $('alerts-dropdown').classList.toggle('hidden');
+    updateMobileBottomNav();
   });
 
   // Close button inside dropdown
   $('btn-fechar-alertas').addEventListener('click', e => {
     e.stopPropagation();
     $('alerts-dropdown').classList.add('hidden');
+    updateMobileBottomNav();
   });
 
   // Close alerts dropdown when clicking outside
   document.addEventListener('click', e => {
     const container = document.querySelector('.alertas-container');
     if (container && !container.contains(e.target)) {
-      $('alerts-dropdown').classList.add('hidden');
+      const dropdown = $('alerts-dropdown');
+      if (dropdown && !dropdown.classList.contains('hidden')) {
+        dropdown.classList.add('hidden');
+        updateMobileBottomNav();
+      }
     }
   });
 }

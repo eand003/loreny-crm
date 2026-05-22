@@ -812,10 +812,8 @@ function renderTable() {
           : '<span class="td-muted">—</span>'
         }
       </td>
-      <td><span class="td-muted">${esc(l.origem) || '—'}</span></td>
-      <td><span class="td-muted">${esc(l.tipo) || '—'}</span></td>
-      <td><span class="td-muted" title="${esc(l.regiao)}">${esc(l.regiao) || '—'}</span></td>
-      <td><span class="td-muted">${esc(l.valor) || '—'}</span></td>
+      <td class="col-origem"><span class="td-muted">${esc(l.origem) || '—'}</span></td>
+      <td class="col-tipo"><span class="td-muted">${esc(l.tipo) || '—'}</span></td>
       <td>${badgeHtml(l.status)}</td>
       <td>${dateCellHtml(l.dataRetorno)}</td>
       <td>
@@ -1213,7 +1211,7 @@ function salvarInteracao() {
    MODAL: CONFIRM DELETE
    ============================================================ */
 function confirmDelete(id) {
-  const l = leads.find(x => x.id === id);
+  const l = leads.find(x => String(x.id).trim() === String(id).trim());
   if (!l) return;
   deleteTargetId = id;
   $('confirm-text').textContent = `Isso vai remover "${l.nome}" e todo o histórico permanentemente.`;
@@ -1222,14 +1220,15 @@ function confirmDelete(id) {
 
 async function executeDelete() {
   if (!deleteTargetId) return;
-  const l    = leads.find(x => x.id === deleteTargetId);
+  const l    = leads.find(x => String(x.id).trim() === String(deleteTargetId).trim());
   const nome = l ? l.nome : 'Cliente';
-  leads = leads.filter(x => x.id !== deleteTargetId);
+  leads = leads.filter(x => String(x.id).trim() !== String(deleteTargetId).trim());
   
   if (supabaseClient) {
     try {
       const { error } = await supabaseClient.from('leads').delete().eq('id', deleteTargetId).eq('user_id', currentUser.id);
       if (error) throw error;
+      saveLeadsLocal();
     } catch (e) {
       console.error("Erro ao deletar lead do Supabase:", e);
       toast("Erro de conexão ao remover da nuvem.", "error");
@@ -2247,5 +2246,18 @@ async function init() {
     setTimeout(() => toast('Bem-vinda ao CRM Loreny Imóveis! 🏠', 'success'), 600);
   }
 }
+
+// Expose dynamic event handlers globally for inline HTML callbacks (e.g. from Vercel/Modules)
+window.confirmDelete = confirmDelete;
+window.executeDelete = executeDelete;
+window.openEditModal = openEditModal;
+window.openHistorico = openHistorico;
+window.openWaTemplates = openWaTemplates;
+window.onDragStart = onDragStart;
+window.onDragEnd = onDragEnd;
+window.onDragOver = onDragOver;
+window.onDragLeave = onDragLeave;
+window.onDrop = onDrop;
+window.handleAlertClick = handleAlertClick;
 
 document.addEventListener('DOMContentLoaded', init);
