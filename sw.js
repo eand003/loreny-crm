@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crm-loreny-saas-v2';
+const CACHE_NAME = 'crm-loreny-saas-v3';
 const APP_SHELL = ['./', './index.html', './style.css', './app.js', './manifest.json'];
 
 self.addEventListener('install', event => {
@@ -16,13 +16,17 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
+  
+  // Network First Strategy: Try downloading the latest version from network, fall back to cache if offline
   event.respondWith(
-    caches.match(request).then(cached => cached || fetch(request).then(response => {
-      const copy = response.clone();
-      if (response.ok && new URL(request.url).origin === location.origin) {
-        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-      }
-      return response;
-    }).catch(() => caches.match('./index.html')))
+    fetch(request)
+      .then(response => {
+        const copy = response.clone();
+        if (response.ok && new URL(request.url).origin === location.origin) {
+          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+        }
+        return response;
+      })
+      .catch(() => caches.match(request).then(cached => cached || caches.match('./index.html')))
   );
 });
