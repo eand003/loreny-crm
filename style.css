@@ -1663,9 +1663,13 @@ textarea.form-control {
   body { padding-bottom: 78px; }
 
   #header {
-    position: sticky;
-    top: 0;
-    align-items: flex-start;
+    position: relative;
+    top: auto;
+    height: auto;
+    padding: 1.25rem 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
   }
 
   .header-brand {
@@ -1682,6 +1686,18 @@ textarea.form-control {
   .header-actions .btn {
     min-height: 42px;
     border-radius: 12px;
+  }
+
+  #btn-novo-cliente {
+    grid-column: 1 / -1;
+  }
+
+  #btn-alertas {
+    display: none !important;
+  }
+
+  .alertas-container {
+    display: contents;
   }
 
   .quote-banner {
@@ -1712,8 +1728,8 @@ textarea.form-control {
   .dash-card-label { font-size: 0.64rem; }
 
   #filters {
-    position: sticky;
-    top: 126px;
+    position: relative;
+    top: auto;
     z-index: 120;
     border-radius: 16px;
     padding: 0.75rem;
@@ -1852,6 +1868,11 @@ textarea.form-control {
   .mobile-bottom-nav button:active {
     background: rgba(255,255,255,0.12);
     transform: scale(0.98);
+  }
+
+  .mobile-bottom-nav button.active {
+    color: var(--gold) !important;
+    background: rgba(201, 153, 26, 0.15) !important;
   }
 
   .mobile-bottom-nav span {

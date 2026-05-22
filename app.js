@@ -964,6 +964,39 @@ function renderResultsCount() {
 }
 
 /* ============================================================
+   MOBILE BOTTOM NAV STATE SYNC
+   ============================================================ */
+function updateMobileBottomNav() {
+  const navRetorno = $('mobile-nav-retorno');
+  const navKanban = $('mobile-nav-kanban');
+  const navAlertas = $('mobile-nav-alertas');
+
+  if (navRetorno) {
+    navRetorno.classList.toggle('active', !!filters.retornoHoje);
+  }
+  if (navKanban) {
+    const isKanban = currentView === 'kanban';
+    navKanban.classList.toggle('active', isKanban);
+    
+    // Smoothly swap icon and text based on active view!
+    const label = navKanban.querySelector('small');
+    const icon = navKanban.querySelector('span');
+    if (isKanban) {
+      if (label) label.textContent = 'Tabela';
+      if (icon) icon.textContent = '☰';
+    } else {
+      if (label) label.textContent = 'Kanban';
+      if (icon) icon.textContent = '⬛';
+    }
+  }
+  if (navAlertas) {
+    const dropdown = $('alerts-dropdown');
+    const isOpen = dropdown && !dropdown.classList.contains('hidden');
+    navAlertas.classList.toggle('active', !!isOpen);
+  }
+}
+
+/* ============================================================
    RENDER: ALL (main entrypoint)
    ============================================================ */
 function renderAll() {
@@ -974,6 +1007,7 @@ function renderAll() {
   renderMobileCards();
   if (currentView === 'kanban') renderKanban();
   updateAlerts();
+  updateMobileBottomNav();
 }
 
 /* ============================================================
@@ -1535,10 +1569,25 @@ function setupEvents() {
   // Mobile bottom nav
   $('mobile-nav-new').addEventListener('click', openNewModal);
   $('mobile-nav-retorno').addEventListener('click', () => {
-    clearFilters(); filters.retornoHoje = true; $('btn-retorno-hoje').classList.add('btn-filter-active'); renderAll(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    const isToday = filters.retornoHoje;
+    clearFilters();
+    if (!isToday) {
+      filters.retornoHoje = true;
+      $('btn-retorno-hoje').classList.add('btn-filter-active');
+    }
+    renderAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
-  $('mobile-nav-kanban').addEventListener('click', () => { switchView(currentView === 'kanban' ? 'tabela' : 'kanban'); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-  $('mobile-nav-alertas').addEventListener('click', e => { e.stopPropagation(); $('alerts-dropdown').classList.toggle('hidden'); });
+  $('mobile-nav-kanban').addEventListener('click', () => { 
+    switchView(currentView === 'kanban' ? 'tabela' : 'kanban'); 
+    renderAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+  });
+  $('mobile-nav-alertas').addEventListener('click', e => { 
+    e.stopPropagation(); 
+    $('alerts-dropdown').classList.toggle('hidden'); 
+    updateMobileBottomNav();
+  });
 
   // Modal: WhatsApp templates
   $('btn-fechar-modal-wa').addEventListener('click', () => closeModal('modal-wa-templates'));
@@ -1564,19 +1613,25 @@ function setupEvents() {
   $('btn-alertas').addEventListener('click', e => {
     e.stopPropagation();
     $('alerts-dropdown').classList.toggle('hidden');
+    updateMobileBottomNav();
   });
 
   // Close button inside dropdown
   $('btn-fechar-alertas').addEventListener('click', e => {
     e.stopPropagation();
     $('alerts-dropdown').classList.add('hidden');
+    updateMobileBottomNav();
   });
 
   // Close alerts dropdown when clicking outside
   document.addEventListener('click', e => {
     const container = document.querySelector('.alertas-container');
     if (container && !container.contains(e.target)) {
-      $('alerts-dropdown').classList.add('hidden');
+      const dropdown = $('alerts-dropdown');
+      if (dropdown && !dropdown.classList.contains('hidden')) {
+        dropdown.classList.add('hidden');
+        updateMobileBottomNav();
+      }
     }
   });
 }
