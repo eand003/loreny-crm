@@ -322,32 +322,35 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
         if (cols.length === 0 || !cols[nameIdx]) continue;
 
         const name = cols[nameIdx];
-        const rawPhone = phoneIdx !== -1 ? cols[phoneIdx] : '';
-        const phone = rawPhone.replace(/[^\d+]/g, '');
-
-        const email = emailIdx !== -1 ? cols[emailIdx] : null;
         
-        const rawType = typeIdx !== -1 ? cols[typeIdx] : 'Apartamento';
+        const rawPhone = (phoneIdx !== -1 && cols[phoneIdx]) ? cols[phoneIdx] : '';
+        const phone = typeof rawPhone === 'string' ? rawPhone.replace(/[^\d+]/g, '') : '';
+
+        const email = (emailIdx !== -1 && cols[emailIdx]) ? cols[emailIdx] : null;
+        
+        const rawType = (typeIdx !== -1 && cols[typeIdx]) ? cols[typeIdx] : 'Apartamento';
         let propertyType = 'Apartamento';
-        if (rawType.toLowerCase().includes('casa') || rawType.toLowerCase().includes('sobrado')) {
-          propertyType = 'Casa';
-        } else if (rawType.toLowerCase().includes('lote') || rawType.toLowerCase().includes('terreno')) {
-          propertyType = 'Terreno';
-        } else if (rawType.toLowerCase().includes('comercial') || rawType.toLowerCase().includes('sala')) {
-          propertyType = 'Comercial';
+        if (typeof rawType === 'string') {
+          if (rawType.toLowerCase().includes('casa') || rawType.toLowerCase().includes('sobrado')) {
+            propertyType = 'Casa';
+          } else if (rawType.toLowerCase().includes('lote') || rawType.toLowerCase().includes('terreno')) {
+            propertyType = 'Terreno';
+          } else if (rawType.toLowerCase().includes('comercial') || rawType.toLowerCase().includes('sala')) {
+            propertyType = 'Comercial';
+          }
         }
 
-        const region = regionIdx !== -1 ? cols[regionIdx] : 'Não especificada';
+        const region = (regionIdx !== -1 && cols[regionIdx]) ? cols[regionIdx] : 'Não especificada';
         
-        const rawBudget = budgetIdx !== -1 ? cols[budgetIdx] : '';
-        const cleanBudget = rawBudget.replace(/[^\d]/g, '');
+        const rawBudget = (budgetIdx !== -1 && cols[budgetIdx]) ? cols[budgetIdx] : '';
+        const cleanBudget = typeof rawBudget === 'string' ? rawBudget.replace(/[^\d]/g, '') : '';
         const budget = cleanBudget ? parseFloat(cleanBudget) : null;
 
-        const rawStatus = statusIdx !== -1 ? cols[statusIdx].toLowerCase() : 'novo lead';
+        const rawStatus = (statusIdx !== -1 && cols[statusIdx]) ? cols[statusIdx].toLowerCase() : 'novo lead';
         const status = STATUS_MAP[rawStatus] || 'new';
 
-        const notes = notesIdx !== -1 ? cols[notesIdx] : '';
-        const next_action = nextActionIdx !== -1 ? cols[nextActionIdx] : '';
+        const notes = (notesIdx !== -1 && cols[notesIdx]) ? cols[notesIdx] : '';
+        const next_action = (nextActionIdx !== -1 && cols[nextActionIdx]) ? cols[nextActionIdx] : '';
         
         let next_action_date = null;
         if (nextActionDateIdx !== -1 && cols[nextActionDateIdx]) {
