@@ -1,0 +1,2482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Apresentação Comercial e Dossiê Interativo de Vendas do CRM Loreny Imóveis v2 SaaS. O sistema definitivo de gestão de leads para corretores e imobiliárias de elite.">
+  <title>Loreny CRM — Apresentação Comercial & Dossiê Interativo 🏠✨</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ============================================================
+       DESIGN SYSTEM, CSS VARIABLES & TOKENS
+       ============================================================ */
+    :root {
+      --bg-darkest: #030712;
+      --bg-darker: #080f1e;
+      --bg-card: rgba(15, 23, 42, 0.45);
+      --bg-card-hover: rgba(30, 41, 59, 0.6);
+      
+      --accent-gold: #f59e0b;
+      --accent-gold-glow: rgba(245, 158, 11, 0.15);
+      --accent-blue: #0ea5e9;
+      --accent-blue-glow: rgba(14, 165, 233, 0.15);
+      --accent-green: #10b981;
+      --accent-green-glow: rgba(16, 185, 129, 0.15);
+      --accent-purple: #8b5cf6;
+      --accent-purple-glow: rgba(139, 92, 246, 0.15);
+      --accent-red: #ef4444;
+      --accent-orange: #f97316;
+      
+      --border-color: rgba(255, 255, 255, 0.06);
+      --border-color-hover: rgba(255, 255, 255, 0.12);
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ============================================================
+       GLOBAL RESET & GRID BACKGROUND
+       ============================================================ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-darkest);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Tech Grid Overlay */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    /* Soft Floating Glows */
+    .glow-blur {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(140px);
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.25;
+    }
+    .glow-gold {
+      top: 10%;
+      left: 20%;
+      background: radial-gradient(circle, var(--accent-gold) 0%, transparent 70%);
+    }
+    .glow-blue {
+      top: 50%;
+      right: 10%;
+      background: radial-gradient(circle, var(--accent-blue) 0%, transparent 70%);
+    }
+    .glow-purple {
+      bottom: 10%;
+      left: 30%;
+      background: radial-gradient(circle, var(--accent-purple) 0%, transparent 70%);
+    }
+
+    /* ============================================================
+       TYPOGRAPHY
+       ============================================================ */
+    h1, h2, h3, h4 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ffffff 40%, var(--accent-gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gradient-text-blue {
+      background: linear-gradient(135deg, #ffffff 40%, var(--accent-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ============================================================
+       COMPONENTS: BADGES, BUTTONS
+       ============================================================ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      background: rgba(245, 158, 11, 0.06);
+      color: var(--accent-gold);
+    }
+
+    .badge-blue {
+      border-color: rgba(14, 165, 233, 0.25);
+      background: rgba(14, 165, 233, 0.06);
+      color: var(--accent-blue);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.95rem 2.25rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition);
+      gap: 0.65rem;
+      border: none;
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--accent-gold) 0%, #d97706 100%);
+      color: var(--bg-darkest);
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-gold:hover {
+      background: linear-gradient(135deg, #fbbf24 0%, var(--accent-gold) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--text-secondary);
+      transform: translateY(-2px);
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1.25rem;
+      font-size: 0.85rem;
+      border-radius: 8px;
+    }
+
+    /* ============================================================
+       HEADER
+       ============================================================ */
+    header {
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(3, 7, 18, 0.75);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, var(--accent-gold) 0%, #b45309 100%);
+      color: var(--bg-darkest);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.4rem;
+      font-family: var(--font-display);
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
+    }
+
+    .brand-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.1;
+      font-family: var(--font-display);
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--accent-gold);
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .nav-link:hover {
+      color: var(--accent-gold);
+    }
+
+    @media (max-width: 800px) {
+      .header-nav {
+        display: none;
+      }
+    }
+
+    /* ============================================================
+       HERO SECTION
+       ============================================================ */
+    .hero {
+      padding: 8rem 0 5rem 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-size: 4.25rem;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+      font-weight: 800;
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      color: var(--text-secondary);
+      max-width: 800px;
+      margin: 0 auto 3rem auto;
+      font-weight: 300;
+    }
+
+    .hero-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.75rem; }
+      .hero p { font-size: 1.1rem; }
+      .hero { padding: 5rem 0 3rem 0; }
+    }
+
+    /* ============================================================
+       ANTES VS DEPOIS COMPARISON
+       ============================================================ */
+    .compare-section {
+      padding: 6rem 0;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .compare-box {
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      border: 1px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .compare-box.caos {
+      background: rgba(239, 68, 68, 0.02);
+      border-color: rgba(239, 68, 68, 0.15);
+    }
+
+    .compare-box.sucesso {
+      background: rgba(16, 185, 129, 0.02);
+      border-color: rgba(16, 185, 129, 0.15);
+    }
+
+    .compare-box h3 {
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .compare-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .compare-item {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .compare-item svg {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      margin-top: 2px;
+    }
+
+    .caos .compare-item svg { color: var(--accent-red); }
+    .sucesso .compare-item svg { color: var(--accent-green); }
+
+    .compare-item strong {
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: 0.15rem;
+    }
+
+    /* ============================================================
+       GRID DE BENEFÍCIOS (SAAS MARKETING STYLE)
+       ============================================================ */
+    .section-title {
+      text-align: center;
+      margin-bottom: 5rem;
+    }
+
+    .section-title h2 {
+      font-size: 2.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-title p {
+      color: var(--text-secondary);
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+      font-weight: 300;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2.5rem;
+      margin-bottom: 6rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 3rem 2.25rem;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(800px circle at var(--x, 0px) var(--y, 0px), rgba(255, 255, 255, 0.05), transparent 40%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(245, 158, 11, 0.25);
+      background: var(--bg-card-hover);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-icon {
+      width: 58px;
+      height: 58px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+      transition: var(--transition);
+    }
+
+    .card:hover .card-icon {
+      border-color: var(--accent-gold);
+      background: rgba(245, 158, 11, 0.08);
+      color: var(--accent-gold);
+      transform: scale(1.05);
+    }
+
+    .card h3 {
+      font-size: 1.45rem;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .card p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* ============================================================
+       SANDBOX INTERATIVO (CRM DE SIMULAÇÃO EM TEMPO REAL)
+       ============================================================ */
+    .sandbox-section {
+      padding: 6rem 0;
+      background: rgba(255, 255, 255, 0.005);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .macbook-mockup {
+      background: #090f1d;
+      border: 14px solid #1e293b;
+      border-radius: 28px;
+      box-shadow: 0 35px 75px -20px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+      width: 100%;
+      max-width: 1140px;
+      margin: 0 auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .macbook-header {
+      background: #0f172a;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .macbook-dots {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .macbook-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .macbook-title {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .macbook-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      animation: pulseGreen 2s infinite;
+    }
+
+    /* Simulated CRM App Styles */
+    .crm-app {
+      background: #050b14;
+      min-height: 550px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      font-size: 0.9rem;
+    }
+
+    /* CRM Dashboard Metrics */
+    .crm-dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      padding: 1.5rem;
+      background: #0a101f;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .crm-metric-card {
+      background: rgba(255, 255, 255, 0.015);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 1.25rem;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .crm-metric-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+
+    .crm-metric-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .crm-metric-icon {
+      font-size: 1.5rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .crm-metric-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.1;
+      font-family: var(--font-display);
+    }
+
+    .crm-metric-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    /* Micro-Chart Sparkline */
+    .sparkline-svg {
+      width: 60px;
+      height: 24px;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* CRM Controls */
+    .crm-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(10, 16, 31, 0.5);
+      flex-wrap: wrap;
+      gap: 1.25rem;
+    }
+
+    .crm-views {
+      display: flex;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 0.25rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .crm-view-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 0.5rem 1.25rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .crm-view-btn.active {
+      background: linear-gradient(135deg, var(--accent-gold) 0%, #d97706 100%);
+      color: var(--bg-darkest);
+      box-shadow: 0 2px 10px rgba(245, 158, 11, 0.2);
+    }
+
+    .crm-add-btn {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: var(--accent-gold);
+      padding: 0.6rem 1.25rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .crm-add-btn:hover {
+      background: linear-gradient(135deg, var(--accent-gold) 0%, #d97706 100%);
+      color: var(--bg-darkest);
+      transform: translateY(-2px);
+    }
+
+    .crm-results-info {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* CRM Table View */
+    .crm-table-container {
+      padding: 1.5rem;
+      overflow-x: auto;
+      flex-grow: 1;
+    }
+
+    .crm-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .crm-table th {
+      padding: 1rem;
+      border-bottom: 2px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 700;
+    }
+
+    .crm-table tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .crm-table tr:hover {
+      background: rgba(255, 255, 255, 0.015);
+    }
+
+    .crm-table td {
+      padding: 1.1rem 1rem;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    .crm-table tr.alert-today {
+      background: rgba(249, 115, 22, 0.03);
+      border-left: 3px solid var(--accent-orange);
+    }
+
+    /* Status Badges */
+    .crm-status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .status-novo { background: rgba(14, 165, 233, 0.1); color: var(--accent-blue); border: 1px solid rgba(14, 165, 233, 0.2); }
+    .status-contato { background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); border: 1px solid rgba(139, 92, 246, 0.2); }
+    .status-visita { background: rgba(249, 115, 22, 0.1); color: var(--accent-orange); border: 1px solid rgba(249, 115, 22, 0.2); }
+    .status-proposta { background: rgba(245, 158, 11, 0.1); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.2); }
+    .status-fechado { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.2); }
+
+    .crm-origin-badge {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    /* CRM Kanban View */
+    .crm-kanban-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.25rem;
+      padding: 1.5rem;
+      overflow-x: auto;
+      flex-grow: 1;
+      align-content: start;
+    }
+
+    @media (max-width: 950px) {
+      .crm-kanban-board {
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      }
+    }
+
+    .crm-kanban-column {
+      background: rgba(255, 255, 255, 0.005);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-height: 400px;
+    }
+
+    .crm-kanban-col-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 0.25rem;
+    }
+
+    .crm-kanban-col-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+    }
+
+    .crm-kanban-col-count {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 40px;
+      font-weight: 700;
+      border: 1px solid var(--border-color);
+    }
+
+    .crm-kanban-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.1rem;
+      transition: var(--transition);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .crm-kanban-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(245, 158, 11, 0.35);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.35);
+    }
+
+    .crm-kanban-card-title {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    .crm-kanban-card-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .crm-kanban-card-action {
+      font-size: 0.75rem;
+      color: var(--accent-gold);
+      border-top: 1px dashed rgba(255, 255, 255, 0.06);
+      padding-top: 0.5rem;
+      margin-top: 0.25rem;
+      font-style: italic;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Lead Ficha Side Panel */
+    .crm-side-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 440px;
+      height: 100%;
+      background: #090f1d;
+      border-left: 1px solid var(--border-color);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -15px 0 35px rgba(0, 0, 0, 0.65);
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .crm-side-panel.open {
+      transform: translateX(0);
+    }
+
+    .crm-panel-header {
+      padding: 1.5rem;
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .crm-panel-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--text-primary);
+    }
+
+    .crm-panel-close {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .crm-panel-close:hover {
+      color: var(--accent-gold);
+    }
+
+    .crm-panel-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .crm-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .crm-field-group label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.07em;
+    }
+
+    .crm-input-field {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.6rem 0.85rem;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.85rem;
+      transition: var(--transition);
+    }
+
+    .crm-input-field:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* Live Sandbox Logs Widget */
+    .crm-logs-widget {
+      background: #040810;
+      border-top: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .crm-log-item {
+      color: var(--accent-gold);
+    }
+
+    /* WhatsApp Simulator Success Overlay */
+    .wa-success-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(3, 7, 18, 0.85);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+
+    .wa-success-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .wa-success-card {
+      background: #0b141a;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 2.5rem;
+      border-radius: 24px;
+      text-align: center;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+      transform: scale(0.9);
+      transition: var(--transition);
+    }
+
+    .wa-success-overlay.show .wa-success-card {
+      transform: scale(1);
+    }
+
+    .wa-success-icon {
+      font-size: 3rem;
+      background: rgba(16, 185, 129, 0.08);
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      margin-bottom: 1.5rem;
+    }
+
+    .wa-success-bubble {
+      background: #1f2c34;
+      border-radius: 14px;
+      padding: 1.25rem;
+      text-align: left;
+      font-size: 0.85rem;
+      margin: 1.5rem 0;
+      border-left: 4px solid var(--accent-green);
+      line-height: 1.55;
+      color: var(--text-primary);
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    /* Custom Save Confirmation Alert */
+    .crm-toast {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-30px);
+      background: rgba(16, 185, 129, 0.95);
+      color: #fff;
+      padding: 0.7rem 1.75rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      z-index: 30;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .crm-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ============================================================
+       CALCULADORA DE ROI INTERATIVA
+       ============================================================ */
+    .roi-section {
+      padding: 6rem 0;
+    }
+
+    .roi-container {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(8, 15, 30, 0.95) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 28px;
+      padding: 4rem 3rem;
+      backdrop-filter: blur(15px);
+    }
+
+    .roi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .roi-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+      .roi-container {
+        padding: 2.5rem 1.5rem;
+      }
+    }
+
+    .roi-sliders {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+    }
+
+    .slider-label {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .slider-val {
+      color: var(--accent-gold);
+      font-size: 1.1rem;
+      font-family: var(--font-display);
+    }
+
+    .roi-input-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      outline: none;
+    }
+
+    .roi-input-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+      transition: transform 0.2s;
+    }
+
+    .roi-input-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .roi-results-card {
+      background: rgba(255, 255, 255, 0.015);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .roi-result-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+      padding-bottom: 1.25rem;
+    }
+
+    .roi-result-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .roi-result-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .roi-result-val {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .roi-result-val.highlight {
+      color: var(--accent-green);
+      font-size: 2.25rem;
+      text-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+    }
+
+    /* ============================================================
+       INFOGRAPHIC: SECURITY AND MULTI-TENANT
+       ============================================================ */
+    .infographic-section {
+      padding: 6rem 0;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(9, 14, 22, 0.95) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 4rem 3rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+    }
+
+    .info-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .info-item {
+      display: flex;
+      gap: 1.25rem;
+    }
+
+    .info-num {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid var(--accent-gold);
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .info-text h4 {
+      font-size: 1.15rem;
+      margin-bottom: 0.35rem;
+      color: var(--text-primary);
+    }
+
+    .info-text p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* Visual Database Flow Representation */
+    .db-flow-visual {
+      background: rgba(255, 255, 255, 0.015);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .db-node {
+      background: rgba(14, 165, 233, 0.08);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      display: inline-block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--accent-blue);
+      margin-bottom: 1.25rem;
+      min-width: 220px;
+    }
+
+    .db-node-gold {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: var(--accent-gold);
+      min-width: 220px;
+    }
+
+    .db-arrow {
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      margin: 0.25rem 0;
+      animation: bounceArrow 2s infinite ease-in-out;
+    }
+
+    @keyframes bounceArrow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(5px); }
+    }
+
+    /* ============================================================
+       CTA & FOOTER
+       ============================================================ */
+    .cta-section {
+      padding: 8rem 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .cta-section h2 {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-section p {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      max-width: 650px;
+      margin: 0 auto 3rem auto;
+      font-weight: 300;
+    }
+
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 3.5rem 0;
+      background: #02040a;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .footer-copy {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .footer-tag {
+      font-size: 0.85rem;
+      color: var(--accent-gold);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .pulse-badge {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-orange);
+      box-shadow: 0 0 0 rgba(249, 115, 22, 0.4);
+      animation: pulseAlert 1.5s infinite;
+      margin-right: 0.25rem;
+    }
+
+    @keyframes pulseAlert {
+      0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(249, 115, 22, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Glow Background Elements -->
+  <div class="glow-blur glow-gold"></div>
+  <div class="glow-blur glow-blue"></div>
+  <div class="glow-blur glow-purple"></div>
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ */
+  <header>
+    <div class="container header-content">
+      <div class="logo-area">
+        <div class="logo-badge">LI</div>
+        <div>
+          <div class="brand-title">Loreny Imóveis</div>
+          <div class="brand-sub">CRM SaaS Comercial</div>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="#diferenciais" class="nav-link">Diferenciais</a>
+        <a href="#sandbox" class="nav-link">Demonstração Interativa</a>
+        <a href="#roi" class="nav-link">Calculadora ROI</a>
+        <a href="#seguranca" class="nav-link">Segurança</a>
+        <a href="#sandbox" class="btn btn-gold btn-sm">Testar Simulador ⚡</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       HERO
+       ============================================================ */
+  <section class="hero">
+    <div class="container">
+      <span class="badge">🔥 Apresentação SaaS Premium</span>
+      <h1>Venda Mais e Melhor com o Novo <br><span class="gradient-text">CRM Loreny Imóveis v2</span></h1>
+      <p>O ecossistema imobiliário de alta performance projetado para corretores de elite. Pare de perder leads no caos e comece a fechar mais negócios por meio de uma plataforma rápida, inteligente e sincronizada em tempo real.</p>
+      <div class="hero-buttons">
+        <a href="#sandbox" class="btn btn-gold">Experimentar Simulador Ativo 🏠</a>
+        <a href="index.html" class="btn btn-outline">Abrir o CRM Loreny 🚀</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ANTES VS DEPOIS (VISUAL PERSUASIVO)
+       ============================================================ */
+  <section class="compare-section" id="diferenciais">
+    <div class="container">
+      <div class="section-title">
+        <h2>Pare de Queimar Leads e Perder Vendas</h2>
+        <p>A diferença drástica entre a desorganização de planilhas e a eficiência de um processo automatizado.</p>
+      </div>
+
+      <div class="compare-grid">
+        <!-- O Caos -->
+        <div class="compare-box caos">
+          <h3 style="color: var(--accent-red);">
+            <svg fill="currentColor" viewBox="0 0 20 20" width="28" height="28"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+            O Caos Comercial (Sem CRM)
+          </h3>
+          <ul class="compare-list">
+            <li class="compare-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+              <div>
+                <strong>Leads esquecidos no WhatsApp</strong>
+                <span>Contatos chegam, acumulam na caixa de entrada e esfriam sem nenhuma próxima ação planejada.</span>
+              </div>
+            </li>
+            <li class="compare-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+              <div>
+                <strong>Redigitação cansativa de mensagens</strong>
+                <span>Corretor perde minutos preciosos procurando dados de imóvel e reescrevendo apresentações com erros.</span>
+              </div>
+            </li>
+            <li class="compare-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+              <div>
+                <strong>Falta total de histórico comercial</strong>
+                <span>Você não lembra qual imóvel o cliente visitou, qual foi o último retorno ou quais são suas preferências reais.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- O Sucesso -->
+        <div class="compare-box sucesso">
+          <h3 style="color: var(--accent-green);">
+            <svg fill="currentColor" viewBox="0 0 20 20" width="28" height="28"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+            O Método Loreny CRM
+          </h3>
+          <ul class="compare-list">
+            <li class="compare-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+              <div>
+                <strong>Central Ativa de Alertas de Retorno</strong>
+                <span>O CRM avisa diariamente no topo da tela quem chamar hoje, quem está atrasado e qual a próxima ação imediata.</span>
+              </div>
+            </li>
+            <li class="compare-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+              <div>
+                <strong>WhatsApp Quick Replies em 2 segundos</strong>
+                <span>Dispare respostas profissionais altamente personalizadas puxando dados do lead de forma nativa e automática.</span>
+              </div>
+            </li>
+            <li class="compare-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+              <div>
+                <strong>Histórico Comercial Permanente</strong>
+                <span>Rastro de todas as ligações, propostas, visitas e alterações de status integradas em uma linha do tempo elegante.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       RECURSOS CHAVE (GRID DE DESTAQUES MARKETING)
+       ============================================================ */
+  <section style="padding: 4rem 0;">
+    <div class="container">
+      <div class="section-title">
+        <h2>Engenharia Comercial de Ponta</h2>
+        <p>Acelerando todas as etapas da captação comercial e nutrição até a assinatura do contrato.</p>
+      </div>
+
+      <div class="grid-3">
+        <!-- WhatsApp -->
+        <div class="card">
+          <div class="card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+          </div>
+          <h3>Templates Inteligentes</h3>
+          <p>Escreva modelos de WhatsApp com marcadores dinâmicos. Envie abordagens comerciais impecáveis alterando apenas as variáveis em um clique, sem falhas de digitação.</p>
+        </div>
+
+        <!-- Alertas -->
+        <div class="card">
+          <div class="card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+          </div>
+          <h3>Retorno Programado</h3>
+          <p>O CRM protege sua carteira de clientes. Ele sinaliza visualmente quais leads necessitam de nova abordagem hoje e impede que qualquer negociação fique no limbo.</p>
+        </div>
+
+        <!-- Kanban -->
+        <div class="card">
+          <div class="card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2M15 7a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+          </div>
+          <h3>Kanban de Alta Performance</h3>
+          <p>Acompanhe os clientes visualmente por colunas do funil de vendas. Atualize etapas arrastando cartões de forma intuitiva, mantendo um pipeline super organizado.</p>
+        </div>
+
+        <!-- Cloud -->
+        <div class="card">
+          <div class="card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
+          </div>
+          <h3>Nuvem SaaS Isolada</h3>
+          <p>Segurança multi-tenant moderna usando Supabase. Corretores parceiros podem se logar e usar a ferramenta livremente: cada um tem acesso privado e exclusivo à sua carteira.</p>
+        </div>
+
+        <!-- Offline -->
+        <div class="card">
+          <div class="card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          </div>
+          <h3>Tecnologia Híbrida</h3>
+          <p>Acesso instantâneo mesmo sem sinal de internet ou móvel. Salve, altere ou consulte leads de forma offline: o CRM sincroniza os dados assim que o sinal retornar.</p>
+        </div>
+
+        <!-- UX -->
+        <div class="card">
+          <div class="card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <h3>Velocidade e Praticidade</h3>
+          <p>Carregamento ultrarrápido, sem transição de páginas demorada. O CRM abre no celular instantaneamente, ideal para uso na rua, estande de vendas e reuniões.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SANDBOX INTERATIVO (DEMONSTRAÇÃO FUNCIONAL COMPLETA)
+       ============================================================ */
+  <section class="sandbox-section" id="sandbox">
+    <div class="container">
+      <div class="section-title">
+        <h2>Experiência Prática Interativa</h2>
+        <p>Explore as funcionalidades principais do CRM no simulador abaixo. Mude etapas, gerencie os dados de simulação e dispare abordagens no WhatsApp.</p>
+      </div>
+
+      <!-- Macbook Viewport -->
+      <div class="macbook-mockup">
+        
+        <!-- Frame Header -->
+        <div class="macbook-header">
+          <div class="macbook-dots">
+            <div class="macbook-dot dot-red"></div>
+            <div class="macbook-dot dot-yellow"></div>
+            <div class="macbook-dot dot-green"></div>
+          </div>
+          <div class="macbook-title">
+            <div class="macbook-pulse"></div>
+            Loreny CRM SaaS — Simulador Comercial Ativo
+          </div>
+          <div style="width: 50px;"></div>
+        </div>
+
+        <!-- CRM App Wrapper -->
+        <div class="crm-app">
+          
+          <!-- Custom Save Confirmation Toast -->
+          <div id="crm-toast" class="crm-toast">Alterações salvas com sucesso! ✓</div>
+
+          <!-- Live WhatsApp Overlay -->
+          <div id="wa-overlay" class="wa-success-overlay">
+            <div class="wa-success-card">
+              <div class="wa-success-icon">
+                <svg fill="currentColor" viewBox="0 0 20 20" width="36" height="36"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+              </div>
+              <h3 style="font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 0.5rem; color: #fff;">Simulador de Envio WhatsApp</h3>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">A mensagem dinâmica foi gerada a partir dos dados do lead e enviada:</p>
+              
+              <div id="wa-message-bubble" class="wa-success-bubble">
+                Carregando texto da mensagem...
+              </div>
+              
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; font-style: italic;">
+                ⚡ O CRM atualizou automaticamente a data de contato e salvou o registro no histórico do cliente.
+              </p>
+              
+              <button class="btn btn-gold btn-sm" onclick="fecharWaOverlay()" style="width: 100%;">Excelente! Fechar Visualização</button>
+            </div>
+          </div>
+
+          <!-- Dashboard Metrics -->
+          <div class="crm-dashboard">
+            <!-- Metric 1 -->
+            <div class="crm-metric-card" onclick="adicionarLogTerminal('Mostrando todos os leads de simulação no dashboard.')">
+              <div class="crm-metric-header">
+                <span class="crm-metric-label">Total de Leads</span>
+                <span class="crm-metric-icon" style="background: rgba(14, 165, 233, 0.08); color: var(--accent-blue);">🏠</span>
+              </div>
+              <div class="crm-metric-value" id="dash-total">5</div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                <span style="font-size:0.7rem; color:var(--accent-green);">● Carteira ativa</span>
+                <svg class="sparkline-svg" viewBox="0 0 60 24"><path d="M0,20 Q15,5 30,15 T60,2" stroke="var(--accent-blue)"></path></svg>
+              </div>
+            </div>
+            <!-- Metric 2 -->
+            <div class="crm-metric-card" onclick="filtrarRetornoHoje()">
+              <div class="crm-metric-header">
+                <span class="crm-metric-label">Retorno Hoje</span>
+                <span class="crm-metric-icon" style="background: rgba(249, 115, 22, 0.08); color: var(--accent-orange); position:relative;">
+                  <span class="pulse-badge" style="position:absolute; top:8px; right:8px;"></span>📅
+                </span>
+              </div>
+              <div class="crm-metric-value" id="dash-retorno" style="color: var(--accent-orange);">2</div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                <span style="font-size:0.7rem; color:var(--accent-orange);">● Contatos pendentes</span>
+                <svg class="sparkline-svg" viewBox="0 0 60 24"><path d="M0,18 L15,10 L30,22 L45,5 L60,2" stroke="var(--accent-orange)"></path></svg>
+              </div>
+            </div>
+            <!-- Metric 3 -->
+            <div class="crm-metric-card" onclick="filtrarVisitas()">
+              <div class="crm-metric-header">
+                <span class="crm-metric-label">Visitas Agendadas</span>
+                <span class="crm-metric-icon" style="background: rgba(139, 92, 246, 0.08); color: var(--accent-purple);">🗓️</span>
+              </div>
+              <div class="crm-metric-value" id="dash-visitas">1</div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                <span style="font-size:0.7rem; color:var(--accent-purple);">● Visitas na semana</span>
+                <svg class="sparkline-svg" viewBox="0 0 60 24"><path d="M0,20 L15,20 L30,5 L45,15 L60,8" stroke="var(--accent-purple)"></path></svg>
+              </div>
+            </div>
+            <!-- Metric 4 -->
+            <div class="crm-metric-card" style="cursor: default;">
+              <div class="crm-metric-header">
+                <span class="crm-metric-label">VGV Fechado</span>
+                <span class="crm-metric-icon" style="background: rgba(16, 185, 129, 0.08); color: var(--accent-green);">💰</span>
+              </div>
+              <div class="crm-metric-value" id="dash-fechado" style="color: var(--accent-green);">R$ 1.2M</div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                <span style="font-size:0.7rem; color:var(--accent-green);">● Alta conversão (18%)</span>
+                <svg class="sparkline-svg" viewBox="0 0 60 24"><path d="M0,22 L15,18 L30,20 L45,8 L60,2" stroke="var(--accent-green)"></path></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- CRM App Controls -->
+          <div class="crm-controls">
+            <div class="crm-views">
+              <button class="crm-view-btn active" id="view-btn-tabela" onclick="setSandboxView('tabela')">
+                ☰ Tabela
+              </button>
+              <button class="crm-view-btn" id="view-btn-kanban" onclick="setSandboxView('kanban')">
+                ⬛ Kanban Pipeline
+              </button>
+            </div>
+
+            <div class="crm-results-info">
+              Exibindo <strong id="crm-lead-count" style="color: var(--accent-gold);">5</strong> clientes ativos no Sandbox
+            </div>
+
+            <button class="crm-add-btn" onclick="iniciarNovoLeadSandbox()">
+              ＋ Cadastrar Cliente Simulação
+            </button>
+          </div>
+
+          <!-- Sandbox Table View Content -->
+          <div id="sandbox-tabela-view" class="crm-table-container">
+            <table class="crm-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>WhatsApp</th>
+                  <th>Origem</th>
+                  <th>Tipo Imóvel</th>
+                  <th>Região</th>
+                  <th>Status Funil</th>
+                  <th>Retorno Previsto</th>
+                </tr>
+              </thead>
+              <tbody id="sandbox-table-body">
+                <!-- Dinâmico -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Sandbox Kanban View Content -->
+          <div id="sandbox-kanban-view" class="crm-kanban-board" style="display: none;">
+            <!-- Dinâmico -->
+          </div>
+
+          <!-- Lead Ficha Side Panel -->
+          <div id="crm-side-panel" class="crm-side-panel">
+            
+            <div class="crm-panel-header">
+              <div class="crm-panel-title" id="panel-lead-titulo">Detalhes do Lead</div>
+              <button class="crm-panel-close" onclick="fecharFichaPanel()">✕</button>
+            </div>
+
+            <div class="crm-panel-body">
+              <input type="hidden" id="field-id">
+              
+              <div class="crm-field-group">
+                <label for="field-nome">Nome Completo</label>
+                <input type="text" id="field-nome" class="crm-input-field" value="">
+              </div>
+
+              <div class="crm-field-group">
+                <label for="field-whatsapp">WhatsApp</label>
+                <input type="text" id="field-whatsapp" class="crm-input-field" value="">
+              </div>
+
+              <div class="crm-field-group">
+                <label for="field-origem">Canal de Origem</label>
+                <select id="field-origem" class="crm-input-field">
+                  <option value="Instagram">Instagram</option>
+                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Indicação">Indicação</option>
+                  <option value="OLX">OLX</option>
+                  <option value="Site">Site</option>
+                </select>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div class="crm-field-group">
+                  <label for="field-tipo">Tipo Imóvel</label>
+                  <input type="text" id="field-tipo" class="crm-input-field" value="" placeholder="Ex: Apartamento">
+                </div>
+                <div class="crm-field-group">
+                  <label for="field-regiao">Bairro/Região</label>
+                  <input type="text" id="field-regiao" class="crm-input-field" value="" placeholder="Ex: Centro">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div class="crm-field-group">
+                  <label for="field-valor">Orçamento (Valor)</label>
+                  <input type="text" id="field-valor" class="crm-input-field" value="" placeholder="Ex: 500 mil">
+                </div>
+                <div class="crm-field-group">
+                  <label for="field-status">Status do Funil</label>
+                  <select id="field-status" class="crm-input-field">
+                    <option value="Novo lead">Novo lead</option>
+                    <option value="Contato feito">Contato feito</option>
+                    <option value="Agendou visita">Agendou visita</option>
+                    <option value="Proposta feita">Proposta feita</option>
+                    <option value="Fechado">Fechado</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 0.75rem;">
+                <div class="crm-field-group">
+                  <label for="field-acao">Próxima Ação Planejada</label>
+                  <input type="text" id="field-acao" class="crm-input-field" value="" placeholder="Ex: Enviar fotos das chaves">
+                </div>
+                <div class="crm-field-group">
+                  <label for="field-retorno">Data de Retorno</label>
+                  <input type="date" id="field-retorno" class="crm-input-field" value="">
+                </div>
+              </div>
+
+              <!-- Motor WhatsApp Quick Replies Simulator Widget inside Panel -->
+              <div class="crm-field-group" style="background: rgba(255, 255, 255, 0.01); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 0.75rem;">
+                <label style="color: var(--accent-gold); display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; margin-bottom: 0.5rem;">
+                  ⚡ Motor de WhatsApp CRM
+                </label>
+                <select id="field-wa-template" class="crm-input-field" style="margin-bottom: 0.75rem;">
+                  <option value="0">✨ Apresentação Comercial</option>
+                  <option value="1">📅 Confirmação de Visita</option>
+                  <option value="2">📈 Acompanhamento (Follow-up)</option>
+                  <option value="3">🏠 Novas Opções no Perfil</option>
+                </select>
+                <button class="btn btn-gold btn-sm" onclick="simularEnvioWhatsAppInterno()" style="width: 100%; border-radius: 8px;">
+                  Simular Envio WhatsApp ⚡
+                </button>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; margin-top: auto; padding-top: 1rem;">
+                <button class="btn btn-outline btn-sm" onclick="fecharFichaPanel()" style="flex: 1;">Cancelar</button>
+                <button class="btn btn-gold btn-sm" onclick="salvarAlteracoesFicha()" style="flex: 1.5;">Salvar Ficha ✓</button>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Logs Output Widget at bottom -->
+          <div class="crm-logs-widget">
+            <span>⚙️ Terminal:</span>
+            <span id="sandbox-log-text" class="crm-log-item">Ambiente de Simulação carregado com sucesso. Clique em qualquer lead para abrir a ficha!</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CALCULADORA DE ROI INTERATIVA
+       ============================================================ */
+  <section class="roi-section" id="roi">
+    <div class="container">
+      <div class="roi-container">
+        <div class="roi-grid">
+          <div>
+            <span class="badge badge-blue">Calculadora de Impacto Financeiro</span>
+            <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem; font-family: var(--font-display);">Qual é o Custo da Desorganização?</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2.5rem; font-weight: 300; font-size: 1.05rem;">
+              Corretores e imobiliárias perdem fortunas simplesmente esquecendo de retornar leads frios ou demorando para dar o primeiro contato. Arraste os controles ao lado para simular seus números e veja quanto de faturamento o Loreny CRM pode recuperar para você.
+            </p>
+            
+            <div class="roi-sliders">
+              <!-- Slider 1 -->
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span class="slider-label">Leads Recebidos por Mês</span>
+                  <span class="slider-val" id="val-leads">50</span>
+                </div>
+                <input type="range" id="input-leads" class="roi-input-slider" min="10" max="300" value="50" oninput="calcularROI()">
+              </div>
+              
+              <!-- Slider 2 -->
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span class="slider-label">Taxa de Conversão Atual</span>
+                  <span class="slider-val" id="val-conversao">3%</span>
+                </div>
+                <input type="range" id="input-conversao" class="roi-input-slider" min="1" max="15" value="3" oninput="calcularROI()">
+              </div>
+
+              <!-- Slider 3 -->
+              <div class="slider-group">
+                <div class="slider-header">
+                  <span class="slider-label">Comissão Média por Venda</span>
+                  <span class="slider-val" id="val-comissao">R$ 15.000</span>
+                </div>
+                <input type="range" id="input-comissao" class="roi-input-slider" min="5000" max="60000" step="1000" value="15000" oninput="calcularROI()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Card -->
+          <div class="roi-results-card">
+            <div class="roi-result-item">
+              <div class="roi-result-label">
+                <strong style="color: var(--text-primary); font-size: 1rem; display:block; margin-bottom:0.25rem;">Vendas perdidas no ano (limbo)</strong>
+                <span>Calculado com base na média de 40% de vazamento de contatos sem CRM.</span>
+              </div>
+              <div class="roi-result-val" id="roi-vendas-perdidas" style="color: var(--accent-red);">7.2 vendas</div>
+            </div>
+
+            <div class="roi-result-item">
+              <div class="roi-result-label">
+                <strong style="color: var(--text-primary); font-size: 1rem; display:block; margin-bottom:0.25rem;">Comissões desperdiçadas</strong>
+                <span>Faturamento anual jogado no lixo por falta de acompanhamento ativo.</span>
+              </div>
+              <div class="roi-result-val" id="roi-comissao-perdida" style="color: var(--accent-red);">R$ 108.000</div>
+            </div>
+
+            <div class="roi-result-item" style="flex-direction:column; align-items:flex-start; gap:0.5rem; border-top: 1px solid var(--border-color); padding-top:1.5rem;">
+              <span class="roi-result-label" style="text-transform:uppercase; font-weight:700; letter-spacing:0.05em; color: var(--accent-green);">
+                Faturamento Recuperado com Loreny CRM
+              </span>
+              <div class="roi-result-val highlight" id="roi-faturamento-recuperado">
+                R$ 86.400 / ano
+              </div>
+              <p style="font-size:0.8rem; color:var(--text-muted); font-style:italic;">
+                Recuperação conservadora de pelo menos 80% das vendas que seriam descartadas.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       INFOGRAPHIC: SECURITY AND MULTI-TENANT
+       ============================================================ */
+  <section class="infographic-section" id="seguranca">
+    <div class="container">
+      <div class="info-box">
+        <div class="info-grid">
+          <div>
+            <span class="badge badge-blue">Proteção Tecnológica Absoluta</span>
+            <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem; font-family: var(--font-display);">Seus Leads Isolados e Protegidos</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2.5rem; font-size: 1.05rem; font-weight: 300;">O CRM Loreny v2 foi desenhado para ser comercializado em escala como um software multi-tenant de alto nível. Com as políticas **Row Level Security (RLS)** da nuvem do Supabase, o isolamento dos leads é mantido de forma nativa na camada de banco de dados.</p>
+            
+            <ul class="info-list">
+              <li class="info-item">
+                <div class="info-num">1</div>
+                <div class="info-text">
+                  <h4>Identidade Segura (UUID)</h4>
+                  <p>Cada corretor cria o seu login e senha e recebe um token de segurança de nível bancário. Todo lead ou template de mensagem criado é carimbado na nuvem com o seu ID exclusivo.</p>
+                </div>
+              </li>
+              <li class="info-item">
+                <div class="info-num">2</div>
+                <div class="info-text">
+                  <h4>Barreira Nativa RLS</h4>
+                  <p>As requisições de banco de dados são bloqueadas por padrão no servidor do Supabase. O banco de dados valida se `auth.uid() = user_id`. Corretores convidados não conseguem burlar os dados de outros.</p>
+                </div>
+              </li>
+              <li class="info-item">
+                <div class="info-num">3</div>
+                <div class="info-text">
+                  <h4>Ocultamento de Acesso Administrativo</h4>
+                  <p>O botão de configurações da nuvem (`☁️ Nuvem`) é automaticamente ocultado para os corretores finais na modalidade SaaS de produção comercial, blindando o ecossistema.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Flow Chart Visual -->
+          <div>
+            <div class="db-flow-visual">
+              <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem; font-family: var(--font-display);">Fluxo Multi-Tenant Seguro</h3>
+              
+              <div class="db-node">Corretor Autônomo A</div>
+              <div class="db-arrow">↓</div>
+              <div class="db-node db-node-gold">Supabase Auth (Criptografado)</div>
+              <div class="db-arrow">↓</div>
+              <div class="db-node" style="border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); color: var(--accent-green);">
+                Validador RLS (auth.uid = user_id)
+              </div>
+              <div class="db-arrow">↓</div>
+              <div class="db-node">Fichas e Leads do Corretor A</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CTA SECTION
+       ============================================================ */
+  <section class="cta-section">
+    <div class="container">
+      <h2>Mude Seu Patamar Comercial</h2>
+      <p>Entregue uma solução impecável, rápida e profissional para seus corretores parceiros e clientes no mercado imobiliário.</p>
+      <a href="index.html" class="btn btn-gold">Iniciar CRM Loreny Imóveis v2 🏠</a>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ */
+  <footer>
+    <div class="container footer-content">
+      <div class="logo-area">
+        <div class="logo-badge">LI</div>
+        <div class="footer-copy">© 2026 CRM Loreny Imóveis. Desenvolvido para Corretores Autônomos de Sucesso.</div>
+      </div>
+      <div class="footer-tag">SaaS Comercial Multi-Tenant 🚀🔐</div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       INTERACTIVE SANDBOX JAVASCRIPT
+       ============================================================ */
+  <script>
+    'use strict';
+
+    // Banco de leads de simulação padrão (Sandbox)
+    let sandboxLeads = [
+      {
+        id: "1",
+        nome: "Mariana Souza",
+        whatsapp: "11988887777",
+        origem: "Instagram",
+        tipo: "Apartamento",
+        regiao: "Centro",
+        valor: "350 a 450 mil",
+        status: "Novo lead",
+        retorno: getOffsetDateString(0), // Hoje
+        acao: "Enviar opções de 2 dorms"
+      },
+      {
+        id: "2",
+        nome: "Carlos Alberto",
+        whatsapp: "11977776666",
+        origem: "WhatsApp",
+        tipo: "Casa",
+        regiao: "Jardim Europa",
+        valor: "800 mil a 1.2M",
+        status: "Agendou visita",
+        retorno: getOffsetDateString(0), // Hoje
+        acao: "Apresentar sobrado de condomínio"
+      },
+      {
+        id: "3",
+        nome: "Ana Beatriz",
+        whatsapp: "11966665555",
+        origem: "Site",
+        tipo: "Lote",
+        regiao: "Granja Viana",
+        valor: "Ate 250 mil",
+        status: "Contato feito",
+        retorno: getOffsetDateString(1), // Amanhã
+        acao: "Ligar para entender perfil detalhado"
+      },
+      {
+        id: "4",
+        nome: "Renato Silveira",
+        whatsapp: "11955554444",
+        origem: "Indicação",
+        tipo: "Chácara",
+        regiao: "Alphaville",
+        valor: "1.5M a 2M",
+        status: "Proposta feita",
+        retorno: getOffsetDateString(2),
+        acao: "Acompanhar aprovação de crédito"
+      },
+      {
+        id: "5",
+        nome: "Juliana Costa",
+        whatsapp: "11944443333",
+        origem: "OLX",
+        tipo: "Comercial",
+        regiao: "Pinheiros",
+        valor: "600 a 700 mil",
+        status: "Fechado",
+        retorno: "",
+        acao: "VGV Fechado com Sucesso! 🎉"
+      }
+    ];
+
+    // Modelos de mensagens rápidos padrão
+    const WA_TEMPLATES = [
+      "Olá, {nome}! Aqui é a Loreny, tudo bem? Vi seu interesse no imóvel ({tipo}) na região de {regiao}. Como posso te ajudar na sua busca hoje?",
+      "Oi, {nome}! Gostaria de confirmar nossa visita ao imóvel no bairro {regiao}. Qual o melhor horário para você: na parte da manhã ou da tarde?",
+      "Olá, {nome}! Passando para saber se conseguiu analisar as opções de {tipo} que te enviei. Ficou alguma dúvida sobre as condições ou valores?",
+      "Oi, {nome}! Acabaram de entrar novas opções de {tipo} na faixa de {valor} na região de {regiao} que se encaixam exatamente no que procura. Posso te enviar as fotos?"
+    ];
+
+    let currentView = 'tabela'; // 'tabela' ou 'kanban'
+
+    // Formatar data em string (YYYY-MM-DD) adicionando dias
+    function getOffsetDateString(daysOffset) {
+      const date = new Date();
+      date.setDate(date.getDate() + daysOffset);
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Obter data no formato brasileiro amigável
+    function formatarDataBr(dateStr) {
+      if (!dateStr) return '-';
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    // Inicialização da página
+    window.addEventListener('DOMContentLoaded', () => {
+      atualizarSandbox();
+      calcularROI();
+      
+      // Mouse move effect for background gradients inside cards (glowing effect)
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          card.style.setProperty('--x', `${x}px`);
+          card.style.setProperty('--y', `${y}px`);
+        });
+      });
+    });
+
+    // Atualizar métricas, logs e renderizar a tela ativa
+    function atualizarSandbox() {
+      // 1. Atualizar Métricas do Dashboard
+      const total = sandboxLeads.length;
+      
+      const hojeStr = getOffsetDateString(0);
+      const retornoHoje = sandboxLeads.filter(lead => lead.retorno === hojeStr && lead.status !== 'Fechado' && lead.status !== 'Perdido').length;
+      
+      const visitas = sandboxLeads.filter(lead => lead.status === 'Agendou visita').length;
+
+      document.getElementById('dash-total').textContent = total;
+      document.getElementById('dash-retorno').textContent = retornoHoje;
+      document.getElementById('dash-visitas').textContent = visitas;
+      document.getElementById('crm-lead-count').textContent = total;
+
+      // 2. Renderizar visualização ativa
+      if (currentView === 'tabela') {
+        renderTabelaSandbox();
+      } else {
+        renderKanbanSandbox();
+      }
+    }
+
+    // Definir visualização ativa do Sandbox
+    function setSandboxView(viewType) {
+      currentView = viewType;
+      
+      const btnTab = document.getElementById('view-btn-tabela');
+      const btnKan = document.getElementById('view-btn-kanban');
+      
+      const tabView = document.getElementById('sandbox-tabela-view');
+      const kanView = document.getElementById('sandbox-kanban-view');
+
+      if (viewType === 'tabela') {
+        btnTab.classList.add('active');
+        btnKan.classList.remove('active');
+        tabView.style.display = 'block';
+        kanView.style.display = 'none';
+        adicionarLogTerminal("Visualização alterada para Tabela clássica.");
+      } else {
+        btnTab.classList.remove('active');
+        btnKan.classList.add('active');
+        tabView.style.display = 'none';
+        kanView.style.display = 'grid';
+        adicionarLogTerminal("Visualização alterada para Pipeline Kanban.");
+      }
+
+      atualizarSandbox();
+    }
+
+    // Renderizar Tabela
+    function renderTabelaSandbox() {
+      const tbody = document.getElementById('sandbox-table-body');
+      tbody.innerHTML = '';
+
+      const hojeStr = getOffsetDateString(0);
+
+      sandboxLeads.forEach(lead => {
+        const tr = document.createElement('tr');
+        if (lead.retorno === hojeStr && lead.status !== 'Fechado') {
+          tr.classList.add('alert-today');
+        }
+
+        tr.onclick = () => abrirFichaPanel(lead.id);
+
+        let statusClass = 'status-novo';
+        if (lead.status === 'Contato feito') statusClass = 'status-contato';
+        if (lead.status === 'Agendou visita') statusClass = 'status-visita';
+        if (lead.status === 'Proposta feita') statusClass = 'status-proposta';
+        if (lead.status === 'Fechado') statusClass = 'status-fechado';
+
+        tr.innerHTML = `
+          <td style="font-weight:700; color:var(--text-primary);">${escapeHtml(lead.nome)}</td>
+          <td><span style="color:var(--accent-blue); font-weight: 500;">+55 ${escapeHtml(lead.whatsapp)}</span></td>
+          <td><span class="crm-origin-badge">${escapeHtml(lead.origem)}</span></td>
+          <td>${escapeHtml(lead.tipo)}</td>
+          <td>${escapeHtml(lead.regiao)}</td>
+          <td><span class="crm-status-badge ${statusClass}">${escapeHtml(lead.status)}</span></td>
+          <td style="font-weight:600; color:${lead.retorno === hojeStr ? 'var(--accent-orange)' : 'var(--text-secondary)'};">
+            ${lead.retorno === hojeStr ? '⚡ Hoje' : formatarDataBr(lead.retorno)}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Renderizar Kanban
+    function renderKanbanSandbox() {
+      const board = document.getElementById('sandbox-kanban-view');
+      board.innerHTML = '';
+
+      const colunas = [
+        { title: 'Novo lead', key: 'Novo lead' },
+        { title: 'Contato feito', key: 'Contato feito' },
+        { title: 'Agendou visita', key: 'Agendou visita' },
+        { title: 'Proposta feita', key: 'Proposta feita' },
+        { title: 'Fechado', key: 'Fechado' }
+      ];
+
+      colunas.forEach(col => {
+        const colLeads = sandboxLeads.filter(lead => lead.status === col.key);
+        
+        const colDiv = document.createElement('div');
+        colDiv.className = 'crm-kanban-column';
+        
+        colDiv.innerHTML = `
+          <div class="crm-kanban-col-header">
+            <span class="crm-kanban-col-title">${col.title}</span>
+            <span class="crm-kanban-col-count">${colLeads.length}</span>
+          </div>
+        `;
+
+        colLeads.forEach(lead => {
+          const cardDiv = document.createElement('div');
+          cardDiv.className = 'crm-kanban-card';
+          cardDiv.onclick = (e) => {
+            e.stopPropagation();
+            abrirFichaPanel(lead.id);
+          };
+
+          cardDiv.innerHTML = `
+            <div class="crm-kanban-card-title">${escapeHtml(lead.nome)}</div>
+            <div class="crm-kanban-card-details">
+              <span>📍 ${escapeHtml(lead.regiao)}</span>
+              <span>💰 ${escapeHtml(lead.valor)}</span>
+            </div>
+            <div class="crm-kanban-card-action">🎯 ${escapeHtml(lead.acao || 'Aguardando próxima ação')}</div>
+          `;
+          colDiv.appendChild(cardDiv);
+        });
+
+        board.appendChild(colDiv);
+      });
+    }
+
+    // Abrir painel lateral com a ficha técnica do Lead
+    function abrirFichaPanel(leadId) {
+      const lead = sandboxLeads.find(l => l.id === leadId);
+      if (!lead) return;
+
+      document.getElementById('field-id').value = lead.id;
+      document.getElementById('field-nome').value = lead.nome;
+      document.getElementById('field-whatsapp').value = lead.whatsapp;
+      document.getElementById('field-origem').value = lead.origem;
+      document.getElementById('field-tipo').value = lead.tipo;
+      document.getElementById('field-regiao').value = lead.regiao;
+      document.getElementById('field-valor').value = lead.valor;
+      document.getElementById('field-status').value = lead.status;
+      document.getElementById('field-acao').value = lead.acao;
+      document.getElementById('field-retorno').value = lead.retorno;
+
+      document.getElementById('panel-lead-titulo').textContent = `Ficha: ${lead.nome}`;
+      document.getElementById('crm-side-panel').classList.add('open');
+
+      adicionarLogTerminal(`Ficha de ${lead.nome} aberta no editor.`);
+    }
+
+    // Fechar painel lateral
+    function fecharFichaPanel() {
+      document.getElementById('crm-side-panel').classList.remove('open');
+      adicionarLogTerminal("Editor de lead fechado.");
+    }
+
+    // Salvar alterações feitas na ficha do Sandbox
+    function salvarAlteracoesFicha() {
+      const id = document.getElementById('field-id').value;
+      const nome = document.getElementById('field-nome').value.trim() || 'Sem Nome';
+      const whatsapp = document.getElementById('field-whatsapp').value.trim() || '000000000';
+      const origem = document.getElementById('field-origem').value;
+      const tipo = document.getElementById('field-tipo').value.trim() || 'Imóvel';
+      const regiao = document.getElementById('field-regiao').value.trim() || 'Região';
+      const valor = document.getElementById('field-valor').value.trim() || 'Faixa de valor';
+      const status = document.getElementById('field-status').value;
+      const acao = document.getElementById('field-acao').value.trim() || 'Sem ação definida';
+      const retorno = document.getElementById('field-retorno').value;
+
+      if (id) {
+        // Editar lead existente
+        const leadIndex = sandboxLeads.findIndex(l => l.id === id);
+        if (leadIndex !== -1) {
+          sandboxLeads[leadIndex] = { id, nome, whatsapp, origem, tipo, regiao, valor, status, acao, retorno };
+          adicionarLogTerminal(`Lead ${nome} atualizado com sucesso!`);
+        }
+      } else {
+        // Cadastrar novo lead
+        const novoId = String(sandboxLeads.length + 1);
+        sandboxLeads.push({ id: novoId, nome, whatsapp, origem, tipo, regiao, valor, status, acao, retorno });
+        adicionarLogTerminal(`Novo lead ${nome} cadastrado com sucesso!`);
+      }
+
+      fecharFichaPanel();
+      atualizarSandbox();
+      showToastAlert();
+    }
+
+    // Iniciar formulário para cadastrar novo lead no Sandbox
+    function iniciarNovoLeadSandbox() {
+      document.getElementById('field-id').value = '';
+      document.getElementById('field-nome').value = '';
+      document.getElementById('field-whatsapp').value = '11999999999';
+      document.getElementById('field-origem').value = 'Instagram';
+      document.getElementById('field-tipo').value = 'Apartamento';
+      document.getElementById('field-regiao').value = 'Jardim Europa';
+      document.getElementById('field-valor').value = '400 a 500 mil';
+      document.getElementById('field-status').value = 'Novo lead';
+      document.getElementById('field-acao').value = 'Primeiro contato rápido';
+      document.getElementById('field-retorno').value = getOffsetDateString(0); // Hoje
+
+      document.getElementById('panel-lead-titulo').textContent = 'Novo Cadastro Sandbox';
+      document.getElementById('crm-side-panel').classList.add('open');
+
+      adicionarLogTerminal("Formulário de novo cadastro aberto no Sandbox.");
+    }
+
+    // Filtros de Demonstração rápidos nas métricas
+    function filtrarRetornoHoje() {
+      const hojeStr = getOffsetDateString(0);
+      adicionarLogTerminal("Métrica 'Retornos Hoje' clicada! Exibindo leads com retornos pendentes para hoje.");
+      
+      if (currentView === 'tabela') {
+        const tbody = document.getElementById('sandbox-table-body');
+        tbody.innerHTML = '';
+        const filtrados = sandboxLeads.filter(l => l.retorno === hojeStr && l.status !== 'Fechado');
+        
+        if (filtrados.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding: 2rem;">Nenhum retorno prioritário pendente para hoje! Tudo limpo. ✓</td></tr>`;
+          return;
+        }
+
+        filtrados.forEach(lead => {
+          const tr = document.createElement('tr');
+          tr.classList.add('alert-today');
+          tr.onclick = () => abrirFichaPanel(lead.id);
+          tr.innerHTML = `
+            <td style="font-weight:700;">${escapeHtml(lead.nome)}</td>
+            <td><span style="color:var(--accent-blue); font-weight: 500;">+55 ${escapeHtml(lead.whatsapp)}</span></td>
+            <td><span class="crm-origin-badge">${escapeHtml(lead.origem)}</span></td>
+            <td>${escapeHtml(lead.tipo)}</td>
+            <td>${escapeHtml(lead.regiao)}</td>
+            <td><span class="crm-status-badge status-novo">${escapeHtml(lead.status)}</span></td>
+            <td style="color:var(--accent-orange); font-weight:600;">⚡ Hoje</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } else {
+        alert("Modo de simulação: Mude para a visualização 'Tabela' para ver o filtro de retorno dinâmico ativado!");
+      }
+    }
+
+    function filtrarVisitas() {
+      adicionarLogTerminal("Métrica 'Visitas' clicada! Filtrando clientes em estágio de visita.");
+      if (currentView === 'tabela') {
+        const tbody = document.getElementById('sandbox-table-body');
+        tbody.innerHTML = '';
+        const filtrados = sandboxLeads.filter(l => l.status === 'Agendou visita');
+        
+        if (filtrados.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding: 2rem;">Nenhuma visita agendada na simulação ativa!</td></tr>`;
+          return;
+        }
+
+        filtrados.forEach(lead => {
+          const tr = document.createElement('tr');
+          tr.onclick = () => abrirFichaPanel(lead.id);
+          tr.innerHTML = `
+            <td style="font-weight:700;">${escapeHtml(lead.nome)}</td>
+            <td><span style="color:var(--accent-blue); font-weight: 500;">+55 ${escapeHtml(lead.whatsapp)}</span></td>
+            <td><span class="crm-origin-badge">${escapeHtml(lead.origem)}</span></td>
+            <td>${escapeHtml(lead.tipo)}</td>
+            <td>${escapeHtml(lead.regiao)}</td>
+            <td><span class="crm-status-badge status-visita">${escapeHtml(lead.status)}</span></td>
+            <td>${formatarDataBr(lead.retorno)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } else {
+        alert("Mude para a visualização 'Tabela' para ver o filtro de Visitas dinâmico!");
+      }
+    }
+
+    // Simulação do motor de WhatsApp interna do Ficha Panel
+    function simularEnvioWhatsAppInterno() {
+      const nomeCompleto = document.getElementById('field-nome').value.trim() || 'Cliente';
+      const primeiroNome = getPrimeiroNome(nomeCompleto);
+      const tipo = (document.getElementById('field-tipo').value || 'imóvel').toLowerCase();
+      const regiao = document.getElementById('field-regiao').value.trim() || 'excelente região';
+      const valor = document.getElementById('field-valor').value.trim() || 'sua faixa de interesse';
+      const templateIdx = parseInt(document.getElementById('field-wa-template').value, 10);
+      
+      const templateOriginal = WA_TEMPLATES[templateIdx] || WA_TEMPLATES[0];
+      const mensagemFinal = templateOriginal
+        .replace(/{nome}/g, primeiroNome)
+        .replace(/{tipo}/g, tipo)
+        .replace(/{regiao}/g, regiao)
+        .replace(/{valor}/g, valor);
+
+      // Mostrar overlay de WhatsApp
+      document.getElementById('wa-message-bubble').innerHTML = mensagemFinal.replace(/\n/g, '<br>');
+      document.getElementById('wa-overlay').classList.add('show');
+      
+      adicionarLogTerminal(`Simulador WhatsApp: Mensagem gerada para ${primeiroNome}.`);
+    }
+
+    function fecharWaOverlay() {
+      document.getElementById('wa-overlay').classList.remove('show');
+    }
+
+    // ============================================================
+    // JAVASCRIPT: CALCULADORA DE ROI DINÂMICA
+    // ============================================================
+    function calcularROI() {
+      const leads = parseInt(document.getElementById('input-leads').value, 10);
+      const conversao = parseInt(document.getElementById('input-conversao').value, 10) / 100;
+      const comissao = parseInt(document.getElementById('input-comissao').value, 10);
+
+      // Atualizar Labels na Interface
+      document.getElementById('val-leads').textContent = leads;
+      document.getElementById('val-conversao').textContent = `${(conversao * 100).toFixed(0)}%`;
+      document.getElementById('val-comissao').textContent = `R$ ${comissao.toLocaleString('pt-BR')}`;
+
+      // Fórmulas Comerciais:
+      // Taxa conservadora de leads que são jogados no lixo por falta de CRM (40% de leak)
+      const taxaVazamento = 0.40;
+      const vendasTotaisAno = leads * conversao * 12;
+      const vendasPerdidasAno = vendasTotaisAno * taxaVazamento;
+      const comissaoPerdidaAno = vendasPerdidasAno * comissao;
+      
+      // Loreny CRM recupera pelo menos 80% das vendas que seriam jogadas fora por desorganização
+      const recuperacaoCrm = 0.80;
+      const faturamentoRecuperado = comissaoPerdidaAno * recuperacaoCrm;
+
+      // Renderizar resultados com formatação amigável
+      document.getElementById('roi-vendas-perdidas').textContent = `${vendasPerdidasAno.toFixed(1)} vendas`;
+      document.getElementById('roi-comissao-perdida').textContent = `R$ ${comissaoPerdidaAno.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`;
+      document.getElementById('roi-faturamento-recuperado').textContent = `R$ ${faturamentoRecuperado.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} / ano`;
+    }
+
+    // Helpers
+    function getPrimeiroNome(fullName) {
+      const parts = fullName.trim().split(/\s+/);
+      return parts[0] || 'Cliente';
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function adicionarLogTerminal(msg) {
+      const logElement = document.getElementById('sandbox-log-text');
+      const time = new Date().toLocaleTimeString('pt-BR');
+      logElement.innerHTML = `[${time}] ${escapeHtml(msg)}`;
+    }
+
+    function showToastAlert() {
+      const toast = document.getElementById('crm-toast');
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
