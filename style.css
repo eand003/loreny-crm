@@ -1874,3 +1874,308 @@ textarea.form-control {
   .header-actions { grid-template-columns: 1fr 1fr; }
   .header-actions .btn { padding-left: 0.75rem; padding-right: 0.75rem; }
 }
+
+
+/* ============================================================
+   MOBILE UX FIX v2.1 — Melhor usabilidade no celular
+   Correções:
+   - filtros deixam de sobrepor cards
+   - header ocupa menos altura
+   - botões secundários somem no mobile
+   - lista ganha respiro para não ficar atrás da bottom nav
+   - cards mobile ficam mais limpos e fáceis de tocar
+   ============================================================ */
+
+@media (max-width: 768px) {
+  html, body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+  }
+
+  #header {
+    position: relative !important;
+    top: auto !important;
+    height: auto;
+    padding: 0.95rem 1rem 0.8rem;
+    gap: 0.75rem;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.22);
+  }
+
+  .header-brand {
+    width: 100%;
+    align-items: center;
+  }
+
+  .logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    font-size: 0.86rem;
+  }
+
+  .brand-title {
+    font-size: 1.08rem;
+    line-height: 1.15;
+  }
+
+  .brand-subtitle {
+    font-size: 0.58rem;
+    letter-spacing: 1.5px;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1.45fr 1fr 1fr;
+    gap: 0.55rem;
+    align-items: stretch;
+  }
+
+  .header-actions .alertas-container,
+  #btn-exportar-csv,
+  #btn-importar-csv {
+    display: none !important;
+  }
+
+  #btn-novo-cliente {
+    grid-column: 1 / 2;
+  }
+
+  #btn-config-supabase,
+  #btn-auth-account {
+    grid-column: auto;
+  }
+
+  .header-actions .btn {
+    min-height: 44px;
+    border-radius: 14px;
+    font-size: 0.82rem;
+    padding: 0.6rem 0.65rem;
+    justify-content: center;
+  }
+
+  main {
+    padding: 0.9rem 0.85rem calc(135px + env(safe-area-inset-bottom));
+  }
+
+  .quote-banner {
+    display: none;
+  }
+
+  #dashboard {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .dash-card {
+    min-height: auto;
+    padding: 0.72rem 0.55rem;
+    border-radius: 15px;
+  }
+
+  .dash-card-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 0.95rem;
+    margin-bottom: 0.42rem;
+    border-radius: 9px;
+  }
+
+  .dash-card-value {
+    font-size: 1.35rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .dash-card-label {
+    font-size: 0.56rem;
+    line-height: 1.15;
+    letter-spacing: 0.35px;
+  }
+
+  #filters {
+    position: relative !important;
+    top: auto !important;
+    z-index: 1 !important;
+    margin-bottom: 0.85rem;
+    padding: 0.7rem;
+    border-radius: 18px;
+    box-shadow: var(--shadow-sm);
+    gap: 0.5rem;
+  }
+
+  .filter-search-wrap {
+    width: 100%;
+  }
+
+  .filter-input,
+  .filter-select {
+    height: 44px;
+    font-size: 0.9rem;
+    border-radius: 13px;
+  }
+
+  #filters .btn {
+    min-height: 40px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    padding: 0.55rem 0.9rem;
+  }
+
+  #btn-retorno-hoje,
+  #btn-sem-acao,
+  #btn-limpar-filtros {
+    flex: 1 1 auto;
+  }
+
+  .view-controls {
+    margin: 0.65rem 0 0.7rem;
+    gap: 0.55rem;
+  }
+
+  .results-count {
+    width: 100%;
+    padding: 0 0.2rem;
+  }
+
+  .view-toggle {
+    width: 100%;
+    border-radius: 14px;
+  }
+
+  .toggle-btn {
+    min-height: 40px;
+    border-radius: 11px;
+  }
+
+  #mobile-cards {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-card {
+    margin-bottom: 0.9rem;
+    padding: 1rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .mobile-card:last-child {
+    margin-bottom: calc(120px + env(safe-area-inset-bottom));
+  }
+
+  .mc-header {
+    align-items: flex-start;
+    gap: 0.65rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .mc-name {
+    font-size: 1.05rem;
+    line-height: 1.2;
+  }
+
+  .mc-origin {
+    font-size: 0.76rem;
+    line-height: 1.35;
+  }
+
+  .mc-header .badge {
+    max-width: 120px;
+    text-align: center;
+    justify-content: center;
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  .mc-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .mc-field {
+    min-height: 58px;
+    justify-content: center;
+  }
+
+  .mc-field-label {
+    font-size: 0.62rem;
+  }
+
+  .mc-field-value {
+    font-size: 0.9rem;
+    word-break: break-word;
+  }
+
+  .mc-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    padding-top: 0.8rem;
+  }
+
+  .mc-actions .btn {
+    min-height: 44px;
+    border-radius: 13px;
+  }
+
+  .mobile-bottom-nav {
+    min-height: calc(72px + env(safe-area-inset-bottom));
+    padding: 0.45rem 0.65rem calc(0.55rem + env(safe-area-inset-bottom));
+  }
+
+  .mobile-bottom-nav button {
+    min-height: 54px;
+  }
+
+  .alerts-dropdown {
+    bottom: calc(82px + env(safe-area-inset-bottom));
+  }
+
+  .modal-box {
+    max-height: 88vh;
+  }
+}
+
+@media (max-width: 420px) {
+  .header-actions {
+    grid-template-columns: 1.35fr 1fr 1fr;
+  }
+
+  .header-actions .btn {
+    font-size: 0.78rem;
+    letter-spacing: -0.1px;
+  }
+
+  #dashboard {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dash-card {
+    padding: 0.65rem 0.45rem;
+  }
+
+  .dash-card-value {
+    font-size: 1.22rem;
+  }
+
+  .dash-card-label {
+    font-size: 0.52rem;
+  }
+}
+
+@media (max-width: 360px) {
+  #dashboard {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .header-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #btn-novo-cliente {
+    grid-column: 1 / -1;
+  }
+}
