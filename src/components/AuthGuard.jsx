@@ -70,7 +70,7 @@ const AuthGuard = ({ children, user, setUser, loadingSession }) => {
   if (loadingSession) {
     return (
       <div className="login-screen">
-        <div style={{ color: 'var(--white)', fontSize: '18px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+        <div style={{ color: 'var(--gray-800)', fontSize: '18px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
           <Home size={48} className="text-primary spin-anim" style={{ color: 'var(--primary)', animation: 'pulse 1.5s ease-in-out infinite' }} />
           <span>Autenticando acesso imobiliário...</span>
         </div>
@@ -262,11 +262,11 @@ const AuthGuard = ({ children, user, setUser, loadingSession }) => {
               <div style={{ 
                 marginTop: '20px', 
                 padding: '12px', 
-                backgroundColor: 'rgba(255, 255, 255, 0.03)', 
+                backgroundColor: 'var(--gray-100)', 
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '12px',
-                color: 'var(--gray-400)',
-                border: '1px dashed var(--gray-200)'
+                color: 'var(--gray-700)',
+                border: '1px dashed var(--gray-300)'
               }}>
                 <strong>Credenciais do banco simulado:</strong><br />
                 E-mail: <code>contato@lorenyimoveis.com.br</code><br />

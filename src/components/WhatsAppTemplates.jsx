@@ -186,15 +186,15 @@ const WhatsAppTemplates = ({ user }) => {
             <div key={tpl.id} className="card flex-col" style={{ display: 'flex', justifyContent: 'space-between', height: '100%' }}>
               <div>
                 <div className="flex align-center justify-between" style={{ marginBottom: '10px' }}>
-                  <h3 style={{ fontSize: '15px', fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <MessageSquare size={16} style={{ color: 'var(--primary)' }} />
+                  <h3 style={{ fontSize: '15px', fontWeight: 600, fontFamily: 'Outfit, sans-serif', color: 'var(--gray-900)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <MessageSquare size={16} style={{ color: 'var(--primary-dark)' }} />
                     {tpl.title}
                   </h3>
                   <div style={{ display: 'flex', gap: '4px' }}>
                     <button 
                       onClick={() => handleOpenEditModal(tpl)} 
                       className="tab-btn" 
-                      style={{ padding: '6px', borderRadius: '4px', cursor: 'pointer', color: 'var(--gray-400)' }}
+                      style={{ padding: '6px', borderRadius: '4px', cursor: 'pointer', color: 'var(--gray-600)' }}
                     >
                       <Edit2 size={13} />
                     </button>
@@ -209,20 +209,20 @@ const WhatsAppTemplates = ({ user }) => {
                 </div>
 
                 {tpl.description && (
-                  <p style={{ fontSize: '12px', color: 'var(--gray-500)', marginBottom: '12px', fontStyle: 'italic' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--gray-600)', marginBottom: '12px', fontStyle: 'italic' }}>
                     💡 {tpl.description}
                   </p>
                 )}
 
                 <div style={{ 
-                  backgroundColor: 'rgba(10, 15, 30, 0.4)', 
+                  backgroundColor: 'rgba(0, 0, 0, 0.02)', 
                   padding: '12px', 
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '13px',
-                  color: 'var(--gray-600)',
+                  color: 'var(--gray-800)',
                   lineHeight: '1.6',
                   whiteSpace: 'pre-wrap',
-                  border: '1px solid rgba(255,255,255,0.02)'
+                  border: '1px solid rgba(0,0,0,0.05)'
                 }}>
                   {tpl.text_content}
                 </div>

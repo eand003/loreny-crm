@@ -214,10 +214,10 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead }) => {
               <div className="mobile-card-header">
                 <div>
                   <h3 className="mobile-card-title flex align-center gap-1" style={{ fontSize: '15px' }}>
-                    <Users size={14} style={{ color: 'var(--gray-400)' }} /> {v.leadName}
+                    <Users size={14} style={{ color: 'var(--gray-600)' }} /> {v.leadName}
                   </h3>
                   <div className="mobile-card-subtitle" style={{ marginTop: '4px' }}>
-                    <span className="flex align-center gap-1" style={{ color: 'var(--gray-400)' }}>
+                    <span className="flex align-center gap-1" style={{ color: 'var(--gray-600)' }}>
                       <MapPin size={12} /> {v.property_details}
                     </span>
                   </div>
@@ -237,25 +237,25 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead }) => {
 
               <div style={{ 
                 fontSize: '13px', 
-                color: 'var(--white)', 
+                color: 'var(--gray-900)', 
                 margin: '8px 0', 
                 fontWeight: 600,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px'
               }}>
-                <Clock size={13} style={{ color: 'var(--primary)' }} />
+                <Clock size={13} style={{ color: 'var(--primary-dark)' }} />
                 <span>{formatDateTime(v.visit_datetime)}</span>
               </div>
 
               {v.notes && (
-                <p style={{ fontSize: '13px', color: 'var(--gray-500)', marginBottom: '12px', fontStyle: 'italic' }}>
+                <p style={{ fontSize: '13px', color: 'var(--gray-700)', marginBottom: '12px', fontStyle: 'italic' }}>
                   "{v.notes}"
                 </p>
               )}
 
               {/* ACTION BUTTONS */}
-              <div className="mobile-card-actions" style={{ marginTop: '12px', borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: '10px' }}>
+              <div className="mobile-card-actions" style={{ marginTop: '12px', borderTop: '1px solid var(--gray-200)', paddingTop: '10px' }}>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   {v.status === 'Agendada' && (
                     <>

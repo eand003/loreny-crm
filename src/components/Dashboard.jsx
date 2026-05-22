@@ -199,15 +199,15 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
               {upcomingVisits.map((visit) => (
                 <div key={visit.id} className="mobile-card" style={{ borderLeft: '4px solid #f59e0b' }}>
                   <div className="flex justify-between align-center">
-                    <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--white)' }}>
+                    <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--gray-900)' }}>
                       {visit.leadName}
                     </span>
-                    <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 700 }}>
+                    <span style={{ fontSize: '12px', color: 'var(--primary-dark)', fontWeight: 600 }}>
                       📆 {formatDateTime(visit.visit_datetime)}
                     </span>
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--gray-600)', marginTop: '6px' }}>
-                    <strong style={{ color: 'var(--gray-400)' }}>Imóvel:</strong> {visit.property_details}
+                  <div style={{ fontSize: '13px', color: 'var(--gray-700)', marginTop: '6px' }}>
+                    <strong style={{ color: 'var(--gray-500)' }}>Imóvel:</strong> {visit.property_details}
                   </div>
                   {visit.notes && (
                     <div style={{ fontSize: '12px', color: 'var(--gray-500)', marginTop: '4px', fontStyle: 'italic' }}>
@@ -256,10 +256,10 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
                 <div key={ld.id} className="timeline-item">
                   <div className="timeline-dot" style={{ backgroundColor: 'var(--primary)' }}></div>
                   <div className="timeline-header">
-                    <span style={{ fontWeight: 600, color: 'var(--white)' }}>{ld.name}</span>
+                    <span style={{ fontWeight: 500, color: 'var(--gray-900)' }}>{ld.name}</span>
                     <span style={{ fontSize: '11px', color: 'var(--gray-500)' }}>{formatDate(ld.created_at)}</span>
                   </div>
-                  <div className="timeline-title" style={{ fontSize: '13px', color: 'var(--gray-400)', marginTop: '2px' }}>
+                  <div className="timeline-title" style={{ fontSize: '13px', color: 'var(--gray-700)', marginTop: '2px' }}>
                     Interesse em {ld.property_type} em {ld.region} • {formatCurrency(ld.budget)}
                   </div>
                   {ld.notes && (

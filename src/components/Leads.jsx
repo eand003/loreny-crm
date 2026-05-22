@@ -501,11 +501,11 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
               <div className="flex justify-between" style={{ fontSize: '13px', color: 'var(--gray-600)', marginBottom: '10px' }}>
                 <div>
                   <strong>Orçamento:</strong>{' '}
-                  <span style={{ color: 'var(--white)', fontWeight: 600 }}>
+                  <span style={{ color: 'var(--gray-900)', fontWeight: 600 }}>
                     {ld.budget ? formatCurrency(ld.budget) : 'Não definido'}
                   </span>
                 </div>
-                {ld.email && <div style={{ fontSize: '12px' }}>{ld.email}</div>}
+                {ld.email && <div style={{ fontSize: '12px', color: 'var(--gray-600)' }}>{ld.email}</div>}
               </div>
 
               {ld.next_action_date && (
@@ -522,12 +522,12 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                     <Calendar size={14} />
                     Retorno agendado: {formatDate(ld.next_action_date)}
                   </div>
-                  <div style={{ color: 'var(--gray-400)', marginTop: '2px' }}>{ld.next_action}</div>
+                  <div style={{ color: 'var(--gray-700)', marginTop: '2px' }}>{ld.next_action}</div>
                 </div>
               )}
 
               {ld.notes && (
-                <p style={{ fontSize: '13px', color: 'var(--gray-500)', marginBottom: '12px', fontStyle: 'italic', backgroundColor: 'rgba(255,255,255,0.01)', padding: '6px 8px', borderRadius: '4px' }}>
+                <p style={{ fontSize: '13px', color: 'var(--gray-600)', marginBottom: '12px', fontStyle: 'italic', backgroundColor: 'rgba(0,0,0,0.02)', padding: '6px 8px', borderRadius: '4px', border: '1px solid rgba(0,0,0,0.04)' }}>
                   "{ld.notes}"
                 </p>
               )}
@@ -721,11 +721,11 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
       >
         {activeWaLead && (
           <div>
-            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-              <div style={{ fontSize: '14px', color: 'var(--white)' }}>
+            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: 'rgba(0, 0, 0, 0.02)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+              <div style={{ fontSize: '14px', color: 'var(--gray-900)' }}>
                 <strong>Cliente:</strong> {activeWaLead.name}
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--gray-500)', marginTop: '2px' }}>
+              <div style={{ fontSize: '12px', color: 'var(--gray-600)', marginTop: '2px' }}>
                 Imóvel: {activeWaLead.property_type} em {activeWaLead.region}
               </div>
             </div>
@@ -759,10 +759,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                 rows={6}
                 style={{ 
                   fontFamily: 'sans-serif', 
-                  lineHeight: '1.5',
-                  backgroundColor: 'rgba(10, 15, 30, 0.5)',
-                  color: 'var(--white)',
-                  border: '1px solid rgba(255,255,255,0.1)'
+                  lineHeight: '1.5'
                 }}
               />
             </div>

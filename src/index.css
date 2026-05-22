@@ -5,54 +5,55 @@
    ========================================================================= */
 :root {
   /* Colors */
-  --primary: #10b981;          /* Emerald Green */
-  --primary-hover: #059669;
-  --primary-light: #ecfdf5;
-  --primary-dark: #064e3b;     /* Forest Jungle Green */
+  --primary: #c59b27;          /* Luxury Warm Gold */
+  --primary-hover: #a37f1c;     /* Darker Gold */
+  --primary-light: rgba(197, 155, 39, 0.1);
+  --primary-dark: #8c6c1d;     /* Deep Gold */
   
-  --secondary: #6366f1;        /* Indigo Tech Indigo */
-  --secondary-hover: #4f46e5;
+  --secondary: #0b1a30;        /* Indigo Navy Blue */
+  --secondary-hover: #07101f;
   
-  --dark: #1f2937;             /* Dark Gray charcoal */
-  --light: #f9fafb;            /* Soft off-white */
+  --dark: #0b1a30;             /* Navy Blue (used in Sidebar) */
+  --light: #112544;            /* Sidebar items/hover */
   --white: #ffffff;
   
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-400: #9ca3af;
-  --gray-500: #6b7280;
-  --gray-600: #4b5563;
-  --gray-700: #374151;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
+  --gray-50: #f8fafc;          /* Off-white */
+  --gray-100: #f1f5f9;         /* Light slate bg */
+  --gray-200: #e2e8f0;         /* Slate border */
+  --gray-300: #cbd5e1;         /* Medium slate border */
+  --gray-400: #94a3b8;         /* Silver text */
+  --gray-500: #64748b;         /* Secondary text */
+  --gray-600: #475569;         /* Content text */
+  --gray-700: #334155;         /* Dark body text */
+  --gray-800: #1e293b;         /* Dark primary body text */
+  --gray-900: #0b1a30;         /* Deep Navy (Heading color - perfectly readable) */
+
 
   /* Status Badges */
   --status-new: #3b82f6;       /* Blue */
-  --status-new-bg: #eff6ff;
+  --status-new-bg: rgba(59, 130, 246, 0.15);
   --status-contact: #a855f7;   /* Purple */
-  --status-contact-bg: #faf5ff;
-  --status-scheduled: #eab308; /* Yellow */
-  --status-scheduled-bg: #fef9c3;
+  --status-contact-bg: rgba(168, 85, 247, 0.15);
+  --status-scheduled: #f3c63f; /* Gold */
+  --status-scheduled-bg: rgba(243, 198, 63, 0.15);
   --status-visited: #06b6d4;   /* Cyan */
-  --status-visited-bg: #ecfeff;
+  --status-visited-bg: rgba(6, 182, 212, 0.15);
   --status-negotiating: #f97316;/* Orange */
-  --status-negotiating-bg: #fff7ed;
+  --status-negotiating-bg: rgba(249, 115, 22, 0.15);
   --status-won: #10b981;       /* Emerald */
-  --status-won-bg: #ecfdf5;
+  --status-won-bg: rgba(16, 185, 129, 0.15);
   --status-lost: #ef4444;      /* Red */
-  --status-lost-bg: #fef2f2;
+  --status-lost-bg: rgba(239, 68, 68, 0.15);
   
   /* Fonts */
   --font-title: 'Outfit', 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
 
   /* Radius */
   --radius-sm: 8px;
@@ -91,8 +92,8 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-title);
   color: var(--gray-900);
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 a {
@@ -112,14 +113,14 @@ input, select, textarea {
   border: 1px solid var(--gray-300);
   border-radius: var(--radius-md);
   background-color: var(--white);
-  color: var(--gray-900);
+  color: var(--gray-800);
   transition: all var(--transition-fast);
   outline: none;
 }
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 textarea {
@@ -137,6 +138,7 @@ button {
   background: none;
   transition: all var(--transition-fast);
   user-select: none;
+  color: inherit;
 }
 
 /* =========================================================================
@@ -196,7 +198,7 @@ button {
 
 .btn-secondary {
   background-color: var(--white);
-  color: var(--gray-700);
+  color: var(--gray-800);
   border: 1px solid var(--gray-300);
 }
 .btn-secondary:hover {
@@ -220,7 +222,7 @@ button {
   padding: 0;
   border-radius: 50%;
   background-color: var(--gray-100);
-  color: var(--gray-700);
+  color: var(--gray-600);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -254,10 +256,10 @@ button {
 
 /* Glassmorphism premium card */
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(197, 155, 39, 0.2);
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -265,7 +267,7 @@ button {
 }
 .glass-card:hover {
   box-shadow: var(--shadow-lg);
-  border-color: rgba(16, 185, 129, 0.3);
+  border-color: rgba(197, 155, 39, 0.4);
 }
 
 /* =========================================================================
@@ -311,7 +313,7 @@ button {
    HEADER STYLES
    ========================================================================= */
 .app-header {
-  background-color: var(--white);
+  background-color: var(--light);
   border-bottom: 1px solid var(--gray-200);
   height: var(--nav-height);
   position: sticky;
@@ -368,7 +370,7 @@ button {
   left: 0;
   right: 0;
   height: var(--mobile-nav-height);
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(14, 27, 48, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--gray-200);
@@ -376,7 +378,7 @@ button {
   justify-content: space-around;
   align-items: center;
   z-index: 100;
-  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .nav-item {
@@ -709,13 +711,14 @@ button {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: radial-gradient(circle at 10% 20%, rgb(6, 78, 59) 0%, rgb(17, 24, 39) 90%);
+  background: radial-gradient(circle at 10% 20%, #0d1e36 0%, #07101f 90%);
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
-  background-color: var(--white);
+  background-color: var(--light);
+  border: 1px solid rgba(243, 198, 63, 0.15);
   border-radius: var(--radius-xl);
   padding: 36px 30px;
   box-shadow: var(--shadow-xl);
