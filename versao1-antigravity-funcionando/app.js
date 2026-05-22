@@ -73,11 +73,10 @@ let waTemplates = [];
 
 async function loadWaTemplates() {
   try {
-    if (supabaseClient && currentUser) {
+    if (supabaseClient) {
       const { data, error } = await supabaseClient
         .from('wa_templates')
         .select('*')
-        .eq('user_id', currentUser.id)
         .order('criado_em', { ascending: true });
       
       if (error) throw error;
@@ -90,11 +89,17 @@ async function loadWaTemplates() {
           text:  t.text_content
         }));
       } else {
+        // Table is empty, check if we have local custom templates first
         const raw = localStorage.getItem('loreny_crm_wa_templates');
-        waTemplates = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
+        if (raw) {
+          waTemplates = JSON.parse(raw);
+        } else {
+          waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
+        }
         await saveWaTemplatesToStorage();
       }
     } else {
+      // Local fallback
       const raw = localStorage.getItem('loreny_crm_wa_templates');
       if (raw) {
         waTemplates = JSON.parse(raw);
@@ -105,26 +110,32 @@ async function loadWaTemplates() {
     }
   } catch (e) {
     console.error("Erro ao carregar templates do Supabase, usando local:", e);
+    // Fallback to local storage
     const raw = localStorage.getItem('loreny_crm_wa_templates');
-    waTemplates = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
-    saveWaTemplatesToStorage();
+    if (raw) {
+      waTemplates = JSON.parse(raw);
+    } else {
+      waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
+      saveWaTemplatesToStorage();
+    }
   }
 }
 
 async function saveWaTemplatesToStorage() {
+  // Always save to localStorage as backup
   localStorage.setItem('loreny_crm_wa_templates', JSON.stringify(waTemplates));
   
-  if (supabaseClient && currentUser) {
+  if (supabaseClient) {
     try {
       const dbTemplates = waTemplates.map((t, idx) => ({
         id:           t.id || uid(),
-        user_id:      currentUser.id,
         title:        t.title,
         description:  t.desc || '',
         text_content: t.text,
-        criado_em:    t.criado_em || new Date(Date.now() + idx * 1000).toISOString()
+        criado_em:    new Date(Date.now() + idx * 1000).toISOString()
       }));
 
+      // Make sure all current local templates have IDs
       waTemplates.forEach((t, idx) => {
         if (!t.id) t.id = dbTemplates[idx].id;
       });
@@ -137,11 +148,9 @@ async function saveWaTemplatesToStorage() {
       if (error) throw error;
     } catch (e) {
       console.error("Erro ao sincronizar templates com o Supabase:", e);
-      toast('Não consegui salvar os modelos na nuvem.', 'warning');
     }
   }
 }
-
 
 /* ============================================================
    STATE
@@ -257,9 +266,6 @@ function esc(str) {
    LOCAL STORAGE & SUPABASE STORAGE
    ============================================================ */
 let supabaseClient = null;
-let currentUser = null;
-let realtimeChannel = null;
-let authListener = null;
 
 function sanitizeSupabaseUrl(url) {
   if (!url) return '';
@@ -275,9 +281,7 @@ function initSupabase() {
   if (url && key && window.supabase) {
     url = sanitizeSupabaseUrl(url);
     try {
-      supabaseClient = window.supabase.createClient(url, key, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-      });
+      supabaseClient = window.supabase.createClient(url, key);
       return true;
     } catch (e) {
       console.error("Falha ao inicializar o Supabase:", e);
@@ -292,23 +296,14 @@ function updateSupabaseUI(connected) {
   const indicator = $('supa-status-indicator');
   const text      = $('supa-status-text');
   const supaBtn   = $('btn-config-supabase');
-  const authBtn   = $('btn-auth-account');
-  const authBox   = $('auth-status-box');
-
+  
   if (connected) {
-    if (indicator) indicator.textContent = currentUser ? '🟢' : '🟠';
-    if (text) text.textContent = currentUser
-      ? `Conectado como ${currentUser.email}`
-      : 'Supabase conectado — faça login para carregar os dados';
+    if (indicator) indicator.textContent = '🟢';
+    if (text) text.textContent = 'Conectado à nuvem (Supabase)';
     if (supaBtn) {
-      supaBtn.innerHTML = currentUser ? '☁️ Online' : '☁️ Conectar Login';
-      supaBtn.style.color = currentUser ? '#27ae60' : '#f39c12';
+      supaBtn.innerHTML = '☁️ Online';
+      supaBtn.style.color = '#27ae60';
     }
-    if (authBtn) {
-      authBtn.classList.remove('hidden');
-      authBtn.innerHTML = currentUser ? '👤 Conta' : '🔐 Login';
-    }
-    if (authBox) authBox.textContent = currentUser ? `Logado: ${currentUser.email}` : 'Sem login ativo';
   } else {
     if (indicator) indicator.textContent = '🟡';
     if (text) text.textContent = 'Usando armazenamento local (Offline)';
@@ -316,151 +311,6 @@ function updateSupabaseUI(connected) {
       supaBtn.innerHTML = '☁️ Nuvem';
       supaBtn.style.color = '';
     }
-    if (authBtn) authBtn.classList.add('hidden');
-    if (authBox) authBox.textContent = 'Modo local/offline';
-  }
-}
-
-async function refreshCurrentUser() {
-  if (!supabaseClient) {
-    currentUser = null;
-    updateSupabaseUI(false);
-    return null;
-  }
-  try {
-    const { data, error } = await supabaseClient.auth.getSession();
-    if (error) throw error;
-    currentUser = data.session?.user || null;
-    updateSupabaseUI(true);
-    return currentUser;
-  } catch (e) {
-    console.error('Erro ao recuperar sessão:', e);
-    currentUser = null;
-    updateSupabaseUI(true);
-    return null;
-  }
-}
-
-function setupAuthListener() {
-  if (!supabaseClient || authListener) return;
-  const { data } = supabaseClient.auth.onAuthStateChange(async (_event, session) => {
-    currentUser = session?.user || null;
-    updateSupabaseUI(!!supabaseClient);
-    await loadWaTemplates();
-    await loadLeads();
-    setupRealtime();
-    renderAll();
-  });
-  authListener = data?.subscription || null;
-}
-
-function requireAuthForCloud() {
-  if (supabaseClient && !currentUser) {
-    openAuthModal('login');
-    toast('Faça login para acessar os dados na nuvem.', 'warning');
-    return false;
-  }
-  return true;
-}
-
-function openAuthModal(mode = 'login') {
-  if (!$('modal-auth')) return;
-  $('auth-email').value = localStorage.getItem('loreny_crm_last_email') || '';
-  $('auth-password').value = '';
-  setAuthMode(mode);
-  openModal('modal-auth');
-  setTimeout(() => $('auth-email').focus(), 100);
-}
-
-function setAuthMode(mode) {
-  const isSignup = mode === 'signup';
-  $('auth-mode').value = mode;
-  $('auth-title').textContent = isSignup ? 'Criar acesso' : 'Entrar no CRM';
-  $('auth-primary-btn').textContent = isSignup ? 'Criar conta' : 'Entrar';
-  $('auth-switch-text').textContent = isSignup ? 'Já tem conta?' : 'Ainda não tem conta?';
-  $('auth-switch-btn').textContent = isSignup ? 'Entrar' : 'Criar acesso';
-}
-
-async function submitAuth() {
-  if (!supabaseClient) {
-    toast('Conecte o Supabase primeiro.', 'warning');
-    closeModal('modal-auth');
-    openSupabaseModal();
-    return;
-  }
-  const email = ($('auth-email').value || '').trim();
-  const password = ($('auth-password').value || '').trim();
-  const mode = $('auth-mode').value || 'login';
-  if (!email || !password) {
-    toast('Preencha e-mail e senha.', 'warning');
-    return;
-  }
-  if (password.length < 6) {
-    toast('A senha precisa ter pelo menos 6 caracteres.', 'warning');
-    return;
-  }
-  try {
-    localStorage.setItem('loreny_crm_last_email', email);
-    const result = mode === 'signup'
-      ? await supabaseClient.auth.signUp({ email, password })
-      : await supabaseClient.auth.signInWithPassword({ email, password });
-    if (result.error) throw result.error;
-    await refreshCurrentUser();
-    closeModal('modal-auth');
-    await loadWaTemplates();
-    await loadLeads();
-    setupRealtime();
-    renderAll();
-    toast(mode === 'signup' ? 'Conta criada! Verifique o e-mail se o Supabase pedir confirmação.' : 'Login realizado com sucesso!', 'success');
-  } catch (e) {
-    console.error('Erro de autenticação:', e);
-    toast(e.message || 'Falha no login. Confira e-mail e senha.', 'error');
-  }
-}
-
-async function signOutAuth() {
-  if (!supabaseClient) return;
-  try {
-    await supabaseClient.auth.signOut();
-    currentUser = null;
-    leads = [];
-    waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
-    teardownRealtime();
-    updateSupabaseUI(true);
-    renderAll();
-    closeModal('modal-auth');
-    toast('Você saiu da conta.', 'info');
-  } catch (e) {
-    console.error('Erro ao sair:', e);
-    toast('Não foi possível sair agora.', 'error');
-  }
-}
-
-function teardownRealtime() {
-  if (supabaseClient && realtimeChannel) {
-    supabaseClient.removeChannel(realtimeChannel);
-  }
-  realtimeChannel = null;
-}
-
-function setupRealtime() {
-  teardownRealtime();
-  if (!supabaseClient || !currentUser) return;
-  try {
-    realtimeChannel = supabaseClient
-      .channel(`crm-loreny-leads-${currentUser.id}`)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'leads',
-        filter: `user_id=eq.${currentUser.id}`
-      }, async () => {
-        await loadLeads();
-        renderAll();
-      })
-      .subscribe();
-  } catch (e) {
-    console.error('Erro ao ativar Realtime:', e);
   }
 }
 
@@ -485,19 +335,14 @@ function loadLeadsLocal() {
 
 async function loadLeads() {
   if (supabaseClient) {
-    if (!currentUser) {
-      leads = [];
-      return;
-    }
     try {
       const { data, error } = await supabaseClient
         .from('leads')
         .select('*')
-        .eq('user_id', currentUser.id)
         .order('criado_em', { ascending: false });
       if (error) throw error;
       
-      leads = (data || []).map(l => ({
+      leads = data.map(l => ({
         id:          l.id,
         nome:        l.nome,
         whatsapp:    l.whatsapp    || '',
@@ -522,17 +367,11 @@ async function loadLeads() {
   }
 }
 
-
 async function saveLeads() {
   if (supabaseClient) {
-    if (!currentUser) {
-      toast('Faça login para salvar na nuvem.', 'warning');
-      return;
-    }
     try {
       const dbLeads = leads.map(l => ({
         id:           l.id,
-        user_id:      currentUser.id,
         nome:         l.nome,
         whatsapp:     l.whatsapp,
         origem:       l.origem,
@@ -556,7 +395,6 @@ async function saveLeads() {
     saveLeadsLocal();
   }
 }
-
 
 /* ============================================================
    SAMPLE DATA
@@ -1133,7 +971,7 @@ async function executeDelete() {
   
   if (supabaseClient) {
     try {
-      const { error } = await supabaseClient.from('leads').delete().eq('id', deleteTargetId).eq('user_id', currentUser.id);
+      const { error } = await supabaseClient.from('leads').delete().eq('id', deleteTargetId);
       if (error) throw error;
     } catch (e) {
       console.error("Erro ao deletar lead do Supabase:", e);
@@ -1434,7 +1272,7 @@ function setupEvents() {
   $('btn-confirm-cancelar').addEventListener('click', () => closeModal('modal-confirm'));
 
   // Close modals clicking backdrop
-  ['modal-cliente', 'modal-historico', 'modal-confirm', 'modal-supabase', 'modal-wa-templates', 'modal-auth'].forEach(id => {
+  ['modal-cliente', 'modal-historico', 'modal-confirm', 'modal-supabase', 'modal-wa-templates'].forEach(id => {
     $(id).addEventListener('click', e => {
       if (e.target === $(id)) closeModal(id);
     });
@@ -1443,7 +1281,7 @@ function setupEvents() {
   // Escape key closes any open modal or dropdown
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    ['modal-cliente', 'modal-historico', 'modal-confirm', 'modal-supabase', 'modal-wa-templates', 'modal-auth'].forEach(id => {
+    ['modal-cliente', 'modal-historico', 'modal-confirm', 'modal-supabase', 'modal-wa-templates'].forEach(id => {
       if ($(id) && !$(id).classList.contains('hidden')) closeModal(id);
     });
     // Also close alerts dropdown on Escape
@@ -1460,22 +1298,6 @@ function setupEvents() {
   $('btn-salvar-supabase').addEventListener('click', testAndSaveSupabase);
   $('btn-desconectar-supabase').addEventListener('click', disconnectSupabase);
   $('btn-sincronizar-leads').addEventListener('click', syncLocalToSupabase);
-
-  // Auth
-  $('btn-auth-account').addEventListener('click', () => openAuthModal(currentUser ? 'login' : 'login'));
-  $('btn-fechar-modal-auth').addEventListener('click', () => closeModal('modal-auth'));
-  $('auth-primary-btn').addEventListener('click', submitAuth);
-  $('auth-switch-btn').addEventListener('click', () => setAuthMode($('auth-mode').value === 'signup' ? 'login' : 'signup'));
-  $('auth-logout-btn').addEventListener('click', signOutAuth);
-  $('auth-password').addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
-
-  // Mobile bottom nav
-  $('mobile-nav-new').addEventListener('click', openNewModal);
-  $('mobile-nav-retorno').addEventListener('click', () => {
-    clearFilters(); filters.retornoHoje = true; $('btn-retorno-hoje').classList.add('btn-filter-active'); renderAll(); window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-  $('mobile-nav-kanban').addEventListener('click', () => { switchView(currentView === 'kanban' ? 'tabela' : 'kanban'); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-  $('mobile-nav-alertas').addEventListener('click', e => { e.stopPropagation(); $('alerts-dropdown').classList.toggle('hidden'); });
 
   // Modal: WhatsApp templates
   $('btn-fechar-modal-wa').addEventListener('click', () => closeModal('modal-wa-templates'));
@@ -1556,9 +1378,7 @@ async function testAndSaveSupabase() {
     toast("Testando conexão com o Supabase...", "info");
     
     // Create a temporary client
-    const tempClient = window.supabase.createClient(url, key, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-    });
+    const tempClient = window.supabase.createClient(url, key);
     
     // Attempt a simple select query to check if credentials are valid and 'leads' table exists
     const { data, error } = await tempClient.from('leads').select('id').limit(1);
@@ -1569,9 +1389,6 @@ async function testAndSaveSupabase() {
     localStorage.setItem('loreny_crm_supabase_key', key);
     
     supabaseClient = tempClient;
-    authListener = null;
-    setupAuthListener();
-    await refreshCurrentUser();
     updateSupabaseUI(true);
     
     toast("Supabase conectado com sucesso! 🟢", "success");
@@ -1586,7 +1403,6 @@ async function testAndSaveSupabase() {
     }
     
     closeModal('modal-supabase');
-    if (!currentUser) { openAuthModal('login'); }
     
     // Load templates and leads from Supabase and render
     await loadWaTemplates();
@@ -1601,9 +1417,6 @@ async function testAndSaveSupabase() {
 async function disconnectSupabase() {
   localStorage.removeItem('loreny_crm_supabase_url');
   localStorage.removeItem('loreny_crm_supabase_key');
-  teardownRealtime();
-  currentUser = null;
-  authListener = null;
   supabaseClient = null;
   updateSupabaseUI(false);
   
@@ -1625,10 +1438,6 @@ async function syncLocalToSupabase() {
     toast("Supabase não conectado.", "warning");
     return;
   }
-  if (!currentUser) {
-    openAuthModal('login');
-    return;
-  }
   
   try {
     toast("Sincronizando leads locais com a nuvem...", "info");
@@ -1647,7 +1456,6 @@ async function syncLocalToSupabase() {
     
     const dbLeads = localLeads.map(l => ({
       id:           l.id,
-      user_id:      currentUser.id,
       nome:         l.nome,
       whatsapp:     l.whatsapp || '',
       origem:       l.origem || '',
@@ -1936,8 +1744,7 @@ window.deleteWaTemplate = async function(idx) {
         const { error } = await supabaseClient
           .from('wa_templates')
           .delete()
-          .eq('id', deletedId)
-          .eq('user_id', currentUser.id);
+          .eq('id', deletedId);
         if (error) throw error;
       } catch (e) {
         console.error("Erro ao deletar template do Supabase:", e);
@@ -1991,7 +1798,6 @@ async function restoreWaTemplatesDefaults() {
         const { error } = await supabaseClient
           .from('wa_templates')
           .delete()
-          .eq('user_id', currentUser.id)
           .neq('id', 'placeholder');
         if (error) throw error;
       } catch (e) {
@@ -2094,33 +1900,17 @@ function handleAlertClick(leadId) {
   openEditModal(leadId);
 }
 
-
-function registerServiceWorker() {
-  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service Worker não registrado:', err));
-  }
-}
-
 /* ============================================================
    INIT
    ============================================================ */
 async function init() {
   const isSupaActive = initSupabase();
   updateSupabaseUI(isSupaActive);
-  if (isSupaActive) {
-    setupAuthListener();
-    await refreshCurrentUser();
-    setupRealtime();
-  }
   
   await loadWaTemplates();
   await loadLeads();
   setupEvents();
   renderAll();
-  registerServiceWorker();
-  if (isSupaActive && !currentUser) {
-    setTimeout(() => openAuthModal('login'), 300);
-  }
 
   // Show a welcome toast on first load
   const isFirst = !localStorage.getItem('loreny_crm_welcomed');
