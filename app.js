@@ -400,10 +400,35 @@ function requireAuthForCloud() {
 
 function openAuthModal(mode = 'login') {
   if (!$('modal-auth')) return;
-  $('auth-email').value = localStorage.getItem('loreny_crm_last_email') || '';
+  
+  if (currentUser) {
+    // Show logged-in pane
+    $('auth-pane-logged-in').classList.remove('hidden');
+    $('auth-pane-logged-out').classList.add('hidden');
+    $('auth-title').textContent = 'Sua Conta';
+    $('auth-logged-email').textContent = currentUser.email || 'Conectado';
+    $('auth-logged-leads-count').textContent = leads.length;
+  } else {
+    // Show login form
+    $('auth-pane-logged-in').classList.add('hidden');
+    $('auth-pane-logged-out').classList.remove('hidden');
+    $('auth-email').value = localStorage.getItem('loreny_crm_last_email') || '';
+    $('auth-password').value = '';
+    setAuthMode(mode);
+  }
+  openModal('modal-auth');
+  if (!currentUser) {
+    setTimeout(() => $('auth-email').focus(), 100);
+  }
+}
+
+function showAuthLoginForm(mode = 'login') {
+  $('auth-pane-logged-in').classList.add('hidden');
+  $('auth-pane-logged-out').classList.remove('hidden');
+  $('auth-title').textContent = 'Entrar no CRM';
+  $('auth-email').value = '';
   $('auth-password').value = '';
   setAuthMode(mode);
-  openModal('modal-auth');
   setTimeout(() => $('auth-email').focus(), 100);
 }
 
@@ -454,21 +479,22 @@ async function submitAuth() {
 }
 
 async function signOutAuth() {
-  if (!supabaseClient) return;
-  try {
-    await supabaseClient.auth.signOut();
-    currentUser = null;
-    leads = [];
-    waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
-    teardownRealtime();
-    updateSupabaseUI(true);
-    renderAll();
-    closeModal('modal-auth');
-    toast('Você saiu da conta.', 'info');
-  } catch (e) {
-    console.error('Erro ao sair:', e);
-    toast('Não foi possível sair agora.', 'error');
+  currentUser = null;
+  leads = [];
+  waTemplates = JSON.parse(JSON.stringify(WA_TEMPLATES_DEFAULTS));
+  teardownRealtime();
+  updateSupabaseUI(true);
+  renderAll();
+  closeModal('modal-auth');
+  
+  if (supabaseClient) {
+    try {
+      await supabaseClient.auth.signOut();
+    } catch (e) {
+      console.error('Erro de rede ou banco ao sair do Supabase:', e);
+    }
   }
+  toast('Você saiu da conta.', 'info');
 }
 
 function teardownRealtime() {
@@ -1501,7 +1527,9 @@ function setupEvents() {
   $('btn-fechar-modal-auth').addEventListener('click', () => closeModal('modal-auth'));
   $('auth-primary-btn').addEventListener('click', submitAuth);
   $('auth-switch-btn').addEventListener('click', () => setAuthMode($('auth-mode').value === 'signup' ? 'login' : 'signup'));
-  $('auth-logout-btn').addEventListener('click', signOutAuth);
+  $('btn-auth-logout-action').addEventListener('click', signOutAuth);
+  $('btn-auth-switch-account').addEventListener('click', () => showAuthLoginForm('login'));
+  $('btn-auth-cancel-out').addEventListener('click', () => closeModal('modal-auth'));
   $('auth-password').addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
 
   // Mobile bottom nav
