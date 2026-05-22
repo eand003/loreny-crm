@@ -2097,7 +2097,7 @@ function handleAlertClick(leadId) {
 
 function registerServiceWorker() {
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service Worker não registrado:', err));
+    navigator.serviceWorker.register('./sw.js?v=2.2').catch(err => console.warn('Service Worker não registrado:', err));
   }
 }
 

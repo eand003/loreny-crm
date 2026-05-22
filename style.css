@@ -1877,44 +1877,38 @@ textarea.form-control {
 
 
 /* ============================================================
-   MOBILE UX FIX v2.1 — Melhor usabilidade no celular
-   Correções:
-   - filtros deixam de sobrepor cards
-   - header ocupa menos altura
-   - botões secundários somem no mobile
-   - lista ganha respiro para não ficar atrás da bottom nav
-   - cards mobile ficam mais limpos e fáceis de tocar
+   MOBILE UX FIX v2.2
+   Objetivo: corrigir corte dos cards, reduzir poluição no topo,
+   melhorar leitura e evitar sobreposição dos filtros/barra inferior.
    ============================================================ */
 
 @media (max-width: 768px) {
-  html, body {
+  html,
+  body {
     width: 100%;
     overflow-x: hidden;
   }
 
   body {
-    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    padding-bottom: calc(118px + env(safe-area-inset-bottom));
   }
 
   #header {
     position: relative !important;
     top: auto !important;
-    height: auto;
-    padding: 0.95rem 1rem 0.8rem;
-    gap: 0.75rem;
-    box-shadow: 0 2px 14px rgba(0,0,0,0.22);
+    height: auto !important;
+    padding: 0.9rem 0.95rem 0.75rem !important;
+    gap: 0.7rem !important;
   }
 
   .header-brand {
     width: 100%;
-    align-items: center;
   }
 
   .logo {
     width: 46px;
     height: 46px;
     border-radius: 14px;
-    font-size: 0.86rem;
   }
 
   .brand-title {
@@ -1929,250 +1923,301 @@ textarea.form-control {
 
   .header-actions {
     width: 100%;
-    display: grid;
-    grid-template-columns: 1.45fr 1fr 1fr;
-    gap: 0.55rem;
-    align-items: stretch;
+    display: grid !important;
+    grid-template-columns: 1.35fr 1fr 1fr !important;
+    gap: 0.55rem !important;
   }
 
-  .header-actions .alertas-container,
   #btn-exportar-csv,
   #btn-importar-csv {
     display: none !important;
+  }
+
+  #btn-novo-cliente,
+  #btn-config-supabase,
+  #btn-auth-account {
+    min-height: 44px;
+    border-radius: 14px;
+    justify-content: center;
+    font-size: 0.82rem;
+    padding: 0.55rem 0.6rem;
   }
 
   #btn-novo-cliente {
     grid-column: 1 / 2;
   }
 
-  #btn-config-supabase,
-  #btn-auth-account {
-    grid-column: auto;
+  /* Mantém o container de alertas vivo para o botão da barra inferior funcionar,
+     mas esconde o sino do cabeçalho no celular. */
+  .alertas-container {
+    position: fixed !important;
+    inset: auto 0 0 auto !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+    z-index: 900 !important;
   }
 
-  .header-actions .btn {
-    min-height: 44px;
-    border-radius: 14px;
-    font-size: 0.82rem;
-    padding: 0.6rem 0.65rem;
-    justify-content: center;
+  #btn-alertas {
+    display: none !important;
+  }
+
+  .alerts-dropdown {
+    position: fixed !important;
+    left: 0.85rem !important;
+    right: 0.85rem !important;
+    bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+    top: auto !important;
+    width: auto !important;
+    max-height: 58vh !important;
+    pointer-events: auto !important;
+    z-index: 950 !important;
   }
 
   main {
-    padding: 0.9rem 0.85rem calc(135px + env(safe-area-inset-bottom));
+    padding: 0.85rem 0.85rem calc(136px + env(safe-area-inset-bottom)) !important;
   }
 
   .quote-banner {
-    display: none;
+    display: none !important;
   }
 
   #dashboard {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0.75rem !important;
   }
 
   .dash-card {
-    min-height: auto;
-    padding: 0.72rem 0.55rem;
-    border-radius: 15px;
+    padding: 0.68rem 0.48rem !important;
+    border-radius: 15px !important;
+    min-height: 84px;
   }
 
   .dash-card-icon {
-    width: 30px;
-    height: 30px;
-    font-size: 0.95rem;
-    margin-bottom: 0.42rem;
-    border-radius: 9px;
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 0.95rem !important;
+    margin-bottom: 0.38rem !important;
+    border-radius: 9px !important;
   }
 
   .dash-card-value {
-    font-size: 1.35rem;
-    margin-bottom: 0.15rem;
+    font-size: 1.32rem !important;
   }
 
   .dash-card-label {
-    font-size: 0.56rem;
-    line-height: 1.15;
-    letter-spacing: 0.35px;
+    font-size: 0.54rem !important;
+    line-height: 1.15 !important;
+    letter-spacing: 0.28px !important;
   }
 
   #filters {
     position: relative !important;
     top: auto !important;
     z-index: 1 !important;
-    margin-bottom: 0.85rem;
-    padding: 0.7rem;
-    border-radius: 18px;
-    box-shadow: var(--shadow-sm);
-    gap: 0.5rem;
+    margin-bottom: 0.85rem !important;
+    padding: 0.72rem !important;
+    border-radius: 18px !important;
+    gap: 0.5rem !important;
+    overflow: visible !important;
   }
 
-  .filter-search-wrap {
-    width: 100%;
+  .filter-search-wrap,
+  .filter-select {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex: none !important;
   }
 
   .filter-input,
   .filter-select {
-    height: 44px;
-    font-size: 0.9rem;
-    border-radius: 13px;
+    height: 44px !important;
+    font-size: 0.9rem !important;
+    border-radius: 13px !important;
+  }
+
+  .filter-divider {
+    display: none !important;
   }
 
   #filters .btn {
-    min-height: 40px;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    padding: 0.55rem 0.9rem;
+    min-height: 40px !important;
+    border-radius: 999px !important;
+    font-size: 0.8rem !important;
+    padding: 0.52rem 0.82rem !important;
   }
 
   #btn-retorno-hoje,
   #btn-sem-acao,
   #btn-limpar-filtros {
-    flex: 1 1 auto;
+    flex: 1 1 auto !important;
   }
 
   .view-controls {
-    margin: 0.65rem 0 0.7rem;
-    gap: 0.55rem;
+    margin: 0.65rem 0 0.7rem !important;
+    gap: 0.55rem !important;
   }
 
   .results-count {
-    width: 100%;
-    padding: 0 0.2rem;
+    width: 100% !important;
+    padding: 0 0.2rem !important;
   }
 
   .view-toggle {
-    width: 100%;
-    border-radius: 14px;
+    width: 100% !important;
+    border-radius: 14px !important;
   }
 
   .toggle-btn {
-    min-height: 40px;
-    border-radius: 11px;
+    flex: 1 !important;
+    min-height: 40px !important;
+    justify-content: center !important;
+    border-radius: 11px !important;
+  }
+
+  .table-container {
+    display: none !important;
   }
 
   #mobile-cards {
-    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    display: block !important;
+    padding-bottom: calc(128px + env(safe-area-inset-bottom)) !important;
   }
 
   .mobile-card {
-    margin-bottom: 0.9rem;
-    padding: 1rem;
-    border-radius: 20px;
-    box-shadow: var(--shadow-md);
+    margin-bottom: 0.95rem !important;
+    padding: 1rem !important;
+    border-radius: 20px !important;
+    box-shadow: var(--shadow-md) !important;
   }
 
   .mobile-card:last-child {
-    margin-bottom: calc(120px + env(safe-area-inset-bottom));
+    margin-bottom: calc(130px + env(safe-area-inset-bottom)) !important;
   }
 
   .mc-header {
-    align-items: flex-start;
-    gap: 0.65rem;
-    margin-bottom: 0.7rem;
+    align-items: flex-start !important;
+    gap: 0.65rem !important;
+    margin-bottom: 0.75rem !important;
   }
 
   .mc-name {
-    font-size: 1.05rem;
-    line-height: 1.2;
+    font-size: 1.05rem !important;
+    line-height: 1.2 !important;
   }
 
   .mc-origin {
-    font-size: 0.76rem;
-    line-height: 1.35;
+    font-size: 0.76rem !important;
+    line-height: 1.35 !important;
   }
 
   .mc-header .badge {
-    max-width: 120px;
-    text-align: center;
-    justify-content: center;
-    white-space: normal;
-    line-height: 1.15;
+    max-width: 124px !important;
+    text-align: center !important;
+    justify-content: center !important;
+    white-space: normal !important;
+    line-height: 1.15 !important;
   }
 
   .mc-grid {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
+    grid-template-columns: 1fr !important;
+    gap: 0.55rem !important;
   }
 
   .mc-field {
-    min-height: 58px;
-    justify-content: center;
+    min-height: 58px !important;
+    justify-content: center !important;
+    background: rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.6rem 0.7rem;
   }
 
   .mc-field-label {
-    font-size: 0.62rem;
+    font-size: 0.62rem !important;
   }
 
   .mc-field-value {
-    font-size: 0.9rem;
-    word-break: break-word;
+    font-size: 0.9rem !important;
+    word-break: break-word !important;
   }
 
   .mc-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.5rem;
-    padding-top: 0.8rem;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+    padding-top: 0.82rem !important;
   }
 
   .mc-actions .btn {
-    min-height: 44px;
-    border-radius: 13px;
+    min-height: 44px !important;
+    border-radius: 13px !important;
+    flex: unset !important;
   }
 
   .mobile-bottom-nav {
-    min-height: calc(72px + env(safe-area-inset-bottom));
-    padding: 0.45rem 0.65rem calc(0.55rem + env(safe-area-inset-bottom));
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    min-height: calc(74px + env(safe-area-inset-bottom)) !important;
+    padding: 0.45rem 0.65rem calc(0.55rem + env(safe-area-inset-bottom)) !important;
+    z-index: 850 !important;
   }
 
   .mobile-bottom-nav button {
-    min-height: 54px;
-  }
-
-  .alerts-dropdown {
-    bottom: calc(82px + env(safe-area-inset-bottom));
+    min-height: 54px !important;
   }
 
   .modal-box {
-    max-height: 88vh;
+    max-height: 88vh !important;
+    border-radius: 22px 22px 0 0 !important;
+    margin-top: auto !important;
+  }
+
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
   }
 }
 
 @media (max-width: 420px) {
   .header-actions {
-    grid-template-columns: 1.35fr 1fr 1fr;
+    grid-template-columns: 1.25fr 1fr 1fr !important;
   }
 
-  .header-actions .btn {
-    font-size: 0.78rem;
-    letter-spacing: -0.1px;
+  #btn-novo-cliente,
+  #btn-config-supabase,
+  #btn-auth-account {
+    font-size: 0.76rem !important;
+    letter-spacing: -0.15px;
   }
 
   #dashboard {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 
   .dash-card {
-    padding: 0.65rem 0.45rem;
+    min-height: 78px;
+    padding: 0.62rem 0.42rem !important;
   }
 
   .dash-card-value {
-    font-size: 1.22rem;
+    font-size: 1.2rem !important;
   }
 
   .dash-card-label {
-    font-size: 0.52rem;
+    font-size: 0.5rem !important;
   }
 }
 
 @media (max-width: 360px) {
   #dashboard {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 
   .header-actions {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr !important;
   }
 
   #btn-novo-cliente {
