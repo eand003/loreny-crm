@@ -1,104 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f172a" />
-  <title>CRM Loreny Imóveis</title>
-  <link rel="manifest" href="manifest.json?v=1.0" />
-  <link rel="stylesheet" href="style.css?v=1.0" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-  <header class="topbar">
-    <div class="brand"><div class="logo">LI</div><div><h1>Loreny Imóveis</h1><p>CRM · Gestão de Leads</p></div></div>
-    <div class="top-actions">
-      <button id="newLeadBtn" class="btn primary">+ Novo Cliente</button>
-      <button id="cloudBtn" class="btn">☁️ Nuvem</button>
-      <button id="accountBtn" class="btn">🔐 Login</button>
-      <button id="exportBtn" class="btn hide-mobile">↑ CSV</button>
-      <button id="importBtn" class="btn hide-mobile">↓ CSV</button>
-      <input id="csvInput" type="file" accept=".csv" hidden />
-    </div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div><h2>Quem precisa de atenção hoje?</h2><p>Nunca deixe lead sem próxima ação e data de retorno.</p></div>
-      <span id="onlineStatus" class="pill">Modo local</span>
-    </section>
-
-    <section class="stats">
-      <button class="stat" data-filter="all"><small>Total</small><strong id="stTotal">0</strong></button>
-      <button class="stat warn" data-filter="today"><small>Hoje</small><strong id="stToday">0</strong></button>
-      <button class="stat danger" data-filter="late"><small>Atrasados</small><strong id="stLate">0</strong></button>
-      <button class="stat purple" data-filter="visit"><small>Visitas</small><strong id="stVisit">0</strong></button>
-      <button class="stat orange" data-filter="proposal"><small>Propostas</small><strong id="stProposal">0</strong></button>
-      <button class="stat green" data-filter="closed"><small>Fechados</small><strong id="stClosed">0</strong></button>
-    </section>
-
-    <section class="filters">
-      <input id="search" type="search" placeholder="Buscar por nome, WhatsApp, região ou observação..." />
-      <div class="filter-grid">
-        <select id="statusFilter"><option value="">Todos os status</option></select>
-        <select id="originFilter"><option value="">Todas as origens</option></select>
-        <select id="typeFilter"><option value="">Todos os tipos</option></select>
-      </div>
-      <div class="chips">
-        <button id="todayChip" class="chip">📅 Hoje</button>
-        <button id="noActionChip" class="chip">⚠️ Sem ação</button>
-        <button id="clearFiltersBtn" class="chip">✕ Limpar</button>
-      </div>
-    </section>
-
-    <section class="viewbar"><p>Mostrando <b id="resultCount">0</b> leads</p><div class="switch"><button id="listViewBtn" class="active">Lista</button><button id="kanbanViewBtn">Kanban</button></div></section>
-    <section id="leadList" class="lead-list"></section>
-    <section id="kanban" class="kanban hidden"></section>
-  </main>
-
-  <nav class="bottom-nav">
-    <button id="navNew"><span>+</span>Novo</button>
-    <button id="navToday"><span>📅</span>Hoje</button>
-    <button id="navKanban"><span>▦</span>Kanban</button>
-    <button id="navAlerts"><span>🔔</span>Alertas</button>
-  </nav>
-
-  <dialog id="leadDialog" class="modal"><form method="dialog" class="box" id="leadForm">
-    <header><h3 id="leadTitle">Novo Cliente</h3><button type="button" class="x" data-close="leadDialog">×</button></header>
-    <div class="formgrid">
-      <input type="hidden" id="leadId" />
-      <label class="full">Nome *<input id="leadName" required /></label>
-      <label>WhatsApp<input id="leadWhatsapp" inputmode="tel" /></label>
-      <label>Origem<select id="leadOrigin"></select></label>
-      <label>Tipo<select id="leadType"></select></label>
-      <label>Região<input id="leadRegion" /></label>
-      <label>Valor<input id="leadValue" placeholder="Ex: 300 a 500 mil" /></label>
-      <label>Status<select id="leadStatus"></select></label>
-      <label>Data de retorno<input id="leadReturn" type="date" /></label>
-      <label class="full">Próxima ação<input id="leadAction" placeholder="Ex: Enviar opções, confirmar visita..." /></label>
-      <label class="full">Observações<textarea id="leadNotes" rows="4"></textarea></label>
-    </div>
-    <footer><button type="button" class="btn" data-close="leadDialog">Cancelar</button><button type="button" id="saveLeadBtn" class="btn primary">Salvar</button></footer>
-  </form></dialog>
-
-  <dialog id="historyDialog" class="modal"><div class="box">
-    <header><h3>Histórico</h3><button type="button" class="x" data-close="historyDialog">×</button></header>
-    <div class="pad"><input id="histLeadId" type="hidden" /><p id="histLeadName" class="muted"></p><div class="inline-form"><select id="histKind"><option>WhatsApp</option><option>Ligação</option><option>Visita</option><option>Proposta</option><option>E-mail</option><option>Outro</option></select><input id="histText" placeholder="O que aconteceu?" /><button id="addHistBtn" class="btn primary">Adicionar</button></div><div id="histList" class="history"></div></div>
-  </div></dialog>
-
-  <dialog id="waDialog" class="modal"><div class="box">
-    <header><h3>Mensagem WhatsApp</h3><button type="button" class="x" data-close="waDialog">×</button></header>
-    <div class="pad"><input id="waLeadId" type="hidden" /><p id="waLeadName" class="muted"></p><div id="templateGrid" class="template-grid"></div><label>Mensagem editável<textarea id="waText" rows="8"></textarea></label><details><summary>⚙️ Gerenciar modelos</summary><div class="template-form"><input id="tplId" type="hidden"><input id="tplTitle" placeholder="Título"><input id="tplDesc" placeholder="Descrição"><textarea id="tplText" rows="4" placeholder="Olá, {nome}! Vi seu interesse em {tipo}..."></textarea><div class="vars"><button data-var="{nome}" type="button">{nome}</button><button data-var="{tipo}" type="button">{tipo}</button><button data-var="{regiao}" type="button">{regiao}</button><button data-var="{valor}" type="button">{valor}</button></div><button id="saveTplBtn" class="btn primary" type="button">Salvar modelo</button><button id="clearTplBtn" class="btn" type="button">Limpar</button></div><div id="tplManage" class="tpl-manage"></div></details></div>
-    <footer><button id="copyWaBtn" class="btn">Copiar</button><button id="sendWaBtn" class="btn success">Abrir WhatsApp</button></footer>
-  </div></dialog>
-
-  <dialog id="cloudDialog" class="modal"><div class="box small"><header><h3>Configurar Supabase</h3><button type="button" class="x" data-close="cloudDialog">×</button></header><div class="pad"><p class="muted">Cole a Project URL e Anon Key do Supabase.</p><label>Supabase URL<input id="supaUrl" placeholder="https://xxxx.supabase.co"></label><label>Anon Key<input id="supaKey" type="password"></label><div id="cloudStatus" class="note">Status: modo local</div></div><footer><button id="disconnectBtn" class="btn danger">Desconectar</button><button id="saveCloudBtn" class="btn primary">Conectar</button></footer></div></dialog>
-
-  <dialog id="accountDialog" class="modal"><div class="box small"><header><h3>Conta</h3><button type="button" class="x" data-close="accountDialog">×</button></header><div class="pad"><p id="accountStatus" class="muted">Sem login.</p><label>E-mail<input id="email" type="email"></label><label>Senha<input id="password" type="password"></label></div><footer class="stack"><button id="signinBtn" class="btn primary">Entrar</button><button id="signupBtn" class="btn">Criar acesso</button><button id="signoutBtn" class="btn danger">Sair</button></footer></div></dialog>
-
-  <dialog id="alertsDialog" class="modal"><div class="box small"><header><h3>Alertas</h3><button type="button" class="x" data-close="alertsDialog">×</button></header><div id="alertsList" class="pad alerts"></div></div></dialog>
-
-  <div id="toasts"></div>
-  <script src="app.js?v=1.0"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loreny Imóveis | Premium CRM</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <meta name="description" content="CRM imobiliário de alta performance para controle de leads, visitas e propostas." />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

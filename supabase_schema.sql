@@ -1,81 +1,179 @@
--- ============================================================
--- CRM Loreny Imóveis — Schema Supabase Seguro
--- Cole no Supabase > SQL Editor > Run
--- ============================================================
+-- ==========================================
+-- SCHEMA SQL PARA CRM LORENY IMÓVEIS V3
+-- Banco de Dados: Supabase PostgreSQL
+-- ==========================================
 
-create extension if not exists "pgcrypto";
+-- Habilitar a extensão uuid-ossp se ainda não habilitada
+create extension if not exists "uuid-ossp";
 
-create table if not exists public.leads (
-  id text primary key,
-  user_id uuid not null references auth.users(id) on delete cascade,
-  nome text not null,
-  whatsapp text,
-  origem text,
-  tipo text,
-  regiao text,
-  valor text,
-  status text default 'Novo lead',
-  proxima_acao text,
-  data_retorno date,
-  observacoes text,
-  historico jsonb default '[]'::jsonb,
-  criado_em timestamptz not null default timezone('utc'::text, now()),
-  atualizado_em timestamptz not null default timezone('utc'::text, now())
+-- 1. TABELA: re_profiles
+-- Cadastro estendido dos corretores conectado com auth.users
+create table if not exists public.re_profiles (
+    id uuid references auth.users(id) on delete cascade primary key,
+    full_name text not null,
+    email text not null,
+    phone text,
+    company text,
+    commission_rate numeric(5,2) default 5.00,
+    role text default 'admin',
+    status text default 'active',
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
 );
 
-create table if not exists public.wa_templates (
-  id text primary key,
-  user_id uuid not null references auth.users(id) on delete cascade,
-  title text not null,
-  description text,
-  text_content text not null,
-  criado_em timestamptz not null default timezone('utc'::text, now()),
-  atualizado_em timestamptz not null default timezone('utc'::text, now())
+-- Habilitar Row Level Security (RLS) em re_profiles
+alter table public.re_profiles enable row level security;
+
+-- Políticas de Segurança (RLS) para re_profiles
+create policy "Corretores podem ver seu próprio perfil"
+    on public.re_profiles for select
+    using (auth.uid() = id);
+
+create policy "Corretores podem atualizar seu próprio perfil"
+    on public.re_profiles for update
+    using (auth.uid() = id);
+
+
+-- 2. TABELA: re_leads
+-- Carteira de clientes e negócios imobiliários por corretor
+create table if not exists public.re_leads (
+    id uuid default gen_random_uuid() primary key,
+    owner_id uuid references public.re_profiles(id) on delete cascade not null,
+    name text not null,
+    phone text not null,
+    email text,
+    property_type text default 'Apartamento',
+    region text not null,
+    budget numeric(15,2),
+    status text default 'new',
+    notes text,
+    next_action text,
+    next_action_date date,
+    is_deleted boolean default false not null,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
 );
 
-create index if not exists leads_user_id_idx on public.leads(user_id);
-create index if not exists leads_status_idx on public.leads(status);
-create index if not exists leads_data_retorno_idx on public.leads(data_retorno);
-create index if not exists leads_criado_em_idx on public.leads(criado_em desc);
-create index if not exists wa_templates_user_id_idx on public.wa_templates(user_id);
-create index if not exists wa_templates_criado_em_idx on public.wa_templates(criado_em asc);
+-- Habilitar RLS em re_leads
+alter table public.re_leads enable row level security;
 
-alter table public.leads enable row level security;
-alter table public.wa_templates enable row level security;
+-- Políticas de RLS para re_leads
+create policy "Corretores podem gerenciar seus próprios leads"
+    on public.re_leads for all
+    using (auth.uid() = owner_id)
+    with check (auth.uid() = owner_id);
 
-drop policy if exists "leads_select_own" on public.leads;
-drop policy if exists "leads_insert_own" on public.leads;
-drop policy if exists "leads_update_own" on public.leads;
-drop policy if exists "leads_delete_own" on public.leads;
-drop policy if exists "wa_templates_select_own" on public.wa_templates;
-drop policy if exists "wa_templates_insert_own" on public.wa_templates;
-drop policy if exists "wa_templates_update_own" on public.wa_templates;
-drop policy if exists "wa_templates_delete_own" on public.wa_templates;
 
-create policy "leads_select_own" on public.leads for select to authenticated using (auth.uid() = user_id);
-create policy "leads_insert_own" on public.leads for insert to authenticated with check (auth.uid() = user_id);
-create policy "leads_update_own" on public.leads for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "leads_delete_own" on public.leads for delete to authenticated using (auth.uid() = user_id);
+-- 3. TABELA: re_visits
+-- Agenda de visitas aos imóveis
+create table if not exists public.re_visits (
+    id uuid default gen_random_uuid() primary key,
+    owner_id uuid references public.re_profiles(id) on delete cascade not null,
+    lead_id uuid references public.re_leads(id) on delete cascade not null,
+    property_details text not null,
+    visit_datetime timestamptz not null,
+    notes text,
+    status text default 'Agendada' not null,
+    is_deleted boolean default false not null,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
+);
 
-create policy "wa_templates_select_own" on public.wa_templates for select to authenticated using (auth.uid() = user_id);
-create policy "wa_templates_insert_own" on public.wa_templates for insert to authenticated with check (auth.uid() = user_id);
-create policy "wa_templates_update_own" on public.wa_templates for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "wa_templates_delete_own" on public.wa_templates for delete to authenticated using (auth.uid() = user_id);
+-- Habilitar RLS em re_visits
+alter table public.re_visits enable row level security;
 
--- Realtime. Se der erro dizendo que a tabela já faz parte da publicação, ignore essa linha.
-alter publication supabase_realtime add table public.leads;
-alter publication supabase_realtime add table public.wa_templates;
+-- Políticas de RLS para re_visits
+create policy "Corretores podem gerenciar suas próprias visitas"
+    on public.re_visits for all
+    using (auth.uid() = owner_id)
+    with check (auth.uid() = owner_id);
 
-create or replace function public.set_updated_at()
+
+-- 4. TABELA: re_whatsapp_templates
+-- Modelos de mensagens rápidas do WhatsApp por corretor
+create table if not exists public.re_whatsapp_templates (
+    id uuid default gen_random_uuid() primary key,
+    owner_id uuid references public.re_profiles(id) on delete cascade not null,
+    title text not null,
+    description text,
+    text_content text not null,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
+);
+
+-- Habilitar RLS em re_whatsapp_templates
+alter table public.re_whatsapp_templates enable row level security;
+
+-- Políticas de RLS para re_whatsapp_templates
+create policy "Corretores podem gerenciar seus próprios templates"
+    on public.re_whatsapp_templates for all
+    using (auth.uid() = owner_id)
+    with check (auth.uid() = owner_id);
+
+
+-- ==========================================
+-- PROCEDIMENTOS AUTOMÁTICOS (TRIGGERS)
+-- ==========================================
+
+-- Trigger Function para criar o Perfil do Corretor e auto-inserir os Templates Padrão do WhatsApp
+create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  new.atualizado_em = timezone('utc'::text, now());
-  return new;
+    -- 1. Inserir perfil na tabela re_profiles
+    insert into public.re_profiles (id, full_name, email, phone, company, commission_rate, role, status)
+    values (
+        new.id,
+        coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
+        new.email,
+        new.raw_user_meta_data->>'phone',
+        new.raw_user_meta_data->>'company',
+        coalesce((new.raw_user_meta_data->>'commission_rate')::numeric, 5.00),
+        'admin',
+        'active'
+    );
+
+    -- 2. Inserir Templates Padrão do WhatsApp para o corretor recém-criado
+    insert into public.re_whatsapp_templates (owner_id, title, description, text_content)
+    values
+    (
+        new.id,
+        'Apresentação e Primeiro Contato 🏠',
+        'Mensagem de boas-vindas logo após o lead demonstrar interesse.',
+        'Olá, {nome}! Tudo bem? Sou o/a {corretor}, especialista de imóveis da Loreny Imóveis. 🙋‍♀️' || chr(10) || chr(10) || 'Vi que você está buscando um(a) {imovel} na região de {regiao} na faixa de orçamento de {valor}. Tenho algumas opções excelentes selecionadas para o seu perfil. Podermos conversar por ligação rápida de 3 minutos hoje às 17h?'
+    ),
+    (
+        new.id,
+        'Confirmação de Visitação 🗓️',
+        'Para enviar um dia antes ou horas antes da visita agendada.',
+        'Olá, {nome}! Tudo certo para nossa visita de amanhã? 🚀' || chr(10) || chr(10) || 'Ficou agendado para o dia {data_visita} às {hora_visita} no imóvel {imovel}.' || chr(10) || chr(10) || 'Endereço ou Ponto de encontro: {regiao}.' || chr(10) || chr(10) || 'Caso tenha algum imprevisto, me avise por aqui! Abraços!'
+    ),
+    (
+        new.id,
+        'Acompanhamento de Proposta 📝',
+        'Follow-up de negociação para destravar propostas pendentes.',
+        'Olá, {nome}! Tudo bem?' || chr(10) || chr(10) || 'Passando para saber se teve a oportunidade de avaliar a proposta de {valor} enviada para o imóvel em {regiao}. O proprietário demonstrou abertura, mas precisamos formalizar os termos. Ficamos no aguardo de sua resposta para fecharmos esse excelente negócio! ✨'
+    );
+
+    return new;
+end;
+$$ language plpgsql security definer;
+
+-- Associar a trigger ao registro de novos usuários no Auth do Supabase
+create or replace trigger on_auth_user_created
+    after insert on auth.users
+    for each row execute procedure public.handle_new_user();
+
+-- Trigger Function para atualizar o campo updated_at automaticamente
+create or replace function public.update_modified_column()
+returns trigger as $$
+begin
+    new.updated_at = now();
+    return new;
 end;
 $$ language plpgsql;
 
-drop trigger if exists leads_set_updated_at on public.leads;
-create trigger leads_set_updated_at before update on public.leads for each row execute function public.set_updated_at();
-
-drop trigger if exists wa_templates_set_updated_at on public.wa_templates;
-create trigger wa_templates_set_updated_at before update on public.wa_templates for each row execute function public.set_updated_at();
+-- Habilitar trigger de update para todas as tabelas
+create or replace trigger update_re_profiles_modtime before update on public.re_profiles for each row execute procedure public.update_modified_column();
+create or replace trigger update_re_leads_modtime before update on public.re_leads for each row execute procedure public.update_modified_column();
+create or replace trigger update_re_visits_modtime before update on public.re_visits for each row execute procedure public.update_modified_column();
+create or replace trigger update_re_whatsapp_templates_modtime before update on public.re_whatsapp_templates for each row execute procedure public.update_modified_column();
