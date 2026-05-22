@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Target, Search, Filter, Phone, Calendar, Plus, Edit2, CheckCircle2, AlertCircle, Trash2, Send, MessageSquare } from 'lucide-react';
+import { Target, Search, Filter, Phone, Calendar, Plus, Edit2, CheckCircle2, AlertCircle, Trash2, Send, MessageSquare, Upload } from 'lucide-react';
 import { supabase } from '../config/supabase';
 import { getLeadStatusLabel, formatDate, formatCurrency, compileWhatsAppTemplate, OPTIONS } from '../utils/helpers';
 import Modal from './UI/Modal';
@@ -239,16 +239,199 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     setIsWaModalOpen(false);
   };
 
+  const handleImportCSV = async (file) => {
+    if (!file) return;
+
+    const confirmImport = window.confirm(`Deseja importar os dados do arquivo "${file.name}" para a conta de ${user?.email || 'draloreny@gmail.com'}?`);
+    if (!confirmImport) return;
+
+    try {
+      setLoading(true);
+      const text = await file.text();
+      const cleanText = text.replace(/^\uFEFF/, '');
+      const lines = cleanText.split(/\r?\n/).filter(line => line.trim() !== '');
+      
+      if (lines.length < 2) {
+        alert('O arquivo CSV parece estar vazio ou sem cabeçalhos.');
+        return;
+      }
+
+      const parseCSVLine = (line) => {
+        const out = [];
+        let cur = '';
+        let q = false;
+        for (let i = 0; i < line.length; i++) {
+          let c = line[i];
+          if (c === '"') {
+            if (q && line[i + 1] === '"') {
+              cur += '"';
+              i++;
+            } else {
+              q = !q;
+            }
+          } else if (c === ',' && !q) {
+            out.push(cur.trim());
+            cur = '';
+          } else {
+            cur += c;
+          }
+        }
+        out.push(cur.trim());
+        return out;
+      };
+
+      const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+      
+      const getColIndex = (options) => {
+        return headers.findIndex(h => options.some(opt => h.includes(opt)));
+      };
+
+      const nameIdx = getColIndex(['nome', 'name']);
+      const phoneIdx = getColIndex(['whatsapp', 'telefone', 'phone', 'celular']);
+      const emailIdx = getColIndex(['email', 'e-mail']);
+      const typeIdx = getColIndex(['tipo', 'property_type', 'imovel']);
+      const regionIdx = getColIndex(['região', 'regiao', 'region', 'bairro']);
+      const budgetIdx = getColIndex(['valor', 'budget', 'orçamento', 'orcamento']);
+      const statusIdx = getColIndex(['status', 'estágio', 'estagio']);
+      const nextActionIdx = getColIndex(['próxima ação', 'proxima_acao', 'próxima', 'action']);
+      const nextActionDateIdx = getColIndex(['data retorno', 'data_retorno', 'retorno', 'date']);
+      const notesIdx = getColIndex(['observações', 'observacoes', 'notes', 'notas']);
+
+      if (nameIdx === -1) {
+        alert('Cabeçalho inválido. O arquivo CSV deve conter pelo menos uma coluna com o nome "Nome".');
+        return;
+      }
+
+      const STATUS_MAP = {
+        'novo lead': 'new',
+        'contato feito': 'contacted',
+        'entendeu necessidade': 'contacted',
+        'enviou opções': 'contacted',
+        'agendou visita': 'visit_scheduled',
+        'visitou imóvel': 'visited',
+        'proposta feita': 'proposal',
+        'fechado': 'won',
+        'perdido': 'lost',
+        'nutrição futura': 'new'
+      };
+
+      const importedLeads = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (cols.length === 0 || !cols[nameIdx]) continue;
+
+        const name = cols[nameIdx];
+        const rawPhone = phoneIdx !== -1 ? cols[phoneIdx] : '';
+        const phone = rawPhone.replace(/[^\d+]/g, '');
+
+        const email = emailIdx !== -1 ? cols[emailIdx] : null;
+        
+        const rawType = typeIdx !== -1 ? cols[typeIdx] : 'Apartamento';
+        let propertyType = 'Apartamento';
+        if (rawType.toLowerCase().includes('casa') || rawType.toLowerCase().includes('sobrado')) {
+          propertyType = 'Casa';
+        } else if (rawType.toLowerCase().includes('lote') || rawType.toLowerCase().includes('terreno')) {
+          propertyType = 'Terreno';
+        } else if (rawType.toLowerCase().includes('comercial') || rawType.toLowerCase().includes('sala')) {
+          propertyType = 'Comercial';
+        }
+
+        const region = regionIdx !== -1 ? cols[regionIdx] : 'Não especificada';
+        
+        const rawBudget = budgetIdx !== -1 ? cols[budgetIdx] : '';
+        const cleanBudget = rawBudget.replace(/[^\d]/g, '');
+        const budget = cleanBudget ? parseFloat(cleanBudget) : null;
+
+        const rawStatus = statusIdx !== -1 ? cols[statusIdx].toLowerCase() : 'novo lead';
+        const status = STATUS_MAP[rawStatus] || 'new';
+
+        const notes = notesIdx !== -1 ? cols[notesIdx] : '';
+        const next_action = nextActionIdx !== -1 ? cols[nextActionIdx] : '';
+        
+        let next_action_date = null;
+        if (nextActionDateIdx !== -1 && cols[nextActionDateIdx]) {
+          const rawDate = cols[nextActionDateIdx];
+          if (rawDate.includes('/')) {
+            const parts = rawDate.split('/');
+            if (parts.length === 3) {
+              next_action_date = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+          } else {
+            next_action_date = rawDate;
+          }
+        }
+
+        importedLeads.push({
+          owner_id: user?.id,
+          name,
+          phone,
+          email,
+          property_type: propertyType,
+          region,
+          budget,
+          status,
+          notes,
+          next_action,
+          next_action_date,
+          is_deleted: false
+        });
+      }
+
+      if (importedLeads.length === 0) {
+        alert('Nenhum lead válido encontrado no arquivo.');
+        return;
+      }
+
+      const { error } = await supabase.from('leads').insert(importedLeads);
+      if (error) throw error;
+
+      alert(`Sucesso! ${importedLeads.length} leads foram importados com sucesso.`);
+      fetchLeads();
+    } catch (err) {
+      alert('Erro ao importar CSV: ' + err.message);
+    } finally {
+      setLoading(false);
+      document.getElementById('csv-import-input').value = '';
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between align-center" style={{ marginBottom: '20px' }}>
         <h2 style={{ fontSize: '20px', fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
           Gestão de Leads & Negócios
         </h2>
-        <button onClick={handleOpenAddModal} className="btn btn-primary" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>
-          <Plus size={18} />
-          <span>Cadastrar Lead</span>
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            onClick={() => document.getElementById('csv-import-input').click()} 
+            className="btn btn-outline" 
+            style={{ 
+              fontFamily: 'Inter, sans-serif', 
+              fontWeight: 600, 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px',
+              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              color: 'var(--gray-300)',
+              border: '1px solid var(--border-color)'
+            }}
+          >
+            <Upload size={18} />
+            <span>Importar CSV</span>
+          </button>
+          <input 
+            type="file" 
+            id="csv-import-input" 
+            accept=".csv" 
+            onChange={(e) => handleImportCSV(e.target.files[0])} 
+            style={{ display: 'none' }} 
+          />
+          <button onClick={handleOpenAddModal} className="btn btn-primary" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>
+            <Plus size={18} />
+            <span>Cadastrar Lead</span>
+          </button>
+        </div>
       </div>
 
       {/* SEARCH AND FILTERS BAR */}
