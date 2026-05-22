@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crm-loreny-v2';
+const CACHE_NAME = 'crm-loreny-saas-v1';
 const APP_SHELL = ['./', './index.html', './style.css', './app.js', './manifest.json'];
 
 self.addEventListener('install', event => {

@@ -5,6 +5,13 @@
 
 'use strict';
 
+// Captura de Erros Global — Mostra alertas visíveis para depuração rápida
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error("Global Error:", message, "at", source, ":", lineno);
+  alert("Erro no CRM: " + message + " (Linha " + lineno + ")");
+  return false;
+};
+
 /* ============================================================
    CONSTANTS
    ============================================================ */
@@ -256,6 +263,12 @@ function esc(str) {
 /* ============================================================
    LOCAL STORAGE & SUPABASE STORAGE
    ============================================================ */
+// Credenciais centrais do Supabase (SaaS Comercial).
+// Deixe vazias ou como placeholders "SUA_SUPABASE..." para testar localmente.
+// Quando preenchidas com chaves reais, o botão "☁️ Nuvem" é ocultado automaticamente dos corretores.
+const MASTER_SUPABASE_URL = "https://bcaltkoimnapblaiykaw.supabase.co"; 
+const MASTER_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjYWx0a29pbW5hcGJsYWl5a2F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNzkxNzUsImV4cCI6MjA5NDk1NTE3NX0.q7LGWM3NKb-q--XwjZRi3OhBGDaptTJxo2rBYcMjfNc";
+
 let supabaseClient = null;
 let currentUser = null;
 let realtimeChannel = null;
@@ -270,8 +283,16 @@ function sanitizeSupabaseUrl(url) {
 }
 
 function initSupabase() {
-  let url = localStorage.getItem('loreny_crm_supabase_url');
-  const key = localStorage.getItem('loreny_crm_supabase_key');
+  let url = MASTER_SUPABASE_URL;
+  let key = MASTER_SUPABASE_KEY;
+
+  const isHardcoded = url && !url.includes("SUA_SUPABASE") && key && !key.includes("SUA_SUPABASE");
+
+  if (!isHardcoded) {
+    url = localStorage.getItem('loreny_crm_supabase_url');
+    key = localStorage.getItem('loreny_crm_supabase_key');
+  }
+
   if (url && key && window.supabase) {
     url = sanitizeSupabaseUrl(url);
     try {
@@ -295,12 +316,23 @@ function updateSupabaseUI(connected) {
   const authBtn   = $('btn-auth-account');
   const authBox   = $('auth-status-box');
 
+  const isHardcoded = MASTER_SUPABASE_URL && !MASTER_SUPABASE_URL.includes("SUA_SUPABASE") && MASTER_SUPABASE_KEY && !MASTER_SUPABASE_KEY.includes("SUA_SUPABASE");
+
+  // Ocultar botão de configuração do banco se estiver rodando no modo SaaS comercial
+  if (supaBtn) {
+    if (isHardcoded) {
+      supaBtn.style.display = 'none';
+    } else {
+      supaBtn.style.display = '';
+    }
+  }
+
   if (connected) {
     if (indicator) indicator.textContent = currentUser ? '🟢' : '🟠';
     if (text) text.textContent = currentUser
       ? `Conectado como ${currentUser.email}`
       : 'Supabase conectado — faça login para carregar os dados';
-    if (supaBtn) {
+    if (supaBtn && !isHardcoded) {
       supaBtn.innerHTML = currentUser ? '☁️ Online' : '☁️ Conectar Login';
       supaBtn.style.color = currentUser ? '#27ae60' : '#f39c12';
     }
@@ -312,11 +344,14 @@ function updateSupabaseUI(connected) {
   } else {
     if (indicator) indicator.textContent = '🟡';
     if (text) text.textContent = 'Usando armazenamento local (Offline)';
-    if (supaBtn) {
+    if (supaBtn && !isHardcoded) {
       supaBtn.innerHTML = '☁️ Nuvem';
       supaBtn.style.color = '';
     }
-    if (authBtn) authBtn.classList.add('hidden');
+    if (authBtn) {
+      authBtn.classList.remove('hidden');
+      authBtn.innerHTML = '🔐 Login';
+    }
     if (authBox) authBox.textContent = 'Modo local/offline';
   }
 }
