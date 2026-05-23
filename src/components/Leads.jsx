@@ -4,6 +4,13 @@ import { supabase } from '../config/supabase';
 import { getLeadStatusLabel, formatDate, formatCurrency, compileWhatsAppTemplate, OPTIONS, matchPropertyType, parseNotesToHistory, generateProposalPDF } from '../utils/helpers';
 import Modal from './UI/Modal';
 
+const extractLinkedPropertyCode = (notes) => {
+  if (!notes) return null;
+  const match = notes.match(/\[Imóvel:\s*([^\]\s]+)\]/);
+  return match ? match[1] : null;
+};
+
+
 const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, setPreselectedLeadForVisit }) => {
   const [leads, setLeads] = useState([]);
   const [filteredLeads, setFilteredLeads] = useState([]);
@@ -119,11 +126,10 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
       const prop = properties.find(p => p.id === selectedPropertyFilter);
       if (prop) {
         const qCode = prop.code.toLowerCase();
-        const qTitle = prop.title.toLowerCase();
         result = result.filter(l => {
           const notes = (l.notes || '').toLowerCase();
           const region = (l.region || '').toLowerCase();
-          return notes.includes(qCode) || notes.includes(qTitle) || region.includes(qCode) || region.includes(qTitle);
+          return notes.includes(qCode) || region.includes(qCode);
         });
       }
     }
@@ -780,10 +786,9 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
             {properties.map(p => {
               const count = leads.filter(l => {
                 const qCode = p.code.toLowerCase();
-                const qTitle = p.title.toLowerCase();
                 const notes = (l.notes || '').toLowerCase();
                 const region = (l.region || '').toLowerCase();
-                return notes.includes(qCode) || notes.includes(qTitle) || region.includes(qCode) || region.includes(qTitle);
+                return notes.includes(qCode) || region.includes(qCode);
               }).length;
               
               return (
@@ -823,9 +828,9 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                     <span>•</span>
                     <span>📍 {ld.region}</span>
                   </div>
-                  {/* Badge do corretor — visível apenas para gerente/admin */}
-                  {brokerName && (
-                    <div style={{ marginTop: '4px' }}>
+                  {/* Badges do corretor e imóvel vinculado */}
+                  <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {brokerName && (
                       <span style={{
                         fontSize: '11px',
                         fontWeight: 600,
@@ -840,8 +845,31 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                       }}>
                         👤 {brokerName}
                       </span>
-                    </div>
-                  )}
+                    )}
+                    
+                    {(() => {
+                      const propCode = extractLinkedPropertyCode(ld.notes);
+                      if (!propCode) return null;
+                      const linkedProp = properties.find(p => p.code.toUpperCase() === propCode.toUpperCase());
+                      const displayName = linkedProp ? linkedProp.title : propCode;
+                      return (
+                        <span style={{
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          color: 'var(--primary-dark)',
+                          backgroundColor: 'var(--primary-light)',
+                          border: '1px solid rgba(197, 155, 39, 0.3)',
+                          borderRadius: '5px',
+                          padding: '2px 8px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          🏢 Imóvel: {displayName} ({propCode})
+                        </span>
+                      );
+                    })()}
+                  </div>
                 </div>
                 <span className={`badge badge-${ld.status}`}>
                   {getLeadStatusLabel(ld.status)}
