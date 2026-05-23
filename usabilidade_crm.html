@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loreny CRM v3 — Guia Operacional e Usabilidade Prática</title>
+    <!-- Google Fonts: Outfit e Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Cores e Design System Coerente */
+            --bg-color: #f1f5f9;         /* Fundo Slate Claro */
+            --card-bg: #ffffff;          /* Cards Brancos */
+            --border-color: #e2e8f0;      /* Bordas Cinzas Suaves */
+            --primary: #c59b27;          /* Ouro Quente */
+            --primary-hover: #a37f1c;
+            --primary-glow: rgba(197, 155, 39, 0.1);
+            --primary-light: rgba(197, 155, 39, 0.06);
+            --primary-dark: #8c6c1d;
+            --indigo: #0b1a30;           /* Marinho Premium */
+            --indigo-light: #1e293b;
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;         /* Texto Principal */
+            --gray-900: #0b1a30;         /* Cabeçalhos */
+            
+            --status-won: #10b981;
+            --status-lost: #ef4444;
+            
+            --radius-xl: 18px;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 4px;
+            
+            --transition: all 0.25s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--gray-800);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--indigo);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--white);
+        }
+
+        .logo-icon {
+            background: rgba(243, 198, 63, 0.1);
+            color: var(--primary);
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(243, 198, 63, 0.2);
+        }
+
+        .logo-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .logo-text span {
+            color: var(--primary);
+        }
+
+        .header-tag {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray-400);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* CONTAINER LAYOUT */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 24px;
+        }
+
+        /* HERO OPERACIONAL */
+        .hero {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 50px 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+
+        .hero-tag {
+            color: var(--primary-dark);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--gray-900);
+            line-height: 1.25;
+            margin-bottom: 16px;
+        }
+
+        .hero-title span {
+            color: var(--primary-dark);
+        }
+
+        .hero-desc {
+            font-size: 15px;
+            color: var(--gray-600);
+            max-width: 900px;
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--indigo);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--indigo-light);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-100);
+            transform: translateY(-2px);
+        }
+
+        /* SECTION TITLE */
+        .section-header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            color: var(--gray-900);
+            font-weight: 700;
+        }
+
+        /* WORKFLOW TIMELINE */
+        .timeline {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .timeline-card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.01);
+            position: relative;
+        }
+
+        .timeline-time {
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            background: var(--primary-light);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .timeline-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 6px;
+        }
+
+        .timeline-desc {
+            font-size: 13px;
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+
+        /* UTILITY TABLES */
+        .compare-box {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .compare-table th {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: var(--gray-900);
+            padding: 16px;
+            border-bottom: 2px solid var(--border-color);
+            background-color: var(--gray-50);
+        }
+
+        .compare-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+            color: var(--gray-700);
+        }
+
+        .compare-table tr:hover td {
+            background-color: var(--gray-50);
+        }
+
+        .badge-table {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        /* 3-COLUMN OPERATIONAL HIGHLIGHTS */
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .showcase-card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.01);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .showcase-icon {
+            color: var(--primary-dark);
+            background: var(--primary-light);
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            border: 1px solid rgba(197, 155, 39, 0.2);
+        }
+
+        .showcase-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .showcase-desc {
+            font-size: 13px;
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+
+        .showcase-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .showcase-list li {
+            padding-left: 16px;
+            position: relative;
+            color: var(--gray-700);
+        }
+
+        .showcase-list li::before {
+            content: '•';
+            color: var(--primary-dark);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* SOBER CALL TO ACTION */
+        .cta-sober {
+            background: var(--indigo);
+            border-radius: var(--radius-xl);
+            padding: 50px;
+            text-align: center;
+            color: var(--white);
+            margin-bottom: 60px;
+        }
+
+        .cta-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .cta-desc {
+            font-size: 14px;
+            color: var(--gray-400);
+            max-width: 700px;
+            margin: 0 auto 28px;
+            line-height: 1.6;
+        }
+
+        .cta-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn-primary {
+            background: var(--primary);
+            color: var(--bg-dark);
+            padding: 12px 28px;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .cta-btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .cta-btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            padding: 12px 28px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .cta-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* RESPONSIVENESS */
+        @media (max-width: 850px) {
+            header {
+                padding: 16px 20px;
+            }
+            .hero {
+                padding: 30px 20px;
+            }
+            .hero-title {
+                font-size: 28px;
+            }
+            .timeline {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .showcase-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .compare-box {
+                padding: 16px;
+                overflow-x: auto;
+            }
+            .compare-table {
+                min-width: 600px;
+            }
+            .cta-sober {
+                padding: 32px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- STYLISH HEADER -->
+    <header>
+        <a href="#" class="logo">
+            <div class="logo-icon">
+                🏠
+            </div>
+            <div class="logo-text">Loreny<span>Imóveis</span></div>
+        </a>
+        <div class="header-tag">Guia de Usabilidade & Recursos v3</div>
+    </header>
+
+    <div class="container">
+        
+        <!-- HERO OPERACIONAL -->
+        <section class="hero">
+            <span class="hero-tag">FLUXO DE PRODUTO & USABILIDADE</span>
+            <h1 class="hero-title">Como o Loreny CRM v3 Funciona na <span>Prática Diária</span></h1>
+            <p class="hero-desc">
+                Este material descreve a arquitetura real e o fluxo operacional do CRM de forma direta, transparente e técnica. Sem exageros comerciais. Mostramos como a simplificação de filtros, a agenda de atividades unificada e a simulação de financiamento Caixa auxiliam a rotina de vendas e otimizam o tempo do corretor.
+            </p>
+            <div class="hero-actions">
+                <a href="#fluxo" class="btn btn-primary">Analisar Fluxo de Trabalho</a>
+                <a href="#comparativo" class="btn btn-secondary">Tabela de Produtividade</a>
+            </div>
+        </section>
+
+        <!-- SECTION 1: WORKFLOW TIMELINE -->
+        <section id="fluxo">
+            <div class="section-header">
+                <h2 class="section-title">⏱️ O Dia a Dia do Corretor com o CRM v3</h2>
+            </div>
+            <div class="timeline">
+                <!-- Step 1 -->
+                <div class="timeline-card">
+                    <div class="timeline-time">08:00 • Início</div>
+                    <h3 class="timeline-title">Painel e Visitas</h3>
+                    <p class="timeline-desc">Acesso ao Painel Geral para visualizar o VGV ativo, próximas visitas agendadas para o dia e pendências urgentes.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="timeline-card">
+                    <div class="timeline-time">10:00 • Contatos</div>
+                    <h3 class="timeline-title">Disparo WhatsApp</h3>
+                    <p class="timeline-desc">Seleção de templates automáticos de WhatsApp pré-configurados com tags dinâmicas para confirmar as vistorias do dia.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="timeline-card">
+                    <div class="timeline-time">14:00 • Visita</div>
+                    <h3 class="timeline-title">Simulação Caixa</h3>
+                    <p class="timeline-desc">Em campo com o cliente, simula-se na hora o financiamento SAC/PRICE e a renda mínima exigida para a aprovação bancária.</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="timeline-card">
+                    <div class="timeline-time">17:00 • Organização</div>
+                    <h3 class="timeline-title">Agenda em 1 Clique</h3>
+                    <p class="timeline-desc">Agendamento de nova visita e sincronização direta no calendário do celular via atalho rápido do Google Calendar.</p>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="timeline-card">
+                    <div class="timeline-time">19:00 • Registro</div>
+                    <h3 class="timeline-title">Histórico de Leads</h3>
+                    <p class="timeline-desc">Abertura da linha do tempo do cliente no CRM para gravar anotações, histórico de propostas e programar próximos retornos.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: COMPARATIVE TABLE -->
+        <section id="comparativo">
+            <div class="section-header">
+                <h2 class="section-title">📊 Planilhas / CRMs Genéricos vs. Loreny CRM v3</h2>
+            </div>
+            
+            <div class="compare-box">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th>Tarefa / Desafio</th>
+                            <th>Abordagem Comum (Manual)</th>
+                            <th>Como o Loreny CRM v3 Resolve</th>
+                            <th>Resultado Prático</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Acompanhamento de Visitas</strong></td>
+                            <td>Anotações em papel, blocos de notas do celular ou planilhas difíceis de ler no trânsito.</td>
+                            <td>Menu simplificado de Agenda com abas exclusivas para Visitas Imobiliárias e Contatos/Follow-ups.</td>
+                            <td><span class="badge-table" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">100% Organizado</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cálculo de Financiamento</strong></td>
+                            <td>Abrir o site lento da Caixa, preencher dezenas de inputs e repetir o processo em bancos privados.</td>
+                            <td>Simulador de Financiamento Caixa SAC/PRICE e Renda Mínima embutido com sugestão e alerta de entrada (20%).</td>
+                            <td><span class="badge-table" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">Resposta em 5s</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sincronização com Calendário</strong></td>
+                            <td>Copiar dados da visita e digitar manualmente no aplicativo de agenda do celular.</td>
+                            <td>Geração dinâmica de eventos em formato de url para sincronizar com o Google Calendar em 1 clique.</td>
+                            <td><span class="badge-table" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">Zero Redigitação</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pesquisa de Clientes</strong></td>
+                            <td>Rolar manualmente por longas listas de leads no celular para achar o cliente correto.</td>
+                            <td>Dropdown com busca de autocomplete integrado no agendamento de novas visitas e tarefas.</td>
+                            <td><span class="badge-table" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">Busca Imediata</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gestão Tributária & Splits</strong></td>
+                            <td>Fazer contas manuais de parcerias e estimar taxas do Simples de cabeça ao montar a proposta.</td>
+                            <td>Simulador de Negociação deduzindo comissão de parceiros e regimes de impostos (PJ de 6% e PF).</td>
+                            <td><span class="badge-table" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">Lucro Líquido Real</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 3: DETAILED SHOWCASE -->
+        <section id="recursos">
+            <div class="section-header">
+                <h2 class="section-title">🧩 Recursos Estruturais Detalhados</h2>
+            </div>
+
+            <div class="showcase-grid">
+                <!-- Simulador -->
+                <div class="showcase-card">
+                    <div class="showcase-icon">🏦</div>
+                    <h3 class="showcase-name">Cálculo de Financiamento & Renda</h3>
+                    <p class="showcase-desc">
+                        Ferramenta consultiva de alto impacto para ser utilizada diretamente na frente do cliente durante a visita ao imóvel.
+                    </p>
+                    <ul class="showcase-list">
+                        <li>Fórmula de Amortização Constante (SAC - padrão Caixa).</li>
+                        <li>Fórmula de Parcelas Fixas (Tabela PRICE).</li>
+                        <li>Verificação dinâmica da regra prudencial de 30% da renda.</li>
+                        <li>Sugestão automática do valor de entrada mínimo (LTV 20%).</li>
+                    </ul>
+                </div>
+
+                <!-- Atividades -->
+                <div class="showcase-card">
+                    <div class="showcase-icon">📞</div>
+                    <h3 class="showcase-name">Agenda de Atividades Unificada</h3>
+                    <p class="showcase-desc">
+                        Centraliza em uma única tela de rotina as visitas físicas e os retornos de contato por telefone ou mensagem.
+                    </p>
+                    <ul class="showcase-list">
+                        <li>Filtros e contadores rápidos no funil.</li>
+                        <li>Ações de fechar ou remarcar follow-ups em 1 clique.</li>
+                        <li>Lembrete visual em amarelo para retornos urgentes ou atrasados.</li>
+                        <li>Fusão cronológica no histórico individual do cliente.</li>
+                    </ul>
+                </div>
+
+                <!-- RLS -->
+                <div class="showcase-card">
+                    <div class="showcase-icon">🛡️</div>
+                    <h3 class="showcase-name">Governança Segura de Dados (RLS)</h3>
+                    <p class="showcase-desc">
+                        Infraestrutura técnica projetada para o isolamento e governança de dados da imobiliária.
+                    </p>
+                    <ul class="showcase-list">
+                        <li>Políticas de Row Level Security (RLS) ativas no Supabase/PostgreSQL.</li>
+                        <li>Garante que corretores só vejam a sua carteira privada.</li>
+                        <li>Permite que diretores auditem a receita e VGV consolidado do time.</li>
+                        <li>Modo offline de semente no LocalStorage para testes rápidos.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SOBER CALL TO ACTION -->
+        <section class="cta-sober" id="contato">
+            <h2 class="cta-title">Estrutura Operacional Estável e Validada</h2>
+            <p class="cta-desc">
+                A versão final v3 do CRM Loreny Imóveis está totalmente desenvolvida, testada e empacotada com sucesso. Fale conosco caso queira suporte técnico para configurar o deploy no Supabase ou customizar fluxos adicionais.
+            </p>
+            <div class="cta-actions">
+                <a href="https://api.whatsapp.com/send?phone=5565999106415&text=Olá!%20Tenho%20dúvidas%20técnicas%20sobre%20o%20funcionamento%20e%20deploy%20do%20CRM%20Loreny%20Imóveis%20v3." target="_blank" class="cta-btn-primary">
+                    💬 Tirar Dúvidas no WhatsApp
+                </a>
+                <a href="manual_crm.html" class="cta-btn-secondary" target="_blank">Acessar Manual Técnico</a>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer style="background: #0b1a30; padding: 30px 24px; text-align: center; font-size: 13px; color: var(--gray-400); border-top: 1px solid rgba(255,255,255,0.05);">
+        <p>&copy; 2026 CRM Loreny Imóveis. Desenvolvido sob critérios de usabilidade ágil e governança de dados imobiliários.</p>
+    </footer>
+
+</body>
+</html>

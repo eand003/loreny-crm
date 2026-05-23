@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia de Uso Prático — CRM Loreny Imóveis</title>
+    <meta name="description" content="Guia operacional do CRM Loreny Imóveis: como usar o sistema no dia a dia, gerenciar leads, visitas e mensagens de WhatsApp com eficiência.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --gold: #b8892a;
+            --gold-light: rgba(184, 137, 42, 0.10);
+            --gold-border: rgba(184, 137, 42, 0.25);
+            --navy: #0f172a;
+            --navy-mid: #1e293b;
+            --text: #334155;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            --green: #059669;
+            --green-bg: rgba(5, 150, 105, 0.09);
+            --blue: #2563eb;
+            --blue-bg: rgba(37, 99, 235, 0.08);
+            --amber: #d97706;
+            --amber-bg: rgba(217, 119, 6, 0.09);
+            --radius: 12px;
+            --radius-sm: 7px;
+            --shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+            --transition: all 0.2s ease;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            line-height: 1.65;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            background: var(--navy);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .topbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .topbar-icon {
+            width: 34px;
+            height: 34px;
+            background: rgba(184, 137, 42, 0.12);
+            border: 1px solid var(--gold-border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+        }
+
+        .topbar-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .topbar-name span { color: var(--gold); }
+
+        .topbar-tag {
+            margin-left: auto;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-light);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 4px 12px;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── LAYOUT ── */
+        .page-wrapper {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 32px 20px 64px;
+        }
+
+        /* ── PAGE HERO ── */
+        .page-hero {
+            margin-bottom: 40px;
+        }
+
+        .page-hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(22px, 5vw, 30px);
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 10px;
+        }
+
+        .page-hero p {
+            color: var(--text-muted);
+            font-size: 15px;
+            max-width: 600px;
+        }
+
+        .divider { height: 1px; background: var(--border); margin: 36px 0; }
+
+        /* ── SECTION ── */
+        .section { margin-bottom: 48px; }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            color: var(--gold);
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        /* ── CARDS ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+        }
+
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            border-color: var(--gold-border);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        .feature-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 5px;
+        }
+
+        .feature-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.55;
+        }
+
+        /* ── STEPS ── */
+        .steps { display: flex; flex-direction: column; gap: 12px; }
+
+        .step {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .step:hover {
+            border-color: var(--gold-border);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+        }
+
+        .step-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--gold-light);
+            border: 1.5px solid var(--gold-border);
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .step-body { flex: 1; }
+
+        .step-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 3px;
+        }
+
+        .step-detail {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .step-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-left: auto;
+            flex-shrink: 0;
+            align-self: flex-start;
+            margin-top: 2px;
+        }
+
+        /* ── CALLOUT ── */
+        .callout {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            margin: 14px 0;
+            font-size: 13.5px;
+            line-height: 1.6;
+        }
+
+        .callout-icon { flex-shrink: 0; margin-top: 1px; }
+
+        .callout.info { background: var(--blue-bg); border: 1px solid rgba(37,99,235,0.18); color: #1d4ed8; }
+        .callout.tip { background: var(--green-bg); border: 1px solid rgba(5,150,105,0.2); color: #065f46; }
+        .callout.warn { background: var(--amber-bg); border: 1px solid rgba(217,119,6,0.2); color: #92400e; }
+
+        .callout strong { font-weight: 600; }
+
+        /* ── TABLE ── */
+        .table-wrap { overflow-x: auto; margin: 14px 0; border-radius: var(--radius); border: 1px solid var(--border); }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+
+        thead tr { background: #f1f5f9; }
+
+        th, td {
+            padding: 11px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th { font-family: 'Outfit', sans-serif; font-weight: 600; color: var(--navy); font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+        td { color: var(--text); }
+
+        tbody tr:last-child td { border-bottom: none; }
+
+        tbody tr:hover { background: #fafafa; }
+
+        .badge-role {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 5px;
+        }
+
+        .badge-gold { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold-border); }
+        .badge-purple { background: rgba(124, 58, 237, 0.09); color: #5b21b6; border: 1px solid rgba(124, 58, 237, 0.2); }
+        .badge-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(37,99,235,0.2); }
+        .badge-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(5,150,105,0.2); }
+        .badge-red { background: rgba(220, 38, 38, 0.08); color: #b91c1c; border: 1px solid rgba(220,38,38,0.18); }
+
+        /* ── SHORTCUT LIST ── */
+        .shortcut-list { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+
+        .shortcut-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13.5px;
+        }
+
+        .shortcut-item::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+            flex-shrink: 0;
+        }
+
+        /* ── ROLE TABS ── */
+        .role-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .role-tab {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: var(--transition);
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .role-tab:hover { border-color: var(--gold-border); color: var(--navy); }
+        .role-tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+        .role-pane { display: none; }
+        .role-pane.active { display: block; animation: fadeIn 0.25s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── FLOW DIAGRAM ── */
+        .flow {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            position: relative;
+            margin: 8px 0;
+        }
+
+        .flow-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            position: relative;
+            padding-bottom: 18px;
+        }
+
+        .flow-item:last-child { padding-bottom: 0; }
+
+        .flow-spine {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .flow-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            border: 2px solid;
+            background: var(--card);
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .flow-line {
+            width: 2px;
+            flex: 1;
+            min-height: 18px;
+            background: var(--border);
+            margin-top: 0;
+        }
+
+        .flow-item:last-child .flow-line { display: none; }
+
+        .flow-content {
+            padding-top: 4px;
+            flex: 1;
+        }
+
+        .flow-stage { font-size: 12px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 2px; }
+
+        .flow-desc { font-size: 13px; color: var(--text-muted); }
+
+        /* ── CTA FOOTER ── */
+        .cta-footer {
+            background: var(--navy);
+            border-radius: var(--radius);
+            padding: 28px 24px;
+            text-align: center;
+            margin-top: 48px;
+        }
+
+        .cta-footer p {
+            color: rgba(255,255,255,0.65);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .cta-footer strong { color: #fff; }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #25D366;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 13px 28px;
+            border-radius: 9px;
+            transition: var(--transition);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .cta-btn:hover { background: #1ebe5c; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,211,102,0.3); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 600px) {
+            .topbar-tag { display: none; }
+            .page-wrapper { padding: 24px 16px 56px; }
+            .card { padding: 16px 18px; }
+            .card-grid { grid-template-columns: 1fr; }
+            .step { flex-wrap: nowrap; }
+            .step-tag { display: none; }
+            th, td { padding: 10px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <a href="#" class="topbar-logo">
+            <div class="topbar-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <span class="topbar-name">Loreny<span>Imóveis</span></span>
+        </a>
+        <span class="topbar-tag">Guia Operacional — CRM v3</span>
+    </header>
+
+    <div class="page-wrapper">
+
+        <!-- HERO -->
+        <div class="page-hero">
+            <h1>Como usar o CRM no dia a dia</h1>
+            <p>Este guia cobre o fluxo de trabalho real do sistema: cadastrar clientes, agendar visitas, enviar mensagens e acompanhar o funil de vendas.</p>
+        </div>
+
+        <!-- SECTION 1: O QUE É O SISTEMA -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-num">1</div>
+                <h2 class="section-title">O que o sistema faz</h2>
+            </div>
+
+            <div class="card-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div class="feature-title">Gestão de Clientes (Leads)</div>
+                    <div class="feature-desc">Cadastre clientes com tipo de imóvel desejado, orçamento e região. Avance o estágio deles no funil conforme o andamento.</div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <div class="feature-title">Agenda de Visitas</div>
+                    <div class="feature-desc">Registre visitas a imóveis com data, hora e endereço. O Dashboard mostra as visitas do dia automaticamente.</div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div class="feature-title">Modelos de WhatsApp</div>
+                    <div class="feature-desc">Crie mensagens-padrão com tags dinâmicas como <code>{nome}</code> e <code>{imovel}</code>. Envie diretamente do cadastro do cliente.</div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    <div class="feature-title">Dashboard & Métricas</div>
+                    <div class="feature-desc">Visualize VGV em negociação, comissão acumulada, tarefas de follow-up pendentes e histórico de atividades do dia.</div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 6v6l4 2"/></svg>
+                    </div>
+                    <div class="feature-title">Follow-up Inteligente</div>
+                    <div class="feature-desc">Defina uma data de retorno para cada lead. O sistema destaca em amarelo os clientes cujo prazo chegou, para você não esquecer de ligar.</div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </div>
+                    <div class="feature-title">Simulador de Financiamento</div>
+                    <div class="feature-desc">Calcule a capacidade de crédito do cliente com base na renda bruta mensal. Verifica automaticamente a regra dos 30% da Caixa.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- SECTION 2: PERFIS DE ACESSO -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-num">2</div>
+                <h2 class="section-title">Perfis de acesso e o que cada um vê</h2>
+            </div>
+
+            <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">O sistema ajusta a interface e os dados exibidos com base no cargo registrado no login. A segurança dos dados é garantida no banco de dados (RLS), não apenas no front-end.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cargo</th>
+                            <th>Visual no Menu</th>
+                            <th>Dados Visíveis</th>
+                            <th>Acesso Extra</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge-role badge-gold">🏠 Corretor</span></td>
+                            <td>Badge dourado</td>
+                            <td>Apenas seus próprios leads e visitas</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge-role badge-purple">📊 Gerente</span></td>
+                            <td>Badge roxo</td>
+                            <td>Leads e visitas de toda a equipe</td>
+                            <td>Relatórios consolidados</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge-role badge-blue">🏢 Diretor</span></td>
+                            <td>Badge azul</td>
+                            <td>Visão total: VGV e faturamento geral</td>
+                            <td>Governança de metas</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout info">
+                <svg class="callout-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <div><strong>Ambiente de teste (offline):</strong> quando o banco Supabase não está configurado, o sistema usa dados locais de demonstração. Todos os cargos compartilham a mesma carteira de clientes de exemplo. Isso é esperado e não indica falha.</div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- SECTION 3: FLUXO DO FUNIL -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-num">3</div>
+                <h2 class="section-title">Estágios do funil de vendas</h2>
+            </div>
+
+            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">Cada cliente passa por etapas que refletem onde está no processo de compra. Mantenha o estágio sempre atualizado para que o funil reflita a realidade.</p>
+
+            <div class="flow">
+                <div class="flow-item">
+                    <div class="flow-spine">
+                        <div class="flow-dot" style="color: #3b82f6; border-color: #93c5fd;">1</div>
+                        <div class="flow-line"></div>
+                    </div>
+                    <div class="flow-content">
+                        <div class="flow-stage" style="color: #3b82f6;">Novo Lead</div>
+                        <div class="flow-desc">Cliente manifestou interesse. Cadastre com tipo de imóvel, orçamento e telefone.</div>
+                    </div>
+                </div>
+
+                <div class="flow-item">
+                    <div class="flow-spine">
+                        <div class="flow-dot" style="color: #8b5cf6; border-color: #c4b5fd;">2</div>
+                        <div class="flow-line"></div>
+                    </div>
+                    <div class="flow-content">
+                        <div class="flow-stage" style="color: #8b5cf6;">Contato Feito</div>
+                        <div class="flow-desc">Ligação ou conversa inicial realizada. Perfil e orçamento confirmados.</div>
+                    </div>
+                </div>
+
+                <div class="flow-item">
+                    <div class="flow-spine">
+                        <div class="flow-dot" style="color: #d97706; border-color: #fcd34d;">3</div>
+                        <div class="flow-line"></div>
+                    </div>
+                    <div class="flow-content">
+                        <div class="flow-stage" style="color: #d97706;">Visita Agendada</div>
+                        <div class="flow-desc">Data e hora da visita marcadas. Registre na aba Visitas e o sistema notifica no Dashboard.</div>
+                    </div>
+                </div>
+
+                <div class="flow-item">
+                    <div class="flow-spine">
+                        <div class="flow-dot" style="color: #0891b2; border-color: #67e8f9;">4</div>
+                        <div class="flow-line"></div>
+                    </div>
+                    <div class="flow-content">
+                        <div class="flow-stage" style="color: #0891b2;">Visita Realizada</div>
+                        <div class="flow-desc">Imóvel apresentado ao cliente. Marque a visita como "Realizada" para atualizar o histórico.</div>
+                    </div>
+                </div>
+
+                <div class="flow-item">
+                    <div class="flow-spine">
+                        <div class="flow-dot" style="color: #db2777; border-color: #f9a8d4;">5</div>
+                        <div class="flow-line"></div>
+                    </div>
+                    <div class="flow-content">
+                        <div class="flow-stage" style="color: #db2777;">Proposta Enviada</div>
+                        <div class="flow-desc">Cliente demonstrou interesse real. Proposta formal encaminhada ao proprietário.</div>
+                    </div>
+                </div>
+
+                <div class="flow-item">
+                    <div class="flow-spine">
+                        <div class="flow-dot" style="color: var(--green); border-color: #6ee7b7;">6</div>
+                        <div class="flow-line"></div>
+                    </div>
+                    <div class="flow-content">
+                        <div class="flow-stage" style="color: var(--green);">Contrato Assinado (Ganho)</div>
+                        <div class="flow-desc">Negócio fechado. O valor entra no VGV confirmado e a comissão de 5% é registrada.</div>
+                    </div>
+                </div>
+
+                <div class="flow-item">
+                    <div class="flow-spine">
+                        <div class="flow-dot" style="color: #dc2626; border-color: #fca5a5;">✕</div>
+                    </div>
+                    <div class="flow-content">
+                        <div class="flow-stage" style="color: #dc2626;">Perdido</div>
+                        <div class="flow-desc">Negócio encerrado sem contrato. Registre para manter o histórico limpo do funil.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- SECTION 4: COMO USAR POR TAREFA -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-num">4</div>
+                <h2 class="section-title">Tarefas frequentes — passo a passo</h2>
+            </div>
+
+            <!-- Tab buttons -->
+            <div class="role-tabs">
+                <button class="role-tab active" id="tab-lead" onclick="showPane('lead')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    Cadastrar cliente
+                </button>
+                <button class="role-tab" id="tab-visit" onclick="showPane('visit')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Agendar visita
+                </button>
+                <button class="role-tab" id="tab-msg" onclick="showPane('msg')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Enviar mensagem
+                </button>
+                <button class="role-tab" id="tab-sim" onclick="showPane('sim')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Simular crédito
+                </button>
+            </div>
+
+            <!-- Pane: Cadastrar Lead -->
+            <div class="role-pane active" id="pane-lead">
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-badge">1</div>
+                        <div class="step-body">
+                            <div class="step-name">Acesse a aba "Clientes & Leads"</div>
+                            <div class="step-detail">No menu lateral (desktop) ou menu inferior (celular), toque em "Leads".</div>
+                        </div>
+                        <span class="step-tag badge-blue">Navegação</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">2</div>
+                        <div class="step-body">
+                            <div class="step-name">Clique em "+ Novo Cliente"</div>
+                            <div class="step-detail">Botão disponível no topo da lista de leads.</div>
+                        </div>
+                        <span class="step-tag badge-gold">Ação</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">3</div>
+                        <div class="step-body">
+                            <div class="step-name">Preencha nome, telefone, tipo de imóvel e orçamento</div>
+                            <div class="step-detail">Tipo de imóvel: Casa, Apartamento, Terreno, Comercial ou Rural. Orçamento em R$.</div>
+                        </div>
+                        <span class="step-tag badge-gold">Formulário</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">4</div>
+                        <div class="step-body">
+                            <div class="step-name">Defina a data de retorno (follow-up)</div>
+                            <div class="step-detail">Campo opcional mas recomendado. O Dashboard alertará quando a data chegar.</div>
+                        </div>
+                        <span class="step-tag badge-green">Dica</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">5</div>
+                        <div class="step-body">
+                            <div class="step-name">Salve e avance o estágio conforme a evolução</div>
+                            <div class="step-detail">Use o menu de estágio dentro do card do cliente para mover de "Novo" para "Contato Feito", etc.</div>
+                        </div>
+                        <span class="step-tag badge-blue">Gestão</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pane: Agendar Visita -->
+            <div class="role-pane" id="pane-visit">
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-badge">1</div>
+                        <div class="step-body">
+                            <div class="step-name">Acesse a aba "Visitas"</div>
+                            <div class="step-detail">Disponível no menu lateral ou inferior.</div>
+                        </div>
+                        <span class="step-tag badge-blue">Navegação</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">2</div>
+                        <div class="step-body">
+                            <div class="step-name">Clique em "+ Nova Visita"</div>
+                            <div class="step-detail">Abre um formulário de agendamento com campo de busca de clientes cadastrados.</div>
+                        </div>
+                        <span class="step-tag badge-gold">Ação</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">3</div>
+                        <div class="step-body">
+                            <div class="step-name">Busque e selecione o cliente</div>
+                            <div class="step-detail">Campo autocomplete: digite o nome para filtrar. Só aparecem clientes já cadastrados.</div>
+                        </div>
+                        <span class="step-tag badge-gold">Formulário</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">4</div>
+                        <div class="step-body">
+                            <div class="step-name">Informe endereço, data e hora</div>
+                            <div class="step-detail">O endereço do imóvel será salvo no histórico do cliente automaticamente.</div>
+                        </div>
+                        <span class="step-tag badge-gold">Formulário</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">5</div>
+                        <div class="step-body">
+                            <div class="step-name">A visita aparece no Dashboard do dia</div>
+                            <div class="step-detail">A partir de agora, visitas agendadas para hoje aparecem na seção "Visitas do Dia" da tela inicial.</div>
+                        </div>
+                        <span class="step-tag badge-green">Resultado</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">6</div>
+                        <div class="step-body">
+                            <div class="step-name">Após a visita, marque como "Realizada"</div>
+                            <div class="step-detail">Use o botão na lista de visitas. Isso atualiza o histórico do cliente e o funil de vendas.</div>
+                        </div>
+                        <span class="step-tag badge-blue">Concluir</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pane: Enviar Mensagem -->
+            <div class="role-pane" id="pane-msg">
+                <div class="callout tip">
+                    <svg class="callout-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg>
+                    <div><strong>Antes de enviar:</strong> crie seus modelos personalizados na aba "Modelos WhatsApp". Use as tags <code>{nome}</code>, <code>{imovel}</code>, <code>{data}</code> e <code>{hora}</code> para preenchimento automático.</div>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-badge">1</div>
+                        <div class="step-body">
+                            <div class="step-name">Abra o card de um cliente em "Clientes & Leads"</div>
+                            <div class="step-detail">Clique no nome ou no ícone de edição do cliente desejado.</div>
+                        </div>
+                        <span class="step-tag badge-blue">Acesso</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">2</div>
+                        <div class="step-body">
+                            <div class="step-name">Toque no ícone de WhatsApp (ícone verde)</div>
+                            <div class="step-detail">Abre o painel de modelos de mensagem disponíveis.</div>
+                        </div>
+                        <span class="step-tag badge-gold">Ação</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">3</div>
+                        <div class="step-body">
+                            <div class="step-name">Escolha o modelo desejado</div>
+                            <div class="step-detail">O preview já mostra a mensagem com os dados do cliente preenchidos automaticamente.</div>
+                        </div>
+                        <span class="step-tag badge-gold">Seleção</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">4</div>
+                        <div class="step-body">
+                            <div class="step-name">Confirme e abra o WhatsApp</div>
+                            <div class="step-detail">O sistema abre o WhatsApp Web (ou app) com a mensagem pré-preenchida. Basta enviar.</div>
+                        </div>
+                        <span class="step-tag badge-green">Envio</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pane: Simulação -->
+            <div class="role-pane" id="pane-sim">
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-badge">1</div>
+                        <div class="step-body">
+                            <div class="step-name">Abra o cadastro de um cliente</div>
+                            <div class="step-detail">Acesse "Clientes & Leads" e clique no lead desejado para abrir os detalhes.</div>
+                        </div>
+                        <span class="step-tag badge-blue">Acesso</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">2</div>
+                        <div class="step-body">
+                            <div class="step-name">Role até "Simulador de Financiamento"</div>
+                            <div class="step-detail">Localizado dentro do modal de detalhes do cliente.</div>
+                        </div>
+                        <span class="step-tag badge-blue">Localizar</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">3</div>
+                        <div class="step-body">
+                            <div class="step-name">Informe a renda bruta familiar mensal (R$)</div>
+                            <div class="step-detail">O sistema calcula automaticamente o comprometimento máximo (30%) e o crédito estimado.</div>
+                        </div>
+                        <span class="step-tag badge-gold">Cálculo</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-badge">4</div>
+                        <div class="step-body">
+                            <div class="step-name">Interprete o resultado</div>
+                            <div class="step-detail">Selo <strong style="color:var(--green)">VERDE</strong>: crédito compatível com o imóvel. Selo <strong style="color:#dc2626">VERMELHO</strong>: renda insuficiente para o orçamento do cliente.</div>
+                        </div>
+                        <span class="step-tag badge-green">Resultado</span>
+                    </div>
+                </div>
+
+                <div class="callout warn">
+                    <svg class="callout-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <div><strong>Atenção:</strong> a simulação usa a regra dos 30% e LTV de 80% (entrada mínima de 20%). Os valores são estimativos — a aprovação final depende da análise do banco.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- SECTION 5: ROTINA DIÁRIA -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-num">5</div>
+                <h2 class="section-title">Rotina diária sugerida</h2>
+            </div>
+
+            <div class="card">
+                <div class="shortcut-list">
+                    <div class="shortcut-item"><strong>Manhã:</strong> Abra o Dashboard e veja as visitas do dia e os follow-ups com prazo vencido (destaque amarelo).</div>
+                    <div class="shortcut-item"><strong>Antes de cada visita:</strong> Abra o card do cliente, revise o histórico e use o modelo de WhatsApp de confirmação.</div>
+                    <div class="shortcut-item"><strong>Após cada visita:</strong> Marque como "Realizada" na aba Visitas e avance o estágio do lead no funil.</div>
+                    <div class="shortcut-item"><strong>Leads sem contato há +3 dias:</strong> Use a aba Clientes para filtrar por estágio e identificar clientes parados.</div>
+                    <div class="shortcut-item"><strong>Fim do dia:</strong> Defina ou atualize a data de retorno (follow-up) para todos os leads ativos.</div>
+                    <div class="shortcut-item"><strong>Semanal:</strong> Revise e crie novos modelos de WhatsApp para situações recorrentes do mês.</div>
+                </div>
+            </div>
+
+            <div class="callout tip">
+                <svg class="callout-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg>
+                <div><strong>Boa prática:</strong> todo lead ativo deve ter sempre uma próxima ação definida (data de retorno preenchida). Leads sem data de follow-up tendem a esfriar.</div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- SECTION 6: DÚVIDAS FREQUENTES -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-num">6</div>
+                <h2 class="section-title">Dúvidas frequentes</h2>
+            </div>
+
+            <div class="card" style="margin-bottom: 12px;">
+                <p style="font-weight: 600; color: var(--navy); margin-bottom: 6px;">Por que não vejo os clientes de outro corretor?</p>
+                <p style="font-size: 13.5px; color: var(--text-muted); margin: 0;">O banco de dados aplica isolamento por usuário (Row-Level Security). Cada corretor vê somente seus próprios dados. Isso é uma proteção de privacidade, não um erro.</p>
+            </div>
+
+            <div class="card" style="margin-bottom: 12px;">
+                <p style="font-weight: 600; color: var(--navy); margin-bottom: 6px;">Meus dados são salvos se eu fechar o navegador?</p>
+                <p style="font-size: 13.5px; color: var(--text-muted); margin: 0;">Sim, quando conectado ao Supabase (produção). No modo offline/demo, os dados ficam no armazenamento local do navegador do dispositivo.</p>
+            </div>
+
+            <div class="card" style="margin-bottom: 12px;">
+                <p style="font-weight: 600; color: var(--navy); margin-bottom: 6px;">Como importar uma lista de clientes de uma planilha?</p>
+                <p style="font-size: 13.5px; color: var(--text-muted); margin: 0;">Na aba "Clientes & Leads", use o botão de importação CSV. O arquivo deve ter as colunas: nome, telefone, email, tipo_imovel, orcamento e regiao.</p>
+            </div>
+
+            <div class="card">
+                <p style="font-weight: 600; color: var(--navy); margin-bottom: 6px;">O sistema funciona no celular?</p>
+                <p style="font-size: 13.5px; color: var(--text-muted); margin: 0;">Sim. O CRM é totalmente responsivo. No celular, a navegação fica na barra inferior da tela. Não é necessário instalar nada — funciona diretamente no navegador.</p>
+            </div>
+        </div>
+
+        <!-- CTA FINAL -->
+        <div class="cta-footer">
+            <p><strong>Dúvidas ou precisa de suporte para configurar?</strong><br>Entre em contato direto pelo WhatsApp.</p>
+            <a class="cta-btn" href="https://wa.me/5565999106415?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20o%20CRM%20Loreny%20Im%C3%B3veis." target="_blank" rel="noopener">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Falar com suporte
+            </a>
+        </div>
+
+    </div><!-- /page-wrapper -->
+
+    <script>
+        function showPane(id) {
+            document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.role-pane').forEach(p => p.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.add('active');
+            document.getElementById('pane-' + id).classList.add('active');
+        }
+    </script>
+
+</body>
+</html>
