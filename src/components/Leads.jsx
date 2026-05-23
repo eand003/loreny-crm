@@ -19,6 +19,8 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   const [propertyTypeFilter, setPropertyTypeFilter] = useState('');
   const [brokerFilter, setBrokerFilter] = useState('');      // filtro por corretor (manager/admin)
   const [selectedPropertyFilter, setSelectedPropertyFilter] = useState('');
+  const [temperatureFilter, setTemperatureFilter] = useState('');
+  const [leadSourceFilter, setLeadSourceFilter] = useState('');
   const [profiles, setProfiles] = useState([]);              // lista de corretores para o filtro
   const [visits, setVisits] = useState([]);
   const [newTimelineNote, setNewTimelineNote] = useState('');
@@ -64,7 +66,10 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     status: 'new',
     notes: '',
     next_action: '',
-    next_action_date: ''
+    next_action_date: '',
+    lead_source: 'Manual',
+    lead_type: 'Compra',
+    temperature: 'warm'
   });
 
   const realtorName = user?.user_metadata?.full_name || 'Corretora Loreny';
@@ -133,9 +138,17 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
         });
       }
     }
+
+    if (temperatureFilter !== '') {
+      result = result.filter(l => (l.temperature || 'warm') === temperatureFilter);
+    }
+
+    if (leadSourceFilter !== '') {
+      result = result.filter(l => (l.lead_source || 'Manual') === leadSourceFilter);
+    }
     
     setFilteredLeads(result);
-  }, [search, statusFilter, propertyTypeFilter, brokerFilter, selectedPropertyFilter, leads, properties]);
+  }, [search, statusFilter, propertyTypeFilter, brokerFilter, selectedPropertyFilter, temperatureFilter, leadSourceFilter, leads, properties]);
 
   const fetchLeads = async () => {
     try {
@@ -269,7 +282,10 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
       status: 'new',
       notes: '',
       next_action: '',
-      next_action_date: ''
+      next_action_date: '',
+      lead_source: 'Manual',
+      lead_type: 'Compra',
+      temperature: 'warm'
     });
     setIsModalOpen(true);
   };
@@ -287,7 +303,10 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
       status: lead.status,
       notes: lead.notes || '',
       next_action: lead.next_action || '',
-      next_action_date: lead.next_action_date || ''
+      next_action_date: lead.next_action_date || '',
+      lead_source: lead.lead_source || 'Manual',
+      lead_type: lead.lead_type || 'Compra',
+      temperature: lead.temperature || 'warm'
     });
     setIsModalOpen(true);
   };
@@ -773,6 +792,58 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
           })}
         </div>
 
+        <div className="filter-row no-scrollbar">
+          <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+            <Filter size={14} /> Temperatura:
+          </span>
+          <button 
+            className={`badge ${temperatureFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
+            onClick={() => setTemperatureFilter('')}
+            style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+          >
+            Todos <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{leads.length}</span>
+          </button>
+          {OPTIONS.TEMPERATURES.map(temp => {
+            const count = leads.filter(l => (l.temperature || 'warm') === temp.value).length;
+            return (
+              <button 
+                key={temp.value}
+                className={`badge ${temperatureFilter === temp.value ? temp.badgeClass : 'badge-no_fit'}`}
+                onClick={() => setTemperatureFilter(temperatureFilter === temp.value ? '' : temp.value)}
+                style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+              >
+                🔥 {temp.label} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="filter-row no-scrollbar">
+          <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+            <Filter size={14} /> Origem:
+          </span>
+          <button 
+            className={`badge ${leadSourceFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
+            onClick={() => setLeadSourceFilter('')}
+            style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+          >
+            Todos <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{leads.length}</span>
+          </button>
+          {OPTIONS.LEAD_SOURCES.map(source => {
+            const count = leads.filter(l => (l.lead_source || 'Manual') === source).length;
+            return (
+              <button 
+                key={source}
+                className={`badge ${leadSourceFilter === source ? 'badge-new' : 'badge-no_fit'}`}
+                onClick={() => setLeadSourceFilter(leadSourceFilter === source ? '' : source)}
+                style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+              >
+                📢 {source} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
         {properties.length > 0 && (
           <div className="filter-row no-scrollbar">
             <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
@@ -828,6 +899,8 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                   <div className="mobile-card-subtitle">
                     <span style={{ color: 'var(--primary)' }}>🏠 {ld.property_type || 'Imóvel'}</span>
                     <span>•</span>
+                    <span style={{ color: '#059669', fontWeight: 600 }}>🏷️ {ld.lead_type || 'Compra'}</span>
+                    <span>•</span>
                     <span>📍 {ld.region}</span>
                   </div>
                   {/* Badges do corretor e imóvel vinculado */}
@@ -868,6 +941,40 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                           gap: '4px'
                         }}>
                           🏢 Imóvel: {displayName} ({propCode})
+                        </span>
+                      );
+                    })()}
+
+                    <span style={{
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      color: '#4b5563',
+                      backgroundColor: 'rgba(75, 85, 99, 0.06)',
+                      border: '1px solid rgba(75, 85, 99, 0.15)',
+                      borderRadius: '5px',
+                      padding: '2px 8px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      📢 {ld.lead_source || 'Manual'}
+                    </span>
+
+                    {(() => {
+                      const tempObj = OPTIONS.TEMPERATURES.find(t => t.value === ld.temperature) || OPTIONS.TEMPERATURES[1];
+                      return (
+                        <span className={`badge ${tempObj.badgeClass}`} style={{
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          borderRadius: '5px',
+                          padding: '2px 8px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          border: 'none',
+                          lineHeight: 1
+                        }}>
+                          🔥 {tempObj.label}
                         </span>
                       );
                     })()}
@@ -1072,6 +1179,33 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                 placeholder="Ex: Jardim Botânico"
                 required 
               />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Origem do Lead</label>
+              <select name="lead_source" value={formData.lead_source} onChange={handleInputChange}>
+                {OPTIONS.LEAD_SOURCES.map(source => (
+                  <option key={source} value={source}>{source}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Tipo de Cliente / Negócio</label>
+              <select name="lead_type" value={formData.lead_type} onChange={handleInputChange}>
+                {OPTIONS.LEAD_TYPES.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Temperatura do Lead</label>
+              <select name="temperature" value={formData.temperature} onChange={handleInputChange}>
+                {OPTIONS.TEMPERATURES.map(t => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
             </div>
           </div>
 

@@ -218,6 +218,29 @@ export const OPTIONS = {
     { value: 'won', label: 'Contrato Fechado (Won)' },
     { value: 'lost', label: 'Negócio Perdido (Lost)' }
   ],
+
+  LEAD_SOURCES: [
+    'Instagram',
+    'Site',
+    'Indicação',
+    'Tráfego Pago',
+    'WhatsApp',
+    'Visita',
+    'Manual'
+  ],
+
+  LEAD_TYPES: [
+    'Compra',
+    'Venda',
+    'Locação',
+    'Investidor'
+  ],
+
+  TEMPERATURES: [
+    { value: 'hot', label: 'Quente', color: '#10b981', badgeClass: 'badge-won' },          // green (Quente)
+    { value: 'warm', label: 'Morno', color: '#f59e0b', badgeClass: 'badge-visit_scheduled' }, // orange (Morno)
+    { value: 'cold', label: 'Frio', color: '#3b82f6', badgeClass: 'badge-contacted' }       // blue (Frio)
+  ],
   
   STATES: [
     { value: 'SP', label: 'São Paulo' },

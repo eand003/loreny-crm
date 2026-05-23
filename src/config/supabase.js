@@ -96,7 +96,10 @@ if (isConfigured) {
       next_action: 'Negociar desconto no fluxo de entrada da construtora',
       next_action_date: '2026-05-25',
       created_at: new Date().toISOString(),
-      is_deleted: false
+      is_deleted: false,
+      lead_source: 'Tráfego Pago',
+      lead_type: 'Compra',
+      temperature: 'hot'
     },
     {
       id: 'lead-re-2',
@@ -112,7 +115,10 @@ if (isConfigured) {
       next_action: 'Apresentar Sobrado Mobiliado de 4 suítes',
       next_action_date: '2026-05-23',
       created_at: new Date().toISOString(),
-      is_deleted: false
+      is_deleted: false,
+      lead_source: 'WhatsApp',
+      lead_type: 'Compra',
+      temperature: 'warm'
     },
     {
       id: 'lead-re-3',
@@ -128,7 +134,10 @@ if (isConfigured) {
       next_action: 'Ligar para enviar portfólio de salas comerciais de saúde',
       next_action_date: '2026-05-28',
       created_at: new Date().toISOString(),
-      is_deleted: false
+      is_deleted: false,
+      lead_source: 'Visita',
+      lead_type: 'Locação',
+      temperature: 'cold'
     }
   ]);
 
