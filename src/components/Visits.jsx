@@ -472,7 +472,7 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
 
                   {/* ACTION BUTTONS */}
                   <div className="mobile-card-actions" style={{ marginTop: '12px', borderTop: '1px solid var(--gray-200)', paddingTop: '10px' }}>
-                    <div style={{ display: 'flex', gap: '6px' }}>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', flex: '1 1 auto' }}>
                       {v.status === 'Agendada' && (
                         <>
                           <a 
@@ -511,7 +511,7 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
                       )}
                     </div>
 
-                    <div style={{ display: 'flex', gap: '6px' }}>
+                    <div style={{ display: 'flex', gap: '6px', marginLeft: 'auto' }}>
                       <button 
                         onClick={() => handleOpenEditModal(v)} 
                         className="action-btn" 
@@ -592,7 +592,7 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
 
                       {/* ACTION BUTTONS */}
                       <div className="mobile-card-actions" style={{ marginTop: '12px', borderTop: '1px solid var(--gray-200)', paddingTop: '10px' }}>
-                        <div style={{ display: 'flex', gap: '6px' }}>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', flex: '1 1 auto' }}>
                           <button 
                             onClick={() => handleCompleteFollowUp(ld)}
                             className="action-btn"
@@ -613,7 +613,7 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
                           <button 
                             onClick={() => handleOpenWaModalForLead(ld)}
                             className="action-btn action-btn-whatsapp"
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(37, 211, 102, 0.1)', color: '#25d366', border: '1px solid rgba(37, 211, 102, 0.2)' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(37, 211, 102, 0.1)', color: '#25d366', border: '1px solid rgba(37, 211, 102, 0.2)', marginLeft: 'auto' }}
                           >
                             <Phone size={12} />
                             Contatar Cliente
