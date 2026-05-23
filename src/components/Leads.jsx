@@ -691,7 +691,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
 
         {/* FILTRO POR CORRETOR — visível apenas para gerente e admin */}
         {isManager && profiles.length > 0 && (
-          <div className="flex align-center gap-2 no-scrollbar" style={{ overflowX: 'auto', paddingBottom: '6px' }}>
+          <div className="filter-row no-scrollbar">
             <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
               <Filter size={14} /> Corretor:
             </span>
@@ -719,7 +719,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
           </div>
         )}
         
-        <div className="flex align-center gap-2 no-scrollbar" style={{ overflowX: 'auto', paddingBottom: '6px' }}>
+        <div className="filter-row no-scrollbar">
           <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
             <Filter size={14} /> Estágio Funil:
           </span>
@@ -745,7 +745,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
           })}
         </div>
 
-        <div className="flex align-center gap-2 no-scrollbar" style={{ overflowX: 'auto', paddingBottom: '6px', marginTop: '4px' }}>
+        <div className="filter-row no-scrollbar">
           <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
             <Filter size={14} /> Tipo de Imóvel:
           </span>
@@ -772,7 +772,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
         </div>
 
         {properties.length > 0 && (
-          <div className="flex align-center gap-2 no-scrollbar" style={{ overflowX: 'auto', paddingBottom: '6px', marginTop: '4px' }}>
+          <div className="filter-row no-scrollbar">
             <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
               <Filter size={14} /> Empreendimento:
             </span>

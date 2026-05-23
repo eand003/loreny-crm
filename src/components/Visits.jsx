@@ -357,7 +357,7 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
 
       {/* FILTRO POR CORRETOR — visível apenas para gerente e admin */}
       {isManager && profiles.length > 0 && (
-        <div className="flex align-center gap-2 no-scrollbar" style={{ overflowX: 'auto', paddingBottom: '10px', marginBottom: '16px', borderBottom: '1px dashed var(--gray-200)' }}>
+        <div className="filter-row no-scrollbar" style={{ marginBottom: '16px', borderBottom: '1px dashed var(--gray-200)' }}>
           <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
             <Filter size={14} /> Corretor:
           </span>
@@ -389,7 +389,7 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
       )}
 
       {/* SUB-TABS SELECTOR */}
-      <div className="flex gap-2 no-scrollbar" style={{ marginBottom: '20px', borderBottom: '1px solid var(--gray-200)', paddingBottom: '10px', overflowX: 'auto' }}>
+      <div className="filter-row no-scrollbar" style={{ marginBottom: '20px', borderBottom: '1px solid var(--gray-200)', paddingBottom: '10px' }}>
         <button 
           className={`tab-btn`}
           onClick={() => setActiveSubTab('visits')}

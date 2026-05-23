@@ -313,7 +313,7 @@ const Properties = ({ user }) => {
           />
         </div>
 
-        <div className="flex align-center gap-2 no-scrollbar" style={{ overflowX: 'auto', paddingBottom: '6px' }}>
+        <div className="filter-row no-scrollbar">
           <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
             <Filter size={14} /> Filtros:
           </span>
@@ -342,7 +342,7 @@ const Properties = ({ user }) => {
           </button>
         </div>
 
-        <div className="flex align-center gap-2 no-scrollbar" style={{ overflowX: 'auto', paddingBottom: '6px', marginTop: '4px' }}>
+        <div className="filter-row no-scrollbar">
           <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
             <Layers size={14} /> Tipo de Imóvel:
           </span>
