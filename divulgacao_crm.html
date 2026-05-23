@@ -260,7 +260,7 @@
             max-width: 1100px;
             margin: 40px auto 100px;
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 24px;
             padding: 0 24px;
         }
@@ -798,7 +798,11 @@
         </div>
         <div class="metric-card">
             <div class="metric-val">1 Clique</div>
-            <div class="metric-label">Agenda Google & WhatsApp</div>
+            <div class="metric-label">Sincronização de Agenda</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-val">VGV Real</div>
+            <div class="metric-label">Metas & Lançamentos Integrados</div>
         </div>
     </div>
 
@@ -863,6 +867,24 @@
                 <h3 class="feature-name">Histórico Unificado do Lead</h3>
                 <p class="feature-desc">Linha do tempo consolidada por cliente. Visualize visitas concluídas, agendamentos futuros, interações e anotações cronológicas centralizadas em uma única tela fluida.</p>
             </div>
+
+            <!-- Feature 7 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="12" y1="17" x2="12.01" y2="17"/><path d="M12 17v4"/></svg>
+                </div>
+                <h3 class="feature-name">Carteira Digital de Imóveis</h3>
+                <p class="feature-desc">Cadastre captações avulsas ou lançamentos completos. Gerencie plantas, status de unidades (Disponível, Reservado, Vendido) e copie fichas formatadas com 1 clique para compartilhar instantaneamente no WhatsApp.</p>
+            </div>
+
+            <!-- Feature 8 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                </div>
+                <h3 class="feature-name">Mobile Safe Areas & Flex-Wrap</h3>
+                <p class="feature-desc">Interface mobile premium polida com Safe Areas (Notches de iPhone e Android) e réguas de filtros inteligentes com Wrap dinâmico no desktop e Scroll por momentum no mobile para máxima fluidez em qualquer tela.</p>
+            </div>
         </div>
     </section>
 
@@ -879,6 +901,7 @@
                 <button class="showroom-tab-btn" onclick="switchShowroomTab(1)">📆 Agenda Unificada</button>
                 <button class="showroom-tab-btn" onclick="switchShowroomTab(2)">📈 Relatório & Metas</button>
                 <button class="showroom-tab-btn" onclick="switchShowroomTab(3)">💬 Whatsapp Instantâneo</button>
+                <button class="showroom-tab-btn" onclick="switchShowroomTab(4)">🏢 Carteira & Lançamentos</button>
             </div>
 
             <!-- Tab 0: Simulador -->
@@ -926,7 +949,7 @@
                 <div class="show-text">
                     <h3>📆 Agenda & Atividades Unificada</h3>
                     <p>
-                        Todas as suas obrigações mapeadas em um único lugar. O CRM consolida os compromissos diários de visitas físicas e as tarefas cruciais de ligações de retorno de clientes (follow-up).
+                        Todas as suas obrigações mapeadas in um único lugar. O CRM consolida os compromissos diários de visitas físicas e as tarefas cruciais de ligações de retorno de clientes (follow-up).
                     </p>
                     <ul class="show-bullets">
                         <li>Filtros refinados em abas arredondadas e amigáveis</li>
@@ -1019,6 +1042,60 @@
                         </div>
                         <button class="btn btn-primary" style="margin-top: 14px; width: 100%; padding: 10px; font-size: 12px; border-radius: var(--radius-sm);">
                             💬 Enviar Mensagem via WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Carteira & Lançamentos -->
+            <div class="showroom-content">
+                <div class="show-text">
+                    <h3>🏢 Carteira Digital & Gestão de Lançamentos</h3>
+                    <p>
+                        Gerencie suas captações exclusivas e lançamentos de incorporadoras. Cadastre e organize tipologias de plantas, metragens, preços, status de unidades e envie fichas de parcerias com um clique.
+                    </p>
+                    <ul class="show-bullets">
+                        <li>Filtros e busca inteligente de imóveis e empreendimentos</li>
+                        <li>Gestão detalhada de tipologias de plantas com status (🟢/🟡/🔴)</li>
+                        <li>Sincronização ativa: preencha visitas e leads direto do portfólio</li>
+                        <li>Ficha técnica formatada para cópia rápida com link de fotos</li>
+                    </ul>
+                </div>
+                <div class="show-visual">
+                    <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-sm); padding: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div class="mock-sim-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px;">
+                            <div>
+                                <strong style="color: var(--white); font-family: 'Outfit'; font-size: 14px; display: block;">🏢 Residencial Splendia</strong>
+                                <span style="font-size: 11px; color: var(--gray-400);">Jardim Botânico • Código: AP202</span>
+                            </div>
+                            <span style="background: var(--primary-light); color: var(--primary); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">EMPREENDIMENTO</span>
+                        </div>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 4px; font-size: 12px;">
+                                <span>📐 Planta 2Q (68m²)</span>
+                                <strong style="color: var(--white);">R$ 450.000,00</strong>
+                                <span style="color: #10b981; font-weight: 700; font-size: 11px;">🟢 Disponível</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 4px; font-size: 12px;">
+                                <span>📐 Planta 3Q (92m²)</span>
+                                <strong style="color: var(--white);">R$ 680.000,00</strong>
+                                <span style="color: #f59e0b; font-weight: 700; font-size: 11px;">🟡 Reservado</span>
+                            </div>
+                        </div>
+
+                        <div style="font-size: 11px; color: var(--gray-400); margin-bottom: 6px;">PREVIEW DA FICHA (WHATSAPP):</div>
+                        <div style="background: rgba(197, 155, 39, 0.05); border-left: 3px solid var(--primary); padding: 10px; border-radius: 4px; color: #fff; font-size: 11px; line-height: 1.4; font-family: monospace; max-height: 100px; overflow-y: auto;">
+                            🏢 *Residencial Splendia* - Jardim Botânico<br>
+                            🔑 Cód: AP202 | 2 e 3 Dormitórios<br>
+                            📐 Plantas de 68m² a 92m²<br>
+                            💰 Valores a partir de R$ 450.000,00<br>
+                            📸 Fotos: drive.google.com/splendia
+                        </div>
+                        
+                        <button class="btn btn-primary" style="margin-top: 12px; width: 100%; padding: 10px; font-size: 12px; border-radius: var(--radius-sm); justify-content: center; gap: 6px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            Copiar Ficha WhatsApp
                         </button>
                     </div>
                 </div>
