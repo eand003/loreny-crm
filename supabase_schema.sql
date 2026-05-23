@@ -15,7 +15,7 @@ create table if not exists public.re_profiles (
     phone text,
     company text,
     commission_rate numeric(5,2) default 5.00,
-    role text default 'admin',
+    role text default 'broker',
     status text default 'active',
     created_at timestamptz default now(),
     updated_at timestamptz default now()
@@ -24,14 +24,30 @@ create table if not exists public.re_profiles (
 -- Habilitar Row Level Security (RLS) em re_profiles
 alter table public.re_profiles enable row level security;
 
+-- Funções Auxiliares
+create or replace function public.get_user_role()
+returns text
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select role from public.re_profiles where id = auth.uid();
+$$;
+
 -- Políticas de Segurança (RLS) para re_profiles
-create policy "Corretores podem ver seu próprio perfil"
+create policy "Acesso de leitura para perfis por papel"
     on public.re_profiles for select
-    using (auth.uid() = id);
+    using (
+        auth.uid() = id
+        OR
+        public.get_user_role() in ('manager', 'admin')
+    );
 
 create policy "Corretores podem atualizar seu próprio perfil"
     on public.re_profiles for update
-    using (auth.uid() = id);
+    using (auth.uid() = id)
+    with check (auth.uid() = id);
 
 
 -- 2. TABELA: re_leads
@@ -64,12 +80,12 @@ create policy "Corretores podem gerenciar seus próprios leads"
     using (
         auth.uid() = owner_id
         OR
-        (select role from public.re_profiles where id = auth.uid()) in ('manager', 'admin')
+        public.get_user_role() in ('manager', 'admin')
     )
     with check (
         auth.uid() = owner_id
         OR
-        (select role from public.re_profiles where id = auth.uid()) in ('manager', 'admin')
+        public.get_user_role() in ('manager', 'admin')
     );
 
 
@@ -98,12 +114,12 @@ create policy "Corretores podem gerenciar suas próprias visitas"
     using (
         auth.uid() = owner_id
         OR
-        (select role from public.re_profiles where id = auth.uid()) in ('manager', 'admin')
+        public.get_user_role() in ('manager', 'admin')
     )
     with check (
         auth.uid() = owner_id
         OR
-        (select role from public.re_profiles where id = auth.uid()) in ('manager', 'admin')
+        public.get_user_role() in ('manager', 'admin')
     );
 
 
@@ -132,7 +148,7 @@ create policy "Corretores podem gerenciar seus próprios templates"
 create policy "Gestores podem ler todos os templates"
     on public.re_whatsapp_templates for select
     using (
-        (select role from public.re_profiles where id = auth.uid()) in ('manager', 'admin')
+        public.get_user_role() in ('manager', 'admin')
     );
 
 

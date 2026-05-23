@@ -259,6 +259,9 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
       const payload = {
         ...formData,
         budget: formData.budget ? parseFloat(formData.budget) : null,
+        next_action_date: formData.next_action_date ? formData.next_action_date : null,
+        next_action: formData.next_action ? formData.next_action : null,
+        email: formData.email ? formData.email : null,
         owner_id: user.id
       };
 
