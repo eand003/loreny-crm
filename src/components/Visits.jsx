@@ -213,6 +213,8 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
   };
 
   const handleOpenAddModal = () => {
+    fetchProperties();
+    fetchLeads();
     setEditingVisit(null);
     setFormData({
       lead_id: '',
@@ -227,6 +229,8 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
   };
 
   const handleOpenEditModal = (visit) => {
+    fetchProperties();
+    fetchLeads();
     setEditingVisit(visit);
     
     // Format datetime-local input value (YYYY-MM-DDThh:mm)

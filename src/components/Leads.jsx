@@ -6,8 +6,8 @@ import Modal from './UI/Modal';
 
 const extractLinkedPropertyCode = (notes) => {
   if (!notes) return null;
-  const match = notes.match(/\[Imóvel:\s*([^\]\s]+)\]/);
-  return match ? match[1] : null;
+  const match = notes.match(/\[im[óo]vel:\s*([^\]]+)\]/i);
+  return match ? match[1].trim() : null;
 };
 
 
@@ -257,6 +257,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   };
 
   const handleOpenAddModal = () => {
+    fetchProperties();
     setEditingLead(null);
     setFormData({
       name: '',
@@ -274,6 +275,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   };
 
   const handleOpenEditModal = (lead) => {
+    fetchProperties();
     setEditingLead(lead);
     setFormData({
       name: lead.name,
