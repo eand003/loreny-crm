@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Target, Search, Filter, Phone, Calendar, Plus, Edit2, CheckCircle2, AlertCircle, Trash2, Send, MessageSquare, Upload, FileText } from 'lucide-react';
+import { Target, Search, Filter, Phone, Calendar, Plus, Edit2, CheckCircle2, AlertCircle, Trash2, Send, MessageSquare, Upload, FileText, Copy } from 'lucide-react';
 import { supabase } from '../config/supabase';
 import { getLeadStatusLabel, formatDate, formatCurrency, compileWhatsAppTemplate, OPTIONS, matchPropertyType, parseNotesToHistory, generateProposalPDF } from '../utils/helpers';
 import Modal from './UI/Modal';
@@ -301,6 +301,39 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
       proposalData.subtitle
     );
     setIsProposalModalOpen(false);
+  };
+
+  const handleCopyLeadSummary = (lead) => {
+    const formattedBudget = lead.budget 
+      ? (typeof lead.budget === 'number' 
+          ? formatCurrency(lead.budget) 
+          : (isNaN(parseFloat(lead.budget)) ? lead.budget : formatCurrency(parseFloat(lead.budget)))) 
+      : 'Não especificado';
+      
+    const realtor = user?.user_metadata?.full_name || 'Corretora Loreny';
+    const company = user?.user_metadata?.company || 'Loreny Imóveis';
+    const realtorPhone = user?.user_metadata?.phone || '';
+    
+    let text = `🔑 *Ficha de Interesse do Cliente — ${company}*\n\n`;
+    text += `👤 *Cliente:* ${lead.name}\n`;
+    text += `📞 *WhatsApp:* ${lead.phone || 'Não informado'}\n`;
+    text += `🏠 *Tipo de Imóvel:* ${lead.property_type || 'Não especificado'}\n`;
+    text += `📍 *Região de Interesse:* ${lead.region || 'Não informada'}\n`;
+    text += `💰 *Orçamento Pretendido:* ${formattedBudget}\n\n`;
+    text += `---\n`;
+    text += `🤝 *Consultor Técnico:* ${realtor}\n`;
+    if (realtorPhone) {
+      text += `📞 *Contato Consultor:* ${realtorPhone}\n`;
+    }
+    
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        alert('Ficha do cliente copiada com sucesso! Pronta para colar no WhatsApp. 🚀');
+      })
+      .catch(err => {
+        console.error('Erro ao copiar ficha:', err);
+        alert('Não foi possível copiar automaticamente. Por favor, tente novamente.');
+      });
   };
 
   const handleInputChange = (e) => {
@@ -817,6 +850,15 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                 >
                   <FileText size={14} />
                 </button>
+
+                <button 
+                  onClick={() => handleCopyLeadSummary(ld)} 
+                  className="action-btn"
+                  style={{ flex: '0 0 auto', width: '40px', padding: 0, justifyContent: 'center', color: 'var(--primary)', borderColor: 'rgba(181, 148, 16, 0.2)' }}
+                  title="Copiar Ficha do Cliente"
+                >
+                  <Copy size={14} />
+                </button>
                 
                 <button 
                   onClick={() => handleOpenEditModal(ld)} 
@@ -985,26 +1027,48 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                 <label style={{ color: 'var(--primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', margin: 0 }}>
                   📜 Linha do Tempo & Histórico do Cliente
                 </label>
-                <button 
-                  type="button"
-                  onClick={() => handleOpenProposalModal(editingLead)}
-                  className="btn btn-outline"
-                  style={{ 
-                    height: '28px', 
-                    padding: '0 10px', 
-                    fontSize: '11px', 
-                    fontWeight: 600, 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '4px',
-                    borderColor: 'rgba(16, 185, 129, 0.3)',
-                    color: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.05)'
-                  }}
-                >
-                  <FileText size={12} />
-                  <span>Gerar PDF</span>
-                </button>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button 
+                    type="button"
+                    onClick={() => handleCopyLeadSummary(editingLead)}
+                    className="btn btn-outline"
+                    style={{ 
+                      height: '28px', 
+                      padding: '0 10px', 
+                      fontSize: '11px', 
+                      fontWeight: 600, 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '4px',
+                      borderColor: 'rgba(181, 148, 16, 0.3)',
+                      color: 'var(--primary)',
+                      backgroundColor: 'rgba(181, 148, 16, 0.05)'
+                    }}
+                  >
+                    <Copy size={12} />
+                    <span>Copiar Ficha</span>
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => handleOpenProposalModal(editingLead)}
+                    className="btn btn-outline"
+                    style={{ 
+                      height: '28px', 
+                      padding: '0 10px', 
+                      fontSize: '11px', 
+                      fontWeight: 600, 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '4px',
+                      borderColor: 'rgba(16, 185, 129, 0.3)',
+                      color: '#10b981',
+                      backgroundColor: 'rgba(16, 185, 129, 0.05)'
+                    }}
+                  >
+                    <FileText size={12} />
+                    <span>Gerar PDF</span>
+                  </button>
+                </div>
               </div>
               
               {/* Quick Log Note Box */}
