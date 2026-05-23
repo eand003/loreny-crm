@@ -10,6 +10,8 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead }) => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVisit, setEditingVisit] = useState(null);
+  const [leadSearch, setLeadSearch] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Form Fields
   const [formData, setFormData] = useState({
@@ -34,6 +36,7 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead }) => {
           ...prev, 
           lead_id: preselectedLeadForVisit.id 
         }));
+        setLeadSearch(preselectedLeadForVisit.name || '');
       }
       onClearPreselectedLead();
     }
@@ -73,12 +76,14 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead }) => {
   const handleOpenAddModal = () => {
     setEditingVisit(null);
     setFormData({
-      lead_id: leads.length > 0 ? leads[0].id : '',
+      lead_id: '',
       property_details: '',
       visit_datetime: '',
       notes: '',
       status: 'Agendada'
     });
+    setLeadSearch('');
+    setIsDropdownOpen(false);
     setIsModalOpen(true);
   };
 
@@ -98,6 +103,10 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead }) => {
       notes: visit.notes || '',
       status: visit.status
     });
+
+    const matchingLead = leads.find(l => l.id === visit.lead_id);
+    setLeadSearch(matchingLead ? matchingLead.name : 'Cliente Interessado');
+    setIsDropdownOpen(false);
     setIsModalOpen(true);
   };
 
@@ -324,20 +333,130 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead }) => {
         title={editingVisit ? 'Editar Agendamento' : 'Agendar Nova Visita'}
       >
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className="form-group" style={{ position: 'relative' }}>
             <label>Selecione o Lead / Cliente *</label>
             {leads.length === 0 ? (
               <div style={{ fontSize: '13px', color: 'var(--status-lost)' }}>
                 Nenhum lead disponível. Cadastre um lead antes de agendar visitas!
               </div>
             ) : (
-              <select name="lead_id" value={formData.lead_id} onChange={handleInputChange} required>
-                {leads.map(lead => (
-                  <option key={lead.id} value={lead.id}>
-                    {lead.name} ({lead.property_type} em {lead.region})
-                  </option>
-                ))}
-              </select>
+              <div>
+                {/* Click outside overlay backdrop */}
+                {isDropdownOpen && (
+                  <div 
+                    onClick={() => setIsDropdownOpen(false)}
+                    style={{
+                      position: 'fixed',
+                      top: 0,
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      zIndex: 999,
+                      background: 'transparent'
+                    }}
+                  />
+                )}
+                
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', zIndex: 1000 }}>
+                  <input 
+                    type="text" 
+                    placeholder="🔍 Digite o nome do cliente..."
+                    value={leadSearch}
+                    onChange={(e) => {
+                      setLeadSearch(e.target.value);
+                      setIsDropdownOpen(true);
+                      setFormData(prev => ({ ...prev, lead_id: '' }));
+                    }}
+                    onFocus={() => setIsDropdownOpen(true)}
+                    style={{ width: '100%', paddingRight: '30px' }}
+                    required={!formData.lead_id}
+                  />
+                  {leadSearch && (
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setLeadSearch('');
+                        setFormData(prev => ({ ...prev, lead_id: '' }));
+                        setIsDropdownOpen(true);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        right: '10px',
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--gray-400)',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        padding: '4px'
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+                
+                {isDropdownOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-sm)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    zIndex: 1000,
+                    marginTop: '4px'
+                  }}>
+                    {leads
+                      .filter(lead => 
+                        lead.name.toLowerCase().includes(leadSearch.toLowerCase()) || 
+                        (lead.region && lead.region.toLowerCase().includes(leadSearch.toLowerCase())) ||
+                        (lead.property_type && lead.property_type.toLowerCase().includes(leadSearch.toLowerCase()))
+                      )
+                      .slice(0, 100)
+                      .map(lead => (
+                        <div 
+                          key={lead.id}
+                          onClick={() => {
+                            setLeadSearch(lead.name);
+                            setFormData(prev => ({ ...prev, lead_id: lead.id }));
+                            setIsDropdownOpen(false);
+                          }}
+                          style={{
+                            padding: '10px 12px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            color: 'var(--gray-800)',
+                            borderBottom: '1px solid rgba(0,0,0,0.02)',
+                            transition: 'background 0.2s',
+                            backgroundColor: formData.lead_id === lead.id ? 'var(--primary-light)' : 'transparent',
+                            fontWeight: formData.lead_id === lead.id ? '600' : 'normal'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--gray-100)'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = formData.lead_id === lead.id ? 'var(--primary-light)' : 'transparent'}
+                        >
+                          <div style={{ fontWeight: 600, color: 'var(--gray-900)' }}>{lead.name}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--gray-500)', marginTop: '2px' }}>
+                            🏠 {lead.property_type} • 📍 {lead.region}
+                          </div>
+                        </div>
+                      ))}
+                    {leads.filter(lead => 
+                      lead.name.toLowerCase().includes(leadSearch.toLowerCase()) || 
+                      (lead.region && lead.region.toLowerCase().includes(leadSearch.toLowerCase())) ||
+                      (lead.property_type && lead.property_type.toLowerCase().includes(leadSearch.toLowerCase()))
+                    ).length === 0 && (
+                      <div style={{ padding: '12px', fontSize: '13px', color: 'var(--gray-500)', textAlign: 'center' }}>
+                        Nenhum cliente encontrado.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
