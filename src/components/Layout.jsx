@@ -4,6 +4,17 @@ import { Home, Users, Calendar, MessageSquare, LogOut, Shield, DollarSign } from
 const Layout = ({ children, currentTab, setCurrentTab, user, onLogout }) => {
   const realtorName = user?.user_metadata?.full_name || 'Corretor/a';
   const realtorEmail = user?.email || 'loreny@imoveis.com';
+  const userRole = user?.user_metadata?.role || 'broker';
+
+  let roleLabel = 'Corretor Autônomo';
+  let roleColor = 'var(--primary)'; // Gold
+  if (userRole === 'manager') {
+    roleLabel = 'Gerente de Vendas';
+    roleColor = '#a855f7'; // Purple
+  } else if (userRole === 'admin') {
+    roleLabel = 'Diretor Imobiliário';
+    roleColor = '#3b82f6'; // Blue
+  }
 
   const menuItems = [
     { id: 'dashboard', label: 'Painel Geral', icon: <Home size={18} /> },
@@ -29,7 +40,7 @@ const Layout = ({ children, currentTab, setCurrentTab, user, onLogout }) => {
 
           <div style={{ padding: '0 8px', marginTop: '4px' }}>
             <span style={{ fontSize: '10px', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Shield size={10} style={{ color: 'var(--primary)' }} /> Corretor Autônomo
+              <Shield size={10} style={{ color: roleColor }} /> {roleLabel}
             </span>
           </div>
 
@@ -55,7 +66,7 @@ const Layout = ({ children, currentTab, setCurrentTab, user, onLogout }) => {
               width: '36px', 
               height: '36px', 
               borderRadius: '50%', 
-              backgroundColor: 'var(--primary-dark)', 
+              backgroundColor: roleColor, 
               color: 'var(--white)',
               display: 'flex',
               alignItems: 'center',

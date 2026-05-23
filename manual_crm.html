@@ -503,6 +503,25 @@
                 </h2>
                 <p>O CRM Loreny Imóveis v3 possui um modelo rígido de isolamento de dados e governança empresarial para que sua equipe trabalhe com a máxima privacidade e segurança.</p>
                 
+                <div class="alert-card" style="background: rgba(197, 155, 39, 0.08); border-color: rgba(197, 155, 39, 0.3); margin: 16px 0;">
+                    <svg class="alert-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <div class="alert-content">
+                        <strong>📌 Nota de Simulação vs. Produção (RLS):</strong> Se você estiver testando localmente com o banco de dados simulado (Mock DB ativo offline), todos os dados residem em uma carteira demonstrativa compartilhada no navegador. Porém, no <strong>ambiente de produção conectado ao Supabase</strong>, o PostgreSQL aplica políticas estritas de <strong>Row-Level Security (RLS)</strong>. O Corretor enxergará estritamente apenas seus próprios clientes e tarefas. Já o Diretor/Gestor verá a listagem consolidada de todas as metas e leads do time de forma transparente.
+                    </div>
+                </div>
+
+                <div class="alert-card" style="background: rgba(11, 26, 48, 0.05); border-color: rgba(11, 26, 48, 0.15); margin: 16px 0 24px;">
+                    <svg class="alert-icon" style="color: var(--indigo);" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    <div class="alert-content">
+                        <strong>🌟 Nova Diferenciação Visual (CRM v3):</strong> Para tornar os acessos claros, o CRM personaliza a interface de acordo com o cargo:
+                        <ul style="margin-left: 16px; margin-top: 4px;">
+                            <li><strong>Corretor Autônomo:</strong> Badge dourado no menu e lema operacional no painel principal.</li>
+                            <li><strong>Gerente de Vendas:</strong> Badge roxo no menu e painel com lema de supervisão da equipe.</li>
+                            <li><strong>Diretor Imobiliário:</strong> Badge azul e foco na governança estratégica do VGV e faturamento geral.</li>
+                        </ul>
+                    </div>
+                </div>
+
                 <!-- Role switcher tab buttons -->
                 <div class="role-selector">
                     <button class="role-btn active" id="btn-corretor" onclick="switchRole('corretor')">

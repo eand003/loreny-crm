@@ -32,6 +32,7 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab, setVisitsSubTab }) => {
   const [newFollowUpAction, setNewFollowUpAction] = useState('Entrar em contato');
 
   const realtorName = user?.user_metadata?.full_name || 'Corretor/a';
+  const userRole = user?.user_metadata?.role || 'broker';
 
   useEffect(() => {
     fetchDashboardData();
@@ -291,12 +292,26 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab, setVisitsSubTab }) => {
   return (
     <div>
       {/* Broker Header greeting */}
-      <div className="glass-card" style={{ marginBottom: '24px', borderLeft: '6px solid var(--primary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div className="glass-card" style={{ 
+        marginBottom: '24px', 
+        borderLeft: userRole === 'admin' 
+          ? '6px solid #3b82f6' 
+          : userRole === 'manager' 
+            ? '6px solid #a855f7' 
+            : '6px solid var(--primary)', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '6px' 
+      }}>
         <h2 style={{ fontSize: '22px', fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
           Olá, {realtorName}! 🔑
         </h2>
         <p style={{ color: 'var(--gray-500)', fontSize: '14px', lineHeight: '1.5' }}>
-          "Conectando pessoas aos seus lares ideais e maximizando o Valor Geral de Vendas (VGV)."
+          {userRole === 'admin' 
+            ? '"Direção estratégica e governança absoluta da carteira geral de VGV imobiliário."' 
+            : userRole === 'manager'
+              ? '"Supervisionando a equipe de vendas e otimizando a conversão do pipeline da imobiliária."'
+              : '"Conectando pessoas aos seus lares ideais e maximizando o Valor Geral de Vendas (VGV)."'}
         </p>
       </div>
 
