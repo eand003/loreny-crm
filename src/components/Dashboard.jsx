@@ -31,8 +31,13 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab, setVisitsSubTab }) => {
   const [newFollowUpDate, setNewFollowUpDate] = useState('');
   const [newFollowUpAction, setNewFollowUpAction] = useState('Entrar em contato');
 
+  // Controle de Performance da Equipe
+  const [profiles, setProfiles] = useState([]);
+  const [brokerPerformance, setBrokerPerformance] = useState([]);
+
   const realtorName = user?.user_metadata?.full_name || 'Corretor/a';
   const userRole = user?.user_metadata?.role || 'broker';
+  const isManager = userRole === 'manager' || userRole === 'admin';
 
   useEffect(() => {
     fetchDashboardData();
@@ -43,7 +48,18 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab, setVisitsSubTab }) => {
     try {
       setLoading(true);
       
-      // 1. Fetch leads that are active (not deleted)
+      // 1. Buscar perfis se for gestor para o hub de performance
+      let profilesList = [];
+      if (isManager) {
+        const { data: profs, error: profsErr } = await supabase
+          .from('profiles')
+          .select('*');
+        if (profsErr) throw profsErr;
+        profilesList = profs || [];
+        setProfiles(profilesList);
+      }
+
+      // 2. Fetch leads that are active (not deleted)
       const { data: leadsData, error: leadsErr } = await supabase
         .from('leads')
         .select('*')
@@ -54,7 +70,7 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab, setVisitsSubTab }) => {
       const activeLeads = leadsData || [];
       setAllLeads(activeLeads);
       
-      // 2. Fetch visits
+      // 3. Fetch visits
       const { data: visitsData, error: visitsErr } = await supabase
         .from('visits')
         .select('*')
@@ -84,6 +100,38 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab, setVisitsSubTab }) => {
         commission: estimatedCommission,
         followups: totalFollowUps
       });
+
+      // Calcular performance dos corretores se for gestor
+      if (isManager && profilesList.length > 0) {
+        const perf = profilesList.map(prof => {
+          const brokerLeads = activeLeads.filter(l => l.owner_id === prof.id);
+          const brokerVisits = activeVisits.filter(v => v.owner_id === prof.id);
+          
+          const activeNegotiations = brokerLeads.filter(l => l.status !== 'won' && l.status !== 'lost');
+          const wonLeads = brokerLeads.filter(l => l.status === 'won');
+          
+          const totalVGV = activeNegotiations.reduce((acc, curr) => acc + (curr.budget || 0), 0);
+          const wonVGV = wonLeads.reduce((acc, curr) => acc + (curr.budget || 0), 0);
+          
+          const rate = prof.commission_rate || 5.00;
+          const commissionEarned = wonVGV * (rate / 100);
+
+          return {
+            id: prof.id,
+            full_name: prof.full_name || prof.email.split('@')[0],
+            email: prof.email,
+            role: prof.role,
+            activeLeadsCount: activeNegotiations.length,
+            wonLeadsCount: wonLeads.length,
+            totalVGV,
+            wonVGV,
+            commissionEarned,
+            visitsCount: brokerVisits.filter(v => v.status === 'Agendada').length
+          };
+        }).sort((a, b) => b.totalVGV - a.totalVGV); // Rank by VGV
+
+        setBrokerPerformance(perf);
+      }
 
       // Upcoming visits matching lead names
       const sortedVisits = activeVisits
@@ -404,6 +452,117 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab, setVisitsSubTab }) => {
           </div>
         </div>
       </div>
+
+      {/* SEÇÃO PERFORMANCE DA EQUIPE — Visível apenas para gestores */}
+      {isManager && brokerPerformance.length > 0 && (
+        <div className="card" style={{ marginBottom: '28px' }}>
+          <h3 className="flex align-center gap-2" style={{ fontSize: '17px', fontFamily: 'Outfit, sans-serif', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            🏆 Performance & VGV da Equipe
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {brokerPerformance.map((broker) => {
+              // Calcular a porcentagem do VGV deste corretor em relação ao VGV total
+              const totalTeamVGV = stats.vgv || 1; // evitar divisão por 0
+              const percentage = Math.min((broker.totalVGV / totalTeamVGV) * 100, 100);
+
+              let roleColor = 'var(--primary)'; // Gold
+              let roleName = 'Corretor';
+              if (broker.role === 'manager') {
+                roleColor = '#a855f7'; // Purple
+                roleName = 'Gerente';
+              } else if (broker.role === 'admin') {
+                roleColor = '#3b82f6'; // Blue
+                roleName = 'Diretor';
+              }
+
+              return (
+                <div key={broker.id} style={{ 
+                  padding: '16px', 
+                  borderRadius: 'var(--radius-md)', 
+                  border: '1px solid var(--border-color)', 
+                  backgroundColor: 'rgba(0, 0, 0, 0.01)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  {/* Cabeçalho do Corretor */}
+                  <div className="flex justify-between align-center" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ 
+                        width: '36px', 
+                        height: '36px', 
+                        borderRadius: '50%', 
+                        backgroundColor: roleColor, 
+                        color: 'var(--white)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 700,
+                        fontSize: '13px'
+                      }}>
+                        {broker.full_name.substring(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--gray-900)' }}>
+                          {broker.full_name}
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'var(--gray-500)' }}>
+                          {roleName} • {broker.email}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--primary-dark)' }}>
+                        {formatCurrency(broker.totalVGV)}
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'var(--gray-500)', fontWeight: 500 }}>
+                        VGV Ativo no Funil
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Barra de Progresso / Participação no VGV */}
+                  <div style={{ marginTop: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--gray-500)', marginBottom: '4px' }}>
+                      <span>Participação no VGV Geral</span>
+                      <span style={{ fontWeight: 600 }}>{percentage.toFixed(1)}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--gray-200)', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ 
+                        width: `${percentage}%`, 
+                        height: '100%', 
+                        backgroundColor: 'var(--primary)',
+                        borderRadius: '4px',
+                        boxShadow: '0 0 8px rgba(16, 185, 129, 0.4)',
+                        transition: 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+                      }}></div>
+                    </div>
+                  </div>
+
+                  {/* Métricas Auxiliares */}
+                  <div className="flex" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '6px', borderTop: '1px dashed rgba(0,0,0,0.05)', paddingTop: '8px', fontSize: '12px', color: 'var(--gray-600)' }}>
+                    <div>
+                      <strong>Leads Ativos:</strong> {broker.activeLeadsCount}
+                    </div>
+                    <div>
+                      <strong>Visitas Agendadas:</strong> {broker.visitsCount}
+                    </div>
+                    <div>
+                      <strong>Vendas Concluídas:</strong> {broker.wonLeadsCount}
+                    </div>
+                    {broker.commissionEarned > 0 && (
+                      <div style={{ marginLeft: 'auto', color: 'var(--status-won)', fontWeight: 600 }}>
+                        💰 Comissão Confirmada: {formatCurrency(broker.commissionEarned)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* DASHBOARD BOTTOM ROW */}
       <div className="grid" style={{ gridTemplateColumns: '1fr', gap: '24px', display: 'flex', flexDirection: 'column' }}>

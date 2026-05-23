@@ -7,6 +7,7 @@ import Leads from './components/Leads';
 import Commissions from './components/Commissions';
 import Visits from './components/Visits';
 import WhatsAppTemplates from './components/WhatsAppTemplates';
+import Settings from './components/Settings';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -103,12 +104,20 @@ function App() {
             user={user} 
           />
         );
+      case 'settings':
+        return (
+          <Settings 
+            user={user} 
+            onProfileUpdate={(updatedUser) => setUser(updatedUser)}
+          />
+        );
       default:
         return (
           <Dashboard 
             user={user} 
             onQuickAction={handleQuickAction} 
             setCurrentTab={setCurrentTab} 
+            setVisitsSubTab={setVisitsSubTab}
           />
         );
     }

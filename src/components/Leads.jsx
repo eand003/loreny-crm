@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Target, Search, Filter, Phone, Calendar, Plus, Edit2, CheckCircle2, AlertCircle, Trash2, Send, MessageSquare, Upload } from 'lucide-react';
+import { Target, Search, Filter, Phone, Calendar, Plus, Edit2, CheckCircle2, AlertCircle, Trash2, Send, MessageSquare, Upload, FileText } from 'lucide-react';
 import { supabase } from '../config/supabase';
-import { getLeadStatusLabel, formatDate, formatCurrency, compileWhatsAppTemplate, OPTIONS, matchPropertyType, parseNotesToHistory } from '../utils/helpers';
+import { getLeadStatusLabel, formatDate, formatCurrency, compileWhatsAppTemplate, OPTIONS, matchPropertyType, parseNotesToHistory, generateProposalPDF } from '../utils/helpers';
 import Modal from './UI/Modal';
 
 const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, setPreselectedLeadForVisit }) => {
@@ -748,6 +748,21 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                 )}
                 
                 <button 
+                  onClick={() => generateProposalPDF(
+                    ld, 
+                    user?.user_metadata?.full_name || '', 
+                    user?.email || '', 
+                    user?.user_metadata?.phone || '', 
+                    user?.user_metadata?.company || ''
+                  )} 
+                  className="action-btn"
+                  style={{ flex: '0 0 auto', width: '40px', padding: 0, justifyContent: 'center', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.2)' }}
+                  title="Gerar Proposta PDF"
+                >
+                  <FileText size={14} />
+                </button>
+                
+                <button 
                   onClick={() => handleOpenEditModal(ld)} 
                   className="action-btn" 
                   style={{ flex: '0 0 auto', width: '40px', padding: 0, justifyContent: 'center' }}
@@ -910,9 +925,37 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
               marginBottom: '20px',
               marginTop: '10px'
             }}>
-              <label style={{ color: 'var(--primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', marginBottom: '12px' }}>
-                📜 Linha do Tempo & Histórico do Cliente
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <label style={{ color: 'var(--primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', margin: 0 }}>
+                  📜 Linha do Tempo & Histórico do Cliente
+                </label>
+                <button 
+                  type="button"
+                  onClick={() => generateProposalPDF(
+                    editingLead, 
+                    user?.user_metadata?.full_name || '', 
+                    user?.email || '', 
+                    user?.user_metadata?.phone || '', 
+                    user?.user_metadata?.company || ''
+                  )}
+                  className="btn btn-outline"
+                  style={{ 
+                    height: '28px', 
+                    padding: '0 10px', 
+                    fontSize: '11px', 
+                    fontWeight: 600, 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '4px',
+                    borderColor: 'rgba(16, 185, 129, 0.3)',
+                    color: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.05)'
+                  }}
+                >
+                  <FileText size={12} />
+                  <span>Gerar PDF</span>
+                </button>
+              </div>
               
               {/* Quick Log Note Box */}
               <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>

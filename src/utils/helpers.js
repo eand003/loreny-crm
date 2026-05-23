@@ -231,3 +231,284 @@ export const OPTIONS = {
     { value: 'DF', label: 'Distrito Federal' }
   ]
 };
+
+/**
+ * Abre uma nova janela e gera uma proposta imobiliária premium em PDF prontinha para impressão/salvamento.
+ */
+export const generateProposalPDF = (lead, realtorName = '', realtorEmail = '', realtorPhone = '', realtorCompany = '') => {
+  const history = parseNotesToHistory(lead.notes);
+  const formattedBudget = lead.budget ? formatCurrency(lead.budget) : 'Não especificado';
+  const realtor = realtorName || 'Loreny Corretora';
+  const company = realtorCompany || 'Loreny Imóveis';
+  const dateStr = new Date().toLocaleDateString('pt-BR');
+
+  const historyHtml = history.length === 0
+    ? '<p style="color: #64748b; font-style: italic; font-size: 13px;">Nenhum registro de atendimento cadastrado.</p>'
+    : history.map(item => `
+        <div style="margin-bottom: 16px; padding: 12px 16px; background-color: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; border-left: 4px solid #10b981;">
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 4px;">
+            <span>${item.isInteraction ? '💬 DIÁLOGO REGISTRADO' : '📝 NOTA HISTÓRICA'} • ${item.date} ${item.time ? `às ${item.time}` : ''}</span>
+          </div>
+          <div style="font-size: 13px; color: #1e293b; line-height: 1.5; white-space: pre-line;">${item.content}</div>
+        </div>
+      `).join('');
+
+  const win = window.open('', '_blank');
+  if (!win) {
+    alert('Por favor, libere os pop-ups para gerar a proposta em PDF.');
+    return;
+  }
+
+  win.document.write(`
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <title>Proposta Comercial - ${lead.name}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+      <style>
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        body {
+          font-family: 'Inter', sans-serif;
+          background-color: #ffffff;
+          color: #1e293b;
+          padding: 20px;
+          line-height: 1.6;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .proposal-container {
+          max-width: 800px;
+          margin: 0 auto;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+          background: linear-gradient(135deg, #0a1424 0%, #111e35 100%);
+          color: #ffffff;
+          padding: 32px 40px;
+          border-bottom: 4px solid #10b981;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .header-logo {
+          font-family: 'Outfit', sans-serif;
+          font-size: 24px;
+          font-weight: 800;
+        }
+        .header-logo span {
+          color: #10b981;
+        }
+        .header-title {
+          text-align: right;
+        }
+        .header-title h1 {
+          font-family: 'Outfit', sans-serif;
+          font-size: 20px;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+        }
+        .header-title p {
+          color: #94a3b8;
+          font-size: 12px;
+          margin-top: 4px;
+          font-weight: 500;
+        }
+        .content {
+          padding: 40px;
+        }
+        .section-title {
+          font-family: 'Outfit', sans-serif;
+          font-size: 16px;
+          font-weight: 700;
+          color: #0a1424;
+          text-transform: uppercase;
+          border-bottom: 2px solid #e2e8f0;
+          padding-bottom: 8px;
+          margin-bottom: 20px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .info-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+          margin-bottom: 32px;
+        }
+        .info-card {
+          background-color: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 16px;
+        }
+        .info-label {
+          font-size: 11px;
+          color: #64748b;
+          text-transform: uppercase;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          margin-bottom: 4px;
+        }
+        .info-value {
+          font-size: 14px;
+          color: #0a1424;
+          font-weight: 600;
+        }
+        .info-value-budget {
+          color: #10b981;
+          font-size: 16px;
+          font-weight: 800;
+        }
+        .timeline {
+          margin-bottom: 36px;
+        }
+        .footer-realtor {
+          margin-top: 48px;
+          padding-top: 32px;
+          border-top: 2px solid #e2e8f0;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          page-break-inside: avoid;
+        }
+        .realtor-card {
+          font-size: 13px;
+          color: #475569;
+        }
+        .realtor-name {
+          font-family: 'Outfit', sans-serif;
+          font-size: 16px;
+          font-weight: 700;
+          color: #0a1424;
+          margin-bottom: 4px;
+        }
+        .signature-box {
+          text-align: right;
+          font-size: 12px;
+          color: #64748b;
+        }
+        .signature-line {
+          width: 220px;
+          height: 1px;
+          background-color: #94a3b8;
+          margin-bottom: 6px;
+        }
+        @media print {
+          body {
+            padding: 0;
+            background-color: transparent;
+          }
+          .proposal-container {
+            border: none;
+            box-shadow: none;
+          }
+          .header {
+            background: #0a1424 !important;
+            color: #ffffff !important;
+          }
+          .header-logo span {
+            color: #10b981 !important;
+          }
+          .info-card {
+            background-color: #f8fafc !important;
+          }
+          .info-value-budget {
+            color: #10b981 !important;
+          }
+          @page {
+            size: A4;
+            margin: 15mm;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="proposal-container">
+        <!-- HEADER -->
+        <div class="header">
+          <div class="header-logo">
+            Loreny<span>Imóveis</span>
+          </div>
+          <div class="header-title">
+            <h1>Proposta Comercial</h1>
+            <p>Ficha de Interesse Cadastral • Emissão: ${dateStr}</p>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+          <!-- SECTION 1: FICHA CADASTRAL -->
+          <div class="section-title">Ficha de Interesse do Cliente</div>
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="info-label">Nome do Cliente</div>
+              <div class="info-value">${lead.name}</div>
+            </div>
+            <div class="info-card">
+              <div class="info-label">Celular / WhatsApp</div>
+              <div class="info-value">${lead.phone}</div>
+            </div>
+            <div class="info-card" style="grid-column: span 2;">
+              <div class="info-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 0; gap: 12px;">
+                <div>
+                  <div class="info-label">Tipo de Imóvel</div>
+                  <div class="info-value">${lead.property_type || 'Não especificado'}</div>
+                </div>
+                <div>
+                  <div class="info-label">Região Preferencial</div>
+                  <div class="info-value">${lead.region}</div>
+                </div>
+                <div>
+                  <div class="info-label">Orçamento Pretendido</div>
+                  <div class="info-value info-value-budget">${formattedBudget}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: TIMELINE HISTORICA -->
+          <div class="section-title">Linha do Tempo & Acompanhamento</div>
+          <div class="timeline">
+            ${historyHtml}
+          </div>
+
+          <!-- FOOTER SIGNATURE -->
+          <div class="footer-realtor">
+            <div class="realtor-card">
+              <div class="realtor-name">${realtor}</div>
+              <div>Consultor(a) Técnico Imobiliário</div>
+              <div style="font-weight: 500; margin-top: 4px; color: #0a1424;">${company}</div>
+              ${realtorPhone ? `<div style="margin-top: 2px;">WhatsApp: ${realtorPhone}</div>` : ''}
+              ${realtorEmail ? `<div>E-mail: ${realtorEmail}</div>` : ''}
+            </div>
+            
+            <div class="signature-box">
+              <div class="signature-line"></div>
+              <div>Assinatura do Consultor</div>
+              <div style="font-size: 10px; margin-top: 2px; color: #94a3b8;">Loreny Imóveis v3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.onload = function() {
+          setTimeout(function() {
+            window.print();
+          }, 500);
+        };
+      </script>
+    </body>
+    </html>
+  `);
+  win.document.close();
+};
+

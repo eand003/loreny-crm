@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Users, Calendar, MessageSquare, LogOut, Shield, DollarSign } from 'lucide-react';
+import { Home, Users, Calendar, MessageSquare, LogOut, Shield, DollarSign, Settings } from 'lucide-react';
 
 const Layout = ({ children, currentTab, setCurrentTab, user, onLogout }) => {
   const realtorName = user?.user_metadata?.full_name || 'Corretor/a';
@@ -22,6 +22,7 @@ const Layout = ({ children, currentTab, setCurrentTab, user, onLogout }) => {
     { id: 'commissions', label: 'Vendas & Comissões', icon: <DollarSign size={18} /> },
     { id: 'visits', label: 'Agenda de Visitas', icon: <Calendar size={18} /> },
     { id: 'whatsapp_templates', label: 'Modelos WhatsApp', icon: <MessageSquare size={18} /> },
+    { id: 'settings', label: 'Meu Perfil', icon: <Settings size={18} /> },
   ];
 
   return (
