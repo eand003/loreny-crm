@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Home, Users, Calendar, DollarSign, Plus, MapPin, Phone, ChevronRight } from 'lucide-react';
 import { supabase } from '../config/supabase';
-import { formatCurrency, formatDate, formatDateTime } from '../utils/helpers';
+import { formatCurrency, formatDate, formatDateTime, compileWhatsAppTemplate } from '../utils/helpers';
+import Modal from './UI/Modal';
 
 const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
   const [stats, setStats] = useState({
@@ -14,10 +15,18 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
   const [recentLeads, setRecentLeads] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // WhatsApp Template Modal states
+  const [waTemplates, setWaTemplates] = useState([]);
+  const [selectedWaTemplate, setSelectedWaTemplate] = useState(null);
+  const [compiledWaMessage, setCompiledWaMessage] = useState('');
+  const [activeWaVisit, setActiveWaVisit] = useState(null);
+  const [isWaModalOpen, setIsWaModalOpen] = useState(false);
+
   const realtorName = user?.user_metadata?.full_name || 'Corretor/a';
 
   useEffect(() => {
     fetchDashboardData();
+    fetchTemplates();
   }, [user]);
 
   const fetchDashboardData = async () => {
@@ -71,7 +80,8 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
           return {
             ...visit,
             leadName: matchingLead ? matchingLead.name : 'Cliente Interessado',
-            leadPhone: matchingLead ? matchingLead.phone : ''
+            leadPhone: matchingLead ? matchingLead.phone : '',
+            lead: matchingLead
           };
         });
 
@@ -89,6 +99,60 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchTemplates = async () => {
+    try {
+      const { data, error } = await supabase.from('whatsapp_templates').select('*');
+      if (error) throw error;
+      setWaTemplates(data || []);
+      
+      if (data && data.length > 0) {
+        const confirmTemplate = data.find(t => t.title.toLowerCase().includes('confirma') || t.description.toLowerCase().includes('visita'));
+        setSelectedWaTemplate(confirmTemplate || data[0]);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar templates no dashboard:', err);
+    }
+  };
+
+  const handleOpenWaModal = (visit) => {
+    setActiveWaVisit(visit);
+    
+    let defaultTemplate = null;
+    if (waTemplates.length > 0) {
+      const confirmTemplate = waTemplates.find(t => t.title.toLowerCase().includes('confirma') || t.description.toLowerCase().includes('visita'));
+      defaultTemplate = confirmTemplate || waTemplates[0];
+    }
+    setSelectedWaTemplate(defaultTemplate);
+
+    const compiled = defaultTemplate && visit.lead
+      ? compileWhatsAppTemplate(defaultTemplate.text_content, visit.lead, realtorName, visit)
+      : `Olá, ${visit.leadName}! Tudo bem? Sou o(a) ${realtorName}, seu corretor da Loreny Imóveis. Gostaria de confirmar nossa visita agendada no imóvel ${visit.property_details} no dia ${formatDateTime(visit.visit_datetime)}.`;
+
+    setCompiledWaMessage(compiled);
+    setIsWaModalOpen(true);
+  };
+
+  const handleWaTemplateChange = (templateId) => {
+    const template = waTemplates.find(t => t.id === templateId);
+    setSelectedWaTemplate(template);
+    
+    if (template && activeWaVisit && activeWaVisit.lead) {
+      const compiled = compileWhatsAppTemplate(template.text_content, activeWaVisit.lead, realtorName, activeWaVisit);
+      setCompiledWaMessage(compiled);
+    }
+  };
+
+  const handleSendWaMessage = () => {
+    if (!activeWaVisit || !compiledWaMessage) return;
+    
+    const cleanPhone = activeWaVisit.leadPhone.replace(/\D/g, '');
+    const encodedText = encodeURIComponent(compiledWaMessage);
+    const waUrl = `https://api.whatsapp.com/send?phone=55${cleanPhone}&text=${encodedText}`;
+    
+    window.open(waUrl, '_blank');
+    setIsWaModalOpen(false);
   };
 
   return (
@@ -216,16 +280,25 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
                   )}
                   {visit.leadPhone && (
                     <div className="flex justify-end" style={{ marginTop: '10px' }}>
-                      <a 
-                        href={`https://wa.me/55${visit.leadPhone}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <button 
+                        onClick={() => handleOpenWaModal(visit)}
                         className="flex align-center gap-1"
-                        style={{ color: '#25d366', fontWeight: 700, fontSize: '12px', textDecoration: 'none' }}
+                        style={{ 
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: '#25d366', 
+                          fontWeight: 700, 
+                          fontSize: '12px', 
+                          padding: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
                       >
                         <Phone size={12} />
                         Confirmar via WhatsApp
-                      </a>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -274,6 +347,72 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
         </div>
 
       </div>
+
+      {/* WHATSAPP CUSTOMIZABLE MESSAGE TEMPLATES MODAL */}
+      <Modal 
+        isOpen={isWaModalOpen} 
+        onClose={() => setIsWaModalOpen(false)} 
+        title="Confirmar Agendamento de Visita 🗓️"
+      >
+        {activeWaVisit && (
+          <div>
+            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: 'rgba(0, 0, 0, 0.02)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+              <div style={{ fontSize: '14px', color: 'var(--gray-900)' }}>
+                <strong>Cliente:</strong> {activeWaVisit.leadName}
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--gray-600)', marginTop: '2px' }}>
+                Imóvel: {activeWaVisit.property_details} • Data: {formatDateTime(activeWaVisit.visit_datetime)}
+              </div>
+            </div>
+
+            {waTemplates.length > 0 ? (
+              <div className="form-group">
+                <label>Escolha o Modelo de Confirmação</label>
+                <select 
+                  value={selectedWaTemplate?.id || ''} 
+                  onChange={(e) => handleWaTemplateChange(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', marginBottom: '16px', backgroundColor: '#fff', color: 'var(--gray-800)' }}
+                >
+                  {waTemplates.map(t => (
+                    <option key={t.id} value={t.id}>{t.title}</option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <div style={{ fontSize: '12px', color: 'var(--gray-500)', marginBottom: '12px' }}>
+                Nenhum template personalizado encontrado. Usando mensagem padrão de confirmação.
+              </div>
+            )}
+
+            <div className="form-group">
+              <label>Mensagem a ser enviada (Edite livremente antes de enviar)</label>
+              <textarea 
+                value={compiledWaMessage} 
+                onChange={(e) => setCompiledWaMessage(e.target.value)} 
+                rows={8}
+                style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', fontFamily: 'Inter, sans-serif', fontSize: '14px', lineHeight: '1.5', backgroundColor: '#fff', color: 'var(--gray-800)', resize: 'vertical' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+              <button 
+                onClick={() => setIsWaModalOpen(false)} 
+                className="btn btn-outline" 
+                style={{ flex: 1, fontFamily: 'Inter, sans-serif', fontWeight: 600 }}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleSendWaMessage} 
+                className="btn btn-primary" 
+                style={{ flex: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', backgroundColor: '#25d366', borderColor: '#25d366', color: '#fff', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}
+              >
+                <span>Enviar para o WhatsApp</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
