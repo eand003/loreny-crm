@@ -55,6 +55,23 @@ create policy "Acesso a visitas por papel do usuário"
 
 
 -- ─────────────────────────────────────────────────
+-- TABELA: re_profiles
+-- ─────────────────────────────────────────────────
+
+-- Gerentes e admins precisam ler os perfis de todos os corretores
+-- para exibir o nome do corretor responsável em cada lead.
+drop policy if exists "Gestores podem ver todos os perfis" on public.re_profiles;
+
+create policy "Gestores podem ver todos os perfis"
+    on public.re_profiles for select
+    using (
+        auth.uid() = id
+        OR
+        (select role from public.re_profiles where id = auth.uid()) in ('manager', 'admin')
+    );
+
+
+-- ─────────────────────────────────────────────────
 -- TABELA: re_whatsapp_templates
 -- ─────────────────────────────────────────────────
 

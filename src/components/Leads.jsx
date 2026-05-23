@@ -10,6 +10,8 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [propertyTypeFilter, setPropertyTypeFilter] = useState('');
+  const [brokerFilter, setBrokerFilter] = useState('');      // filtro por corretor (manager/admin)
+  const [profiles, setProfiles] = useState([]);              // lista de corretores para o filtro
   const [visits, setVisits] = useState([]);
   const [newTimelineNote, setNewTimelineNote] = useState('');
   
@@ -40,11 +42,14 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   });
 
   const realtorName = user?.user_metadata?.full_name || 'Corretora Loreny';
+  const userRole = user?.user_metadata?.role || 'broker';
+  const isManager = userRole === 'manager' || userRole === 'admin';
 
   useEffect(() => {
     fetchLeads();
     fetchWaTemplates();
     fetchVisits();
+    if (isManager) fetchProfiles();
   }, [user]);
 
   useEffect(() => {
@@ -75,9 +80,13 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     if (propertyTypeFilter !== '') {
       result = result.filter(l => matchPropertyType(l.property_type, propertyTypeFilter));
     }
+
+    if (brokerFilter !== '') {
+      result = result.filter(l => l.owner_id === brokerFilter);
+    }
     
     setFilteredLeads(result);
-  }, [search, statusFilter, propertyTypeFilter, leads]);
+  }, [search, statusFilter, propertyTypeFilter, brokerFilter, leads]);
 
   const fetchLeads = async () => {
     try {
@@ -92,6 +101,26 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchProfiles = async () => {
+    try {
+      const { data, error } = await supabase.from('profiles').select('id, full_name, email');
+      if (error) throw error;
+      setProfiles(data || []);
+    } catch (e) {
+      console.error('Erro ao carregar perfis de corretores:', e);
+    }
+  };
+
+  // Retorna o nome do corretor dono do lead
+  const getBrokerName = (owner_id) => {
+    if (!owner_id) return null;
+    const profile = profiles.find(p => p.id === owner_id);
+    if (profile) return profile.full_name || profile.email;
+    // fallback: se é o próprio usuário logado
+    if (owner_id === user?.id) return user?.user_metadata?.full_name || 'Você';
+    return null;
   };
 
   const fetchVisits = async () => {
@@ -529,6 +558,36 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+
+        {/* FILTRO POR CORRETOR — visível apenas para gerente e admin */}
+        {isManager && profiles.length > 0 && (
+          <div className="flex align-center gap-2" style={{ overflowX: 'auto', paddingBottom: '6px' }}>
+            <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+              <Filter size={14} /> Corretor:
+            </span>
+            <button
+              className={`badge ${brokerFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
+              onClick={() => setBrokerFilter('')}
+              style={{ border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
+            >
+              Todos ({leads.length})
+            </button>
+            {profiles.map(p => {
+              const count = leads.filter(l => l.owner_id === p.id).length;
+              if (count === 0) return null;
+              return (
+                <button
+                  key={p.id}
+                  className={`badge ${brokerFilter === p.id ? 'badge-new' : 'badge-no_fit'}`}
+                  onClick={() => setBrokerFilter(brokerFilter === p.id ? '' : p.id)}
+                  style={{ border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  👤 {p.full_name || p.email} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0,0,0,0.08)', padding: '1px 5px', borderRadius: '8px', marginLeft: '4px' }}>{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
         
         <div className="flex align-center gap-2" style={{ overflowX: 'auto', paddingBottom: '6px' }}>
           <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
@@ -592,7 +651,9 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
         </div>
       ) : (
         <div className="mobile-card-list">
-          {filteredLeads.map((ld) => (
+          {filteredLeads.map((ld) => {
+            const brokerName = isManager ? getBrokerName(ld.owner_id) : null;
+            return (
             <div key={ld.id} className="mobile-card">
               <div className="mobile-card-header">
                 <div>
@@ -602,6 +663,25 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                     <span>•</span>
                     <span>📍 {ld.region}</span>
                   </div>
+                  {/* Badge do corretor — visível apenas para gerente/admin */}
+                  {brokerName && (
+                    <div style={{ marginTop: '4px' }}>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: '#7c3aed',
+                        backgroundColor: 'rgba(124, 58, 237, 0.08)',
+                        border: '1px solid rgba(124, 58, 237, 0.18)',
+                        borderRadius: '5px',
+                        padding: '2px 8px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        👤 {brokerName}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <span className={`badge badge-${ld.status}`}>
                   {getLeadStatusLabel(ld.status)}
@@ -683,7 +763,8 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
