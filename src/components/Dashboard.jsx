@@ -21,6 +21,7 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
   const [compiledWaMessage, setCompiledWaMessage] = useState('');
   const [activeWaVisit, setActiveWaVisit] = useState(null);
   const [isWaModalOpen, setIsWaModalOpen] = useState(false);
+  const [upcomingFollowUps, setUpcomingFollowUps] = useState([]);
 
   const realtorName = user?.user_metadata?.full_name || 'Corretor/a';
 
@@ -86,6 +87,14 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
         });
 
       setUpcomingVisits(sortedVisits);
+
+      // Follow-up tasks (leads with next_action_date scheduled)
+      const followUps = activeLeads
+        .filter(l => l.next_action_date && l.status !== 'won' && l.status !== 'lost')
+        .sort((a, b) => new Date(a.next_action_date) - new Date(b.next_action_date))
+        .slice(0, 5);
+        
+      setUpcomingFollowUps(followUps);
 
       // Latest leads created (timeline)
       const latestLeads = [...activeLeads]
@@ -153,6 +162,29 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
     
     window.open(waUrl, '_blank');
     setIsWaModalOpen(false);
+  };
+
+  const handleOpenWaModalForLead = (lead) => {
+    setActiveWaVisit({
+      lead: lead,
+      leadName: lead.name,
+      leadPhone: lead.phone,
+      property_details: `${lead.property_type} em ${lead.region}`,
+      visit_datetime: lead.next_action_date
+    });
+    
+    let defaultTemplate = null;
+    if (waTemplates.length > 0) {
+      defaultTemplate = waTemplates.find(t => t.title.toLowerCase().includes('acompanhamento') || t.description.toLowerCase().includes('follow')) || waTemplates[0];
+    }
+    setSelectedWaTemplate(defaultTemplate);
+
+    const compiled = defaultTemplate
+      ? compileWhatsAppTemplate(defaultTemplate.text_content, lead, realtorName)
+      : `Olá, ${lead.name}! Tudo bem? Sou o(a) ${realtorName}, seu corretor da Loreny Imóveis. Passando para saber se teve a oportunidade de avaliar as opções de imóveis?`;
+
+    setCompiledWaMessage(compiled);
+    setIsWaModalOpen(true);
   };
 
   return (
@@ -320,6 +352,87 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+
+        {/* CLIENT FOLLOW-UP TASKS */}
+        <div className="card">
+          <div className="flex align-center justify-between" style={{ marginBottom: '16px' }}>
+            <h3 className="flex align-center gap-2" style={{ fontSize: '17px', fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+              <Users size={18} style={{ color: 'var(--primary)' }} />
+              Tarefas de Follow-up (Retorno de Clientes)
+            </h3>
+            <button className="tab-btn" onClick={() => setCurrentTab('leads')} style={{ padding: 0, fontSize: '13px', fontWeight: 600 }}>
+              Ver todos contatos
+            </button>
+          </div>
+
+          {upcomingFollowUps.length === 0 ? (
+            <p style={{ color: 'var(--gray-500)', fontSize: '14px', textAlign: 'center', padding: '16px' }}>
+              Nenhum retorno de cliente pendente no momento.
+            </p>
+          ) : (
+            <div className="mobile-card-list">
+              {upcomingFollowUps.map((ld) => {
+                const isTodayOrOverdue = new Date(ld.next_action_date) <= new Date(new Date().setHours(23, 59, 59, 999));
+                return (
+                  <div 
+                    key={ld.id} 
+                    className="mobile-card" 
+                    style={{ 
+                      borderLeft: isTodayOrOverdue ? '4px solid #f59e0b' : '4px solid var(--border-color)',
+                      backgroundColor: isTodayOrOverdue ? 'rgba(245, 158, 11, 0.02)' : 'var(--card-bg)'
+                    }}
+                  >
+                    <div className="flex justify-between align-center">
+                      <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--gray-900)' }}>
+                        {ld.name}
+                      </span>
+                      <span style={{ 
+                        fontSize: '11px', 
+                        color: isTodayOrOverdue ? '#f59e0b' : 'var(--gray-500)', 
+                        fontWeight: 700,
+                        backgroundColor: isTodayOrOverdue ? 'rgba(245, 158, 11, 0.1)' : 'rgba(0,0,0,0.03)',
+                        padding: '2px 8px',
+                        borderRadius: '10px'
+                      }}>
+                        Retorno: {formatDate(ld.next_action_date)} {isTodayOrOverdue ? '(Urgente)' : ''}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--gray-700)', marginTop: '6px' }}>
+                      <strong style={{ color: 'var(--gray-500)' }}>Ação:</strong> {ld.next_action || 'Entrar em contato'}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--gray-600)', marginTop: '4px' }}>
+                      Interesse: {ld.property_type} em {ld.region}
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '8px' }}>
+                      {ld.phone && (
+                        <button 
+                          onClick={() => handleOpenWaModalForLead(ld)}
+                          className="flex align-center gap-1"
+                          style={{ 
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: '#25d366', 
+                            fontWeight: 700, 
+                            fontSize: '12px', 
+                            padding: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <Phone size={12} />
+                          Contatar Cliente
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
