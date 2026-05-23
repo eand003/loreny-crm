@@ -104,19 +104,44 @@ export const compileWhatsAppTemplate = (templateText, lead, realtorName = '', vi
   return compiled;
 };
 
+/**
+ * Verifica se o tipo de imóvel do lead corresponde ao filtro selecionado,
+ * com agrupamento inteligente de categorias legadas ou específicas.
+ */
+export const matchPropertyType = (leadType, filterType) => {
+  if (!leadType) return false;
+  if (!filterType) return true; // Se filtro for vazio, corresponde a tudo
+  
+  const lead = leadType.toLowerCase().trim();
+  const filter = filterType.toLowerCase().trim();
+  
+  if (filter === 'casa') {
+    return lead.includes('casa') || lead.includes('sobrado');
+  }
+  if (filter === 'terreno / lote' || filter === 'lote' || filter === 'terreno') {
+    return lead.includes('terreno') || lead.includes('lote');
+  }
+  if (filter === 'apartamento' || filter === 'apto' || filter === 'apt') {
+    return lead.includes('apartamento') || lead.includes('apto') || lead.includes('apt') || lead.includes('cobertura');
+  }
+  if (filter === 'comercial') {
+    return lead.includes('comercial') || lead.includes('sala') || lead.includes('galpão') || lead.includes('galpao');
+  }
+  if (filter === 'chácara / sítio' || filter === 'chacara' || filter === 'sitio') {
+    return lead.includes('chácara') || lead.includes('sítio') || lead.includes('chacara') || lead.includes('sitio') || lead.includes('fazenda');
+  }
+  
+  return lead === filter || lead.includes(filter) || filter.includes(lead);
+};
+
 // CRM Global Select Options
 export const OPTIONS = {
   PROPERTY_TYPES: [
     'Apartamento',
-    'Casa Comercial',
-    'Casa de Rua',
-    'Casa em Condomínio',
-    'Chácara / Sítio',
-    'Cobertura',
-    'Galpão Comercial',
-    'Sala Comercial',
-    'Terreno em Condomínio',
-    'Terreno de Rua'
+    'Casa',
+    'Terreno / Lote',
+    'Comercial',
+    'Chácara / Sítio'
   ],
   
   STAGES: [

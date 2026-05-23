@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Target, Search, Filter, Phone, Calendar, Plus, Edit2, CheckCircle2, AlertCircle, Trash2, Send, MessageSquare, Upload } from 'lucide-react';
 import { supabase } from '../config/supabase';
-import { getLeadStatusLabel, formatDate, formatCurrency, compileWhatsAppTemplate, OPTIONS } from '../utils/helpers';
+import { getLeadStatusLabel, formatDate, formatCurrency, compileWhatsAppTemplate, OPTIONS, matchPropertyType } from '../utils/helpers';
 import Modal from './UI/Modal';
 
 const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, setPreselectedLeadForVisit }) => {
@@ -9,6 +9,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   const [filteredLeads, setFilteredLeads] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState('');
   
   // WhatsApp Template Modal states
   const [isWaModalOpen, setIsWaModalOpen] = useState(false);
@@ -67,9 +68,13 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     if (statusFilter !== '') {
       result = result.filter(l => l.status === statusFilter);
     }
+
+    if (propertyTypeFilter !== '') {
+      result = result.filter(l => matchPropertyType(l.property_type, propertyTypeFilter));
+    }
     
     setFilteredLeads(result);
-  }, [search, statusFilter, leads]);
+  }, [search, statusFilter, propertyTypeFilter, leads]);
 
   const fetchLeads = async () => {
     try {
@@ -366,9 +371,11 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
           if (rawType.toLowerCase().includes('casa') || rawType.toLowerCase().includes('sobrado')) {
             propertyType = 'Casa';
           } else if (rawType.toLowerCase().includes('lote') || rawType.toLowerCase().includes('terreno')) {
-            propertyType = 'Terreno';
+            propertyType = 'Terreno / Lote';
           } else if (rawType.toLowerCase().includes('comercial') || rawType.toLowerCase().includes('sala')) {
             propertyType = 'Comercial';
+          } else if (rawType.toLowerCase().includes('chácara') || rawType.toLowerCase().includes('sítio') || rawType.toLowerCase().includes('sitio')) {
+            propertyType = 'Chácara / Sítio';
           }
         }
 
@@ -502,6 +509,32 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                 style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
               >
                 {stage.label} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex align-center gap-2" style={{ overflowX: 'auto', paddingBottom: '6px', marginTop: '4px' }}>
+          <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+            <Filter size={14} /> Tipo de Imóvel:
+          </span>
+          <button 
+            className={`badge ${propertyTypeFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
+            onClick={() => setPropertyTypeFilter('')}
+            style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+          >
+            Todos <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{leads.length}</span>
+          </button>
+          {OPTIONS.PROPERTY_TYPES.map(type => {
+            const count = leads.filter(l => matchPropertyType(l.property_type, type)).length;
+            return (
+              <button 
+                key={type}
+                className={`badge ${propertyTypeFilter === type ? 'badge-new' : 'badge-no_fit'}`}
+                onClick={() => setPropertyTypeFilter(type)}
+                style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+              >
+                {type} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{count}</span>
               </button>
             );
           })}
