@@ -11,6 +11,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   const [statusFilter, setStatusFilter] = useState('');
   const [propertyTypeFilter, setPropertyTypeFilter] = useState('');
   const [brokerFilter, setBrokerFilter] = useState('');      // filtro por corretor (manager/admin)
+  const [selectedPropertyFilter, setSelectedPropertyFilter] = useState('');
   const [profiles, setProfiles] = useState([]);              // lista de corretores para o filtro
   const [visits, setVisits] = useState([]);
   const [newTimelineNote, setNewTimelineNote] = useState('');
@@ -113,9 +114,22 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     if (brokerFilter !== '') {
       result = result.filter(l => l.owner_id === brokerFilter);
     }
+
+    if (selectedPropertyFilter !== '') {
+      const prop = properties.find(p => p.id === selectedPropertyFilter);
+      if (prop) {
+        const qCode = prop.code.toLowerCase();
+        const qTitle = prop.title.toLowerCase();
+        result = result.filter(l => {
+          const notes = (l.notes || '').toLowerCase();
+          const region = (l.region || '').toLowerCase();
+          return notes.includes(qCode) || notes.includes(qTitle) || region.includes(qCode) || region.includes(qTitle);
+        });
+      }
+    }
     
     setFilteredLeads(result);
-  }, [search, statusFilter, propertyTypeFilter, brokerFilter, leads]);
+  }, [search, statusFilter, propertyTypeFilter, brokerFilter, selectedPropertyFilter, leads, properties]);
 
   const fetchLeads = async () => {
     try {
@@ -750,6 +764,42 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
             );
           })}
         </div>
+
+        {properties.length > 0 && (
+          <div className="flex align-center gap-2 no-scrollbar" style={{ overflowX: 'auto', paddingBottom: '6px', marginTop: '4px' }}>
+            <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+              <Filter size={14} /> Empreendimento:
+            </span>
+            <button 
+              className={`badge ${selectedPropertyFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
+              onClick={() => setSelectedPropertyFilter('')}
+              style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+            >
+              Todos <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{leads.length}</span>
+            </button>
+            {properties.map(p => {
+              const count = leads.filter(l => {
+                const qCode = p.code.toLowerCase();
+                const qTitle = p.title.toLowerCase();
+                const notes = (l.notes || '').toLowerCase();
+                const region = (l.region || '').toLowerCase();
+                return notes.includes(qCode) || notes.includes(qTitle) || region.includes(qCode) || region.includes(qTitle);
+              }).length;
+              
+              return (
+                <button 
+                  key={p.id}
+                  className={`badge ${selectedPropertyFilter === p.id ? 'badge-new' : 'badge-no_fit'}`}
+                  onClick={() => setSelectedPropertyFilter(selectedPropertyFilter === p.id ? '' : p.id)}
+                  style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+                >
+                  🏢 {p.code} - {p.title.length > 15 ? p.title.substring(0, 15) + '...' : p.title} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
       </div>
 
       {/* LEADS LIST CARDS */}
@@ -958,12 +1008,20 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                       if (!propId) return;
                       const selected = properties.find(p => p.id === propId);
                       if (selected) {
-                        setFormData(prev => ({
-                          ...prev,
-                          region: selected.region,
-                          property_type: selected.property_type,
-                          budget: selected.price || prev.budget
-                        }));
+                        setFormData(prev => {
+                          const tag = `[Imóvel: ${selected.code}]`;
+                          let updatedNotes = prev.notes || '';
+                          if (!updatedNotes.includes(tag)) {
+                            updatedNotes = updatedNotes ? `${tag}\n${updatedNotes}` : tag;
+                          }
+                          return {
+                            ...prev,
+                            region: selected.region,
+                            property_type: selected.property_type,
+                            budget: selected.price || prev.budget,
+                            notes: updatedNotes
+                          };
+                        });
                       }
                       e.target.value = ''; // reset dropdown
                     }}
