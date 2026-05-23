@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Plus, Edit2, Trash2, Check, AlertTriangle, Users, MapPin, Phone } from 'lucide-react';
+import { Calendar, Clock, Plus, Edit2, Trash2, Check, AlertTriangle, Users, MapPin, Phone, Filter } from 'lucide-react';
 import { supabase } from '../config/supabase';
 import { formatDate, formatDateTime, getGoogleCalendarUrl, compileWhatsAppTemplate } from '../utils/helpers';
 import Modal from './UI/Modal';
@@ -19,7 +19,14 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
   const [compiledWaMessage, setCompiledWaMessage] = useState('');
   const [activeWaLead, setActiveWaLead] = useState(null);
   const [isWaModalOpen, setIsWaModalOpen] = useState(false);
+
+  // Filtro de corretores para gestores
+  const [brokerFilter, setBrokerFilter] = useState('');
+  const [profiles, setProfiles] = useState([]);
+
   const realtorName = user?.user_metadata?.full_name || 'Corretor/a';
+  const userRole = user?.user_metadata?.role || 'broker';
+  const isManager = userRole === 'manager' || userRole === 'admin';
 
   // Form Fields
   const [formData, setFormData] = useState({
@@ -34,7 +41,18 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
     fetchVisits();
     fetchLeads();
     fetchWaTemplates();
+    if (isManager) fetchProfiles();
   }, [user]);
+
+  const fetchProfiles = async () => {
+    try {
+      const { data, error } = await supabase.from('profiles').select('id, full_name, email');
+      if (error) throw error;
+      setProfiles(data || []);
+    } catch (e) {
+      console.error('Erro ao carregar perfis de corretores:', e);
+    }
+  };
 
   // Handle pre-selected triggers from other tabs
   useEffect(() => {
@@ -307,6 +325,10 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
     };
   });
 
+  const filteredVisits = mappedVisits.filter(v => brokerFilter === '' || v.owner_id === brokerFilter);
+  const activeFollowUps = leads.filter(l => l.next_action_date && l.status !== 'won' && l.status !== 'lost');
+  const filteredFollowUps = activeFollowUps.filter(l => brokerFilter === '' || l.owner_id === brokerFilter);
+
   return (
     <div>
       <div className="flex justify-between align-center" style={{ marginBottom: '20px' }}>
@@ -320,6 +342,39 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
           </button>
         )}
       </div>
+
+      {/* FILTRO POR CORRETOR — visível apenas para gerente e admin */}
+      {isManager && profiles.length > 0 && (
+        <div className="flex align-center gap-2" style={{ overflowX: 'auto', paddingBottom: '10px', marginBottom: '16px', borderBottom: '1px dashed var(--gray-200)' }}>
+          <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+            <Filter size={14} /> Corretor:
+          </span>
+          <button
+            className={`badge ${brokerFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
+            onClick={() => setBrokerFilter('')}
+            style={{ border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
+          >
+            Todos ({activeSubTab === 'visits' ? mappedVisits.length : activeFollowUps.length})
+          </button>
+          {profiles.map(p => {
+            const count = activeSubTab === 'visits' 
+              ? mappedVisits.filter(v => v.owner_id === p.id).length
+              : activeFollowUps.filter(l => l.owner_id === p.id).length;
+            
+            if (count === 0) return null;
+            return (
+              <button
+                key={p.id}
+                className={`badge ${brokerFilter === p.id ? 'badge-new' : 'badge-no_fit'}`}
+                onClick={() => setBrokerFilter(brokerFilter === p.id ? '' : p.id)}
+                style={{ border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
+              >
+                👤 {p.full_name || p.email} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0,0,0,0.08)', padding: '1px 5px', borderRadius: '8px', marginLeft: '4px' }}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* SUB-TABS SELECTOR */}
       <div className="flex gap-2" style={{ marginBottom: '20px', borderBottom: '1px solid var(--gray-200)', paddingBottom: '10px' }}>
@@ -338,7 +393,7 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
             transition: 'all 0.2s'
           }}
         >
-          📆 Visitas Imobiliárias ({visits.length})
+          📆 Visitas Imobiliárias ({filteredVisits.length})
         </button>
         <button 
           className={`tab-btn`}
@@ -355,7 +410,7 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
             transition: 'all 0.2s'
           }}
         >
-          📞 Contatos & Follow-up ({leads.filter(l => l.next_action_date && l.status !== 'won' && l.status !== 'lost').length})
+          📞 Contatos & Follow-up ({filteredFollowUps.length})
         </button>
       </div>
 
@@ -364,13 +419,13 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
         <>
           {loading && visits.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-400)' }}>Carregando agenda...</div>
-          ) : mappedVisits.length === 0 ? (
+          ) : filteredVisits.length === 0 ? (
             <div className="card" style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-500)' }}>
-              Nenhuma visita agendada. Clique em "Agendar Visita" para iniciar sua rotina!
+              Nenhuma visita encontrada para o filtro selecionado.
             </div>
           ) : (
             <div className="mobile-card-list">
-              {mappedVisits.map((v) => (
+              {filteredVisits.map((v) => (
                 <div key={v.id} className="mobile-card" style={{ borderLeft: `4px solid ${v.status === 'Realizada' ? 'var(--primary)' : v.status === 'Cancelada' ? 'var(--status-lost)' : '#f59e0b'}` }}>
                   <div className="mobile-card-header">
                     <div>
@@ -483,14 +538,13 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
       {/* FOLLOW-UPS LIST */}
       {activeSubTab === 'followups' && (
         <div>
-          {leads.filter(l => l.next_action_date && l.status !== 'won' && l.status !== 'lost').length === 0 ? (
+          {filteredFollowUps.length === 0 ? (
             <div className="card" style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-500)' }}>
-              Nenhum retorno de cliente agendado. Use o botão "Novo Retorno" no Dashboard para agendar!
+              Nenhum retorno encontrado para o filtro selecionado.
             </div>
           ) : (
             <div className="mobile-card-list">
-              {leads
-                .filter(l => l.next_action_date && l.status !== 'won' && l.status !== 'lost')
+              {filteredFollowUps
                 .sort((a, b) => new Date(a.next_action_date) - new Date(b.next_action_date))
                 .map((ld) => {
                   const isTodayOrOverdue = new Date(ld.next_action_date) <= new Date(new Date().setHours(23, 59, 59, 999));
