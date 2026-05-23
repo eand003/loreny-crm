@@ -14,6 +14,7 @@ function App() {
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [activeQuickAction, setActiveQuickAction] = useState(null);
   const [preselectedLeadForVisit, setPreselectedLeadForVisit] = useState(null);
+  const [visitsSubTab, setVisitsSubTab] = useState('visits');
 
   useEffect(() => {
     // Check initial session
@@ -67,6 +68,7 @@ function App() {
             user={user} 
             onQuickAction={handleQuickAction} 
             setCurrentTab={setCurrentTab} 
+            setVisitsSubTab={setVisitsSubTab}
           />
         );
       case 'leads':
@@ -85,6 +87,8 @@ function App() {
             user={user} 
             preselectedLeadForVisit={preselectedLeadForVisit} 
             onClearPreselectedLead={() => setPreselectedLeadForVisit(null)} 
+            activeSubTab={visitsSubTab}
+            setActiveSubTab={setVisitsSubTab}
           />
         );
       case 'whatsapp_templates':

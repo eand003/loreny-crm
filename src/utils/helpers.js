@@ -162,6 +162,43 @@ export const getGoogleCalendarUrl = (visit, leadName) => {
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
 };
 
+/**
+ * Decompõe o texto de anotações (notes) em um array de interações cronológicas
+ */
+export const parseNotesToHistory = (notesText) => {
+  if (!notesText) return [];
+  const lines = notesText.split('\n');
+  const history = [];
+  let currentUnstructured = '';
+  
+  lines.forEach(line => {
+    // Casamento de padrão: [DD/MM/AAAA hh:mm] - Mensagem
+    const dateMatch = line.match(/^\[(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2})\]\s*-\s*(.*)$/);
+    if (dateMatch) {
+      if (currentUnstructured.trim()) {
+        history.push({ date: 'Anotações', time: '', content: currentUnstructured.trim() });
+        currentUnstructured = '';
+      }
+      history.push({
+        date: dateMatch[1],
+        time: dateMatch[2],
+        content: dateMatch[3],
+        isInteraction: true
+      });
+    } else {
+      if (line.trim() !== '') {
+        currentUnstructured += (currentUnstructured ? '\n' : '') + line;
+      }
+    }
+  });
+  
+  if (currentUnstructured.trim()) {
+    history.push({ date: 'Anotações', time: '', content: currentUnstructured.trim() });
+  }
+  
+  return history;
+};
+
 // CRM Global Select Options
 export const OPTIONS = {
   PROPERTY_TYPES: [

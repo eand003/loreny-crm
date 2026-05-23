@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Users, Calendar, DollarSign, Plus, MapPin, Phone, ChevronRight } from 'lucide-react';
+import { Home, Users, Calendar, DollarSign, Plus, MapPin, Phone, ChevronRight, Clock } from 'lucide-react';
 import { supabase } from '../config/supabase';
 import { formatCurrency, formatDate, formatDateTime, compileWhatsAppTemplate, getGoogleCalendarUrl } from '../utils/helpers';
 import Modal from './UI/Modal';
 
-const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
+const Dashboard = ({ user, onQuickAction, setCurrentTab, setVisitsSubTab }) => {
   const [stats, setStats] = useState({
     leads: 0,
     visits: 0,
     vgv: 0,
-    commission: 0
+    commission: 0,
+    followups: 0
   });
   const [upcomingVisits, setUpcomingVisits] = useState([]);
   const [recentLeads, setRecentLeads] = useState([]);
@@ -22,6 +23,13 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
   const [activeWaVisit, setActiveWaVisit] = useState(null);
   const [isWaModalOpen, setIsWaModalOpen] = useState(false);
   const [upcomingFollowUps, setUpcomingFollowUps] = useState([]);
+  const [allLeads, setAllLeads] = useState([]);
+  const [isNewFollowUpModalOpen, setIsNewFollowUpModalOpen] = useState(false);
+  const [newFollowUpLeadId, setNewFollowUpLeadId] = useState('');
+  const [newFollowUpLeadSearch, setNewFollowUpLeadSearch] = useState('');
+  const [isNewFollowUpDropdownOpen, setIsNewFollowUpDropdownOpen] = useState(false);
+  const [newFollowUpDate, setNewFollowUpDate] = useState('');
+  const [newFollowUpAction, setNewFollowUpAction] = useState('Entrar em contato');
 
   const realtorName = user?.user_metadata?.full_name || 'Corretor/a';
 
@@ -43,6 +51,7 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
       if (leadsErr) throw leadsErr;
 
       const activeLeads = leadsData || [];
+      setAllLeads(activeLeads);
       
       // 2. Fetch visits
       const { data: visitsData, error: visitsErr } = await supabase
@@ -64,11 +73,15 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
       // Commission estimated = 5% of active VGV
       const estimatedCommission = vgvAtivo * 0.05;
 
+      // Calculate Follow-up tasks count
+      const totalFollowUps = activeLeads.filter(l => l.next_action_date && l.status !== 'won' && l.status !== 'lost').length;
+
       setStats({
         leads: totalActiveLeadsCount,
         visits: activeVisits.filter(v => v.status === 'Agendada').length,
         vgv: vgvAtivo,
-        commission: estimatedCommission
+        commission: estimatedCommission,
+        followups: totalFollowUps
       });
 
       // Upcoming visits matching lead names
@@ -187,6 +200,94 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
     setIsWaModalOpen(true);
   };
 
+  const handleCompleteFollowUp = async (lead) => {
+    const confirmComplete = window.confirm(`Deseja marcar a tarefa de retorno para "${lead.name}" como concluída?`);
+    if (!confirmComplete) return;
+    
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('leads')
+        .update({ 
+          next_action: null, 
+          next_action_date: null 
+        })
+        .eq('id', lead.id);
+        
+      if (error) throw error;
+      fetchDashboardData();
+    } catch (err) {
+      alert('Erro ao concluir follow-up: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRescheduleFollowUp = async (lead) => {
+    const newDate = window.prompt("Nova Data de Retorno (AAAA-MM-DD):", lead.next_action_date || "");
+    if (newDate === null) return; // cancelado
+    
+    const newAction = window.prompt("O que fazer no retorno?", lead.next_action || "Entrar em contato");
+    if (newAction === null) return; // cancelado
+    
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('leads')
+        .update({ 
+          next_action: newAction, 
+          next_action_date: newDate ? newDate : null 
+        })
+        .eq('id', lead.id);
+        
+      if (error) throw error;
+      fetchDashboardData();
+    } catch (err) {
+      alert('Erro ao remarcar follow-up: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenNewFollowUpModal = () => {
+    setNewFollowUpLeadId('');
+    setNewFollowUpLeadSearch('');
+    setIsNewFollowUpDropdownOpen(false);
+    setNewFollowUpDate('');
+    setNewFollowUpAction('Entrar em contato');
+    setIsNewFollowUpModalOpen(true);
+  };
+
+  const handleCreateNewFollowUp = async (e) => {
+    e.preventDefault();
+    
+    if (!newFollowUpLeadId || !newFollowUpDate || !newFollowUpAction.trim()) {
+      alert('Por favor, preencha todos os campos obrigatórios: Cliente, Data e O que fazer.');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase
+        .from('leads')
+        .update({
+          next_action: newFollowUpAction.trim(),
+          next_action_date: newFollowUpDate
+        })
+        .eq('id', newFollowUpLeadId);
+        
+      if (error) throw error;
+      
+      setIsNewFollowUpModalOpen(false);
+      fetchDashboardData();
+    } catch (err) {
+      alert('Erro ao agendar retorno: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
       {/* Broker Header greeting */}
@@ -204,11 +305,11 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
         <h2 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--gray-400)', marginBottom: '12px', fontWeight: 700 }}>
           Ações Rápidas
         </h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
           <button 
             className="btn btn-primary" 
             onClick={() => onQuickAction('add-lead')}
-            style={{ padding: '16px', borderRadius: 'var(--radius-lg)', justifyContent: 'center', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}
+            style={{ padding: '16px 8px', borderRadius: 'var(--radius-lg)', justifyContent: 'center', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '13px' }}
           >
             <Plus size={18} />
             <span>Novo Lead</span>
@@ -216,10 +317,18 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
           <button 
             className="btn btn-primary" 
             onClick={() => onQuickAction('add-visit')}
-            style={{ padding: '16px', borderRadius: 'var(--radius-lg)', justifyContent: 'center', backgroundColor: 'var(--primary-dark)', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}
+            style={{ padding: '16px 8px', borderRadius: 'var(--radius-lg)', justifyContent: 'center', backgroundColor: 'var(--primary-dark)', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '13px' }}
           >
             <Calendar size={18} />
             <span>Nova Visita</span>
+          </button>
+          <button 
+            className="btn btn-primary" 
+            onClick={handleOpenNewFollowUpModal}
+            style={{ padding: '16px 8px', borderRadius: 'var(--radius-lg)', justifyContent: 'center', backgroundColor: '#d9a72b', border: '1px solid rgba(255, 255, 255, 0.1)', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '13px' }}
+          >
+            <Clock size={18} />
+            <span>Novo Retorno</span>
           </button>
         </div>
       </div>
@@ -267,6 +376,16 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
               {loading ? '...' : formatCurrency(stats.commission)}
             </div>
             <div className="stat-label">Comissão Estimada (5%)</div>
+          </div>
+        </div>
+
+        <div className="stat-card" onClick={() => { setVisitsSubTab('followups'); setCurrentTab('visits'); }} style={{ cursor: 'pointer', border: '1px solid rgba(217, 167, 43, 0.2)' }}>
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(217, 167, 43, 0.1)', color: '#d9a72b' }}>
+            <Clock size={22} />
+          </div>
+          <div>
+            <div className="stat-value" style={{ color: '#d9a72b' }}>{loading ? '...' : stats.followups}</div>
+            <div className="stat-label">Follow-ups Agendados</div>
           </div>
         </div>
       </div>
@@ -407,7 +526,24 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
                       Interesse: {ld.property_type} em {ld.region}
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '10px' }}>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button 
+                          onClick={() => handleCompleteFollowUp(ld)}
+                          className="action-btn"
+                          style={{ fontSize: '11px', color: 'var(--status-won)', borderColor: 'rgba(16, 185, 129, 0.2)', padding: '2px 8px', height: '28px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                        >
+                          Concluir
+                        </button>
+                        <button 
+                          onClick={() => handleRescheduleFollowUp(ld)}
+                          className="action-btn"
+                          style={{ fontSize: '11px', color: 'var(--primary)', borderColor: 'rgba(197, 155, 39, 0.2)', padding: '2px 8px', height: '28px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                        >
+                          Remarcar
+                        </button>
+                      </div>
+
                       {ld.phone && (
                         <button 
                           onClick={() => handleOpenWaModalForLead(ld)}
@@ -542,6 +678,171 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* AGENDAR RETORNO (NEW FOLLOW-UP) QUICK ACTION MODAL */}
+      <Modal 
+        isOpen={isNewFollowUpModalOpen} 
+        onClose={() => setIsNewFollowUpModalOpen(false)} 
+        title="Agendar Retorno de Cliente (Follow-up) 📞"
+      >
+        <form onSubmit={handleCreateNewFollowUp}>
+          <div className="form-group" style={{ position: 'relative' }}>
+            <label>Selecione o Cliente / Lead *</label>
+            {allLeads.length === 0 ? (
+              <div style={{ fontSize: '13px', color: 'var(--status-lost)' }}>
+                Nenhum cliente cadastrado no momento. Cadastre um lead primeiro!
+              </div>
+            ) : (
+              <div>
+                {/* Click outside overlay backdrop */}
+                {isNewFollowUpDropdownOpen && (
+                  <div 
+                    onClick={() => setIsNewFollowUpDropdownOpen(false)}
+                    style={{
+                      position: 'fixed',
+                      top: 0,
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      zIndex: 999,
+                      background: 'transparent'
+                    }}
+                  />
+                )}
+                
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', zIndex: 1000 }}>
+                  <input 
+                    type="text" 
+                    placeholder="🔍 Digite o nome do cliente..."
+                    value={newFollowUpLeadSearch}
+                    onChange={(e) => {
+                      setNewFollowUpLeadSearch(e.target.value);
+                      setIsNewFollowUpDropdownOpen(true);
+                      setNewFollowUpLeadId('');
+                    }}
+                    onFocus={() => setIsNewFollowUpDropdownOpen(true)}
+                    style={{ width: '100%', paddingRight: '30px', backgroundColor: '#fff', color: 'var(--gray-800)', border: '1px solid var(--border-color)' }}
+                    required={!newFollowUpLeadId}
+                  />
+                  {newFollowUpLeadSearch && (
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setNewFollowUpLeadSearch('');
+                        setNewFollowUpLeadId('');
+                        setIsNewFollowUpDropdownOpen(true);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        right: '10px',
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--gray-400)',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        padding: '4px'
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+                
+                {isNewFollowUpDropdownOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-sm)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    zIndex: 1000,
+                    marginTop: '4px'
+                  }}>
+                    {allLeads
+                      .filter(lead => 
+                        lead.name.toLowerCase().includes(newFollowUpLeadSearch.toLowerCase()) || 
+                        (lead.region && lead.region.toLowerCase().includes(newFollowUpLeadSearch.toLowerCase())) ||
+                        (lead.property_type && lead.property_type.toLowerCase().includes(newFollowUpLeadSearch.toLowerCase()))
+                      )
+                      .slice(0, 100)
+                      .map(lead => (
+                        <div 
+                          key={lead.id}
+                          onClick={() => {
+                            setNewFollowUpLeadSearch(lead.name);
+                            setNewFollowUpLeadId(lead.id);
+                            setIsNewFollowUpDropdownOpen(false);
+                          }}
+                          style={{
+                            padding: '10px 12px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            color: 'var(--gray-800)',
+                            borderBottom: '1px solid rgba(0,0,0,0.02)',
+                            transition: 'background 0.2s',
+                            backgroundColor: newFollowUpLeadId === lead.id ? 'var(--primary-light)' : 'transparent',
+                            fontWeight: newFollowUpLeadId === lead.id ? '600' : 'normal',
+                            textAlign: 'left'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--gray-100)'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = newFollowUpLeadId === lead.id ? 'var(--primary-light)' : 'transparent'}
+                        >
+                          <div style={{ fontWeight: 600, color: 'var(--gray-900)' }}>{lead.name}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--gray-500)', marginTop: '2px' }}>
+                            🏠 {lead.property_type} • 📍 {lead.region}
+                          </div>
+                        </div>
+                      ))}
+                    {allLeads.filter(lead => 
+                      lead.name.toLowerCase().includes(newFollowUpLeadSearch.toLowerCase()) || 
+                      (lead.region && lead.region.toLowerCase().includes(newFollowUpLeadSearch.toLowerCase())) ||
+                      (lead.property_type && lead.property_type.toLowerCase().includes(newFollowUpLeadSearch.toLowerCase()))
+                    ).length === 0 && (
+                      <div style={{ padding: '12px', fontSize: '13px', color: 'var(--gray-500)', textAlign: 'center' }}>
+                        Nenhum cliente encontrado.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label>Data de Retorno *</label>
+              <input 
+                type="date" 
+                value={newFollowUpDate} 
+                onChange={(e) => setNewFollowUpDate(e.target.value)} 
+                required 
+                style={{ backgroundColor: '#fff', color: 'var(--gray-800)', border: '1px solid var(--border-color)' }}
+              />
+            </div>
+            <div className="form-group">
+              <label>O que fazer no retorno? *</label>
+              <input 
+                type="text" 
+                value={newFollowUpAction} 
+                onChange={(e) => setNewFollowUpAction(e.target.value)} 
+                placeholder="Ex: Entrar em contato para tirar dúvidas"
+                required 
+                style={{ backgroundColor: '#fff', color: 'var(--gray-800)', border: '1px solid var(--border-color)' }}
+              />
+            </div>
+          </div>
+          
+          <button type="submit" disabled={loading} className="btn btn-primary btn-large" style={{ marginTop: '10px' }}>
+            {loading ? 'Agendando...' : 'Confirmar Retorno'}
+          </button>
+        </form>
       </Modal>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Target, Search, Filter, Phone, Calendar, Plus, Edit2, CheckCircle2, AlertCircle, Trash2, Send, MessageSquare, Upload } from 'lucide-react';
 import { supabase } from '../config/supabase';
-import { getLeadStatusLabel, formatDate, formatCurrency, compileWhatsAppTemplate, OPTIONS, matchPropertyType } from '../utils/helpers';
+import { getLeadStatusLabel, formatDate, formatCurrency, compileWhatsAppTemplate, OPTIONS, matchPropertyType, parseNotesToHistory } from '../utils/helpers';
 import Modal from './UI/Modal';
 
 const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, setPreselectedLeadForVisit }) => {
@@ -10,6 +10,8 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [propertyTypeFilter, setPropertyTypeFilter] = useState('');
+  const [visits, setVisits] = useState([]);
+  const [newTimelineNote, setNewTimelineNote] = useState('');
   
   // WhatsApp Template Modal states
   const [isWaModalOpen, setIsWaModalOpen] = useState(false);
@@ -42,6 +44,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   useEffect(() => {
     fetchLeads();
     fetchWaTemplates();
+    fetchVisits();
   }, [user]);
 
   useEffect(() => {
@@ -86,6 +89,45 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
       setLeads(data || []);
     } catch (e) {
       console.error('Erro ao carregar leads:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchVisits = async () => {
+    try {
+      const { data, error } = await supabase.from('visits').select('*').eq('is_deleted', false);
+      if (error) throw error;
+      setVisits(data || []);
+    } catch (e) {
+      console.error('Erro ao buscar visitas no Leads:', e);
+    }
+  };
+
+  const handleAddTimelineNote = async (leadId) => {
+    if (!newTimelineNote.trim()) return;
+    
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('pt-BR');
+    const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const formattedNote = `${formData.notes ? '\n' : ''}[${dateStr} ${timeStr}] - ${newTimelineNote.trim()}`;
+    
+    const updatedNotes = (formData.notes || '') + formattedNote;
+    
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('leads')
+        .update({ notes: updatedNotes })
+        .eq('id', leadId);
+        
+      if (error) throw error;
+      
+      setFormData(prev => ({ ...prev, notes: updatedNotes }));
+      setNewTimelineNote('');
+      fetchLeads();
+    } catch (e) {
+      alert('Erro ao registrar nota histórica: ' + e.message);
     } finally {
       setLoading(false);
     }
@@ -774,6 +816,126 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
               rows={3}
             />
           </div>
+
+          {editingLead && (
+            <div style={{ 
+              border: '1px solid var(--border-color)', 
+              borderRadius: 'var(--radius-md)', 
+              padding: '16px', 
+              backgroundColor: 'rgba(0,0,0,0.01)',
+              marginBottom: '20px',
+              marginTop: '10px'
+            }}>
+              <label style={{ color: 'var(--primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', marginBottom: '12px' }}>
+                📜 Linha do Tempo & Histórico do Cliente
+              </label>
+              
+              {/* Quick Log Note Box */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                <input 
+                  type="text"
+                  placeholder="Registrar nova anotação ou contato com o cliente..."
+                  value={newTimelineNote}
+                  onChange={(e) => setNewTimelineNote(e.target.value)}
+                  style={{ flex: 1, height: '36px', fontSize: '13px', backgroundColor: '#fff', color: 'var(--gray-800)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', padding: '0 8px' }}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => handleAddTimelineNote(editingLead.id)}
+                  className="btn btn-primary"
+                  style={{ height: '36px', padding: '0 12px', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  Registrar Nota
+                </button>
+              </div>
+
+              {/* Combined History Timeline List */}
+              <div style={{ maxHeight: '200px', overflowY: 'auto', paddingRight: '4px' }}>
+                {(() => {
+                  const notesHistory = parseNotesToHistory(formData.notes);
+                  const leadVisits = visits
+                    .filter(v => v.lead_id === editingLead.id)
+                    .map(v => ({
+                      date: formatDate(v.visit_datetime.substring(0, 10)),
+                      time: v.visit_datetime.substring(11, 16) + 'h',
+                      content: `Visita ${v.status}: ${v.property_details}` + (v.notes ? ` ("${v.notes}")` : ''),
+                      isVisit: true,
+                      status: v.status,
+                      created: v.visit_datetime
+                    }));
+                    
+                  const fullTimeline = [
+                    ...notesHistory.map(n => ({
+                      ...n,
+                      sortDate: n.date.includes('/') 
+                        ? new Date(n.date.split('/').reverse().join('-') + 'T' + (n.time || '00:00') + ':00')
+                        : new Date(0)
+                    })),
+                    ...leadVisits.map(v => ({
+                      ...v,
+                      sortDate: new Date(v.created)
+                    }))
+                  ].sort((a, b) => b.sortDate - a.sortDate);
+
+                  if (fullTimeline.length === 0) {
+                    return <div style={{ fontSize: '12px', color: 'var(--gray-500)', textAlign: 'center', padding: '8px' }}>Nenhuma interação registrada ainda.</div>;
+                  }
+
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {fullTimeline.map((item, idx) => {
+                        let icon = '📝';
+                        let borderLeft = '2px solid var(--border-color)';
+                        
+                        if (item.isInteraction) {
+                          icon = '💬';
+                          borderLeft = '2px solid var(--primary)';
+                        } else if (item.isVisit) {
+                          icon = '🏠';
+                          borderLeft = item.status === 'Realizada' 
+                            ? '2px solid var(--status-won)' 
+                            : item.status === 'Cancelada' 
+                              ? '2px solid var(--status-lost)' 
+                              : '2px solid #f59e0b';
+                        }
+                        
+                        return (
+                          <div 
+                            key={idx} 
+                            style={{ 
+                              padding: '8px 12px', 
+                              backgroundColor: '#ffffff', 
+                              borderRadius: 'var(--radius-sm)', 
+                              border: '1px solid var(--border-color)',
+                              borderLeft: borderLeft,
+                              fontSize: '12px',
+                              textAlign: 'left'
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--gray-500)', fontWeight: 600, marginBottom: '2px' }}>
+                              <span>{icon} {item.date} {item.time && `às ${item.time}`}</span>
+                              {item.isVisit && (
+                                <span style={{ 
+                                  fontSize: '10px', 
+                                  padding: '1px 5px', 
+                                  borderRadius: '8px',
+                                  backgroundColor: item.status === 'Realizada' ? 'var(--status-won-bg)' : item.status === 'Cancelada' ? 'var(--status-lost-bg)' : 'rgba(245, 158, 11, 0.1)',
+                                  color: item.status === 'Realizada' ? 'var(--status-won)' : item.status === 'Cancelada' ? 'var(--status-lost)' : '#f59e0b'
+                                }}>
+                                  {item.status}
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ color: 'var(--gray-800)', lineHeight: '1.4', whiteSpace: 'pre-line' }}>{item.content}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
 
           <button type="submit" disabled={loading} className="btn btn-primary btn-large">
             {loading ? 'Salvando...' : editingLead ? 'Salvar Alterações' : 'Criar Lead'}
