@@ -58,10 +58,19 @@ create table if not exists public.re_leads (
 alter table public.re_leads enable row level security;
 
 -- Políticas de RLS para re_leads
+-- Corretores: veem e gerenciam apenas seus próprios leads
 create policy "Corretores podem gerenciar seus próprios leads"
     on public.re_leads for all
-    using (auth.uid() = owner_id)
-    with check (auth.uid() = owner_id);
+    using (
+        auth.uid() = owner_id
+        OR
+        (select role from public.re_profiles where id = auth.uid()) in ('manager', 'admin')
+    )
+    with check (
+        auth.uid() = owner_id
+        OR
+        (select role from public.re_profiles where id = auth.uid()) in ('manager', 'admin')
+    );
 
 
 -- 3. TABELA: re_visits
@@ -83,10 +92,19 @@ create table if not exists public.re_visits (
 alter table public.re_visits enable row level security;
 
 -- Políticas de RLS para re_visits
+-- Corretores: veem e gerenciam apenas suas próprias visitas
 create policy "Corretores podem gerenciar suas próprias visitas"
     on public.re_visits for all
-    using (auth.uid() = owner_id)
-    with check (auth.uid() = owner_id);
+    using (
+        auth.uid() = owner_id
+        OR
+        (select role from public.re_profiles where id = auth.uid()) in ('manager', 'admin')
+    )
+    with check (
+        auth.uid() = owner_id
+        OR
+        (select role from public.re_profiles where id = auth.uid()) in ('manager', 'admin')
+    );
 
 
 -- 4. TABELA: re_whatsapp_templates
@@ -105,10 +123,17 @@ create table if not exists public.re_whatsapp_templates (
 alter table public.re_whatsapp_templates enable row level security;
 
 -- Políticas de RLS para re_whatsapp_templates
+-- Corretores: gerenciam apenas seus templates; managers e admins podem ler todos
 create policy "Corretores podem gerenciar seus próprios templates"
     on public.re_whatsapp_templates for all
     using (auth.uid() = owner_id)
     with check (auth.uid() = owner_id);
+
+create policy "Gestores podem ler todos os templates"
+    on public.re_whatsapp_templates for select
+    using (
+        (select role from public.re_profiles where id = auth.uid()) in ('manager', 'admin')
+    );
 
 
 -- ==========================================

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Mail, Lock, User, Phone, Briefcase } from 'lucide-react';
+import { Home, Mail, Lock, User, Phone } from 'lucide-react';
 import { supabase } from '../config/supabase';
 
 const AuthGuard = ({ children, user, setUser, loadingSession }) => {
@@ -8,7 +8,9 @@ const AuthGuard = ({ children, user, setUser, loadingSession }) => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [role, setRole] = useState('broker'); // broker default
+  // Cargo fixo: todo cadastro público é 'broker'.
+  // Para elevar para manager/admin, use o painel Supabase → Authentication → Users → User metadata.
+  const role = 'broker';
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -190,20 +192,16 @@ const AuthGuard = ({ children, user, setUser, loadingSession }) => {
               </div>
             </div>
 
-            <div className="form-group">
-              <label>Cargo / Perfil</label>
-              <div style={{ position: 'relative' }}>
-                <Briefcase size={16} style={{ position: 'absolute', left: '14px', top: '14px', color: 'var(--gray-400)' }} />
-                <select 
-                  value={role} 
-                  onChange={e => setRole(e.target.value)}
-                  style={{ paddingLeft: '44px' }}
-                >
-                  <option value="broker">Corretor de Imóveis (Autônomo)</option>
-                  <option value="manager">Gerente de Vendas</option>
-                  <option value="admin">Diretor / Administrador</option>
-                </select>
-              </div>
+            <div style={{
+              fontSize: '12px',
+              color: 'var(--gray-500)',
+              padding: '10px 12px',
+              backgroundColor: 'rgba(0,0,0,0.02)',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--border-color)',
+              marginBottom: '4px'
+            }}>
+              🔒 Todos os novos cadastros iniciam como <strong>Corretor</strong>. Cargos de Gerente ou Diretor são atribuídos pelo administrador do sistema.
             </div>
 
             <button type="submit" disabled={loading} className="btn btn-primary btn-large" style={{ marginTop: '10px' }}>
