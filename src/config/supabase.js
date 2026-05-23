@@ -212,11 +212,13 @@ if (isConfigured) {
         const newId = 'realtor-' + Math.random().toString(36).substr(2, 9);
         const name = options?.data?.full_name || email.split('@')[0];
         
+        const userRole = options?.data?.role || 'broker';
+        
         const newProfile = {
           id: newId,
           full_name: name,
           email,
-          role: 'admin',
+          role: userRole,
           status: 'active',
           created_at: new Date().toISOString()
         };
@@ -229,7 +231,7 @@ if (isConfigured) {
           user: {
             id: newId,
             email,
-            user_metadata: { full_name: name, role: 'admin' }
+            user_metadata: { full_name: name, role: userRole }
           }
         };
         localStorage.setItem(MOCK_KEYS.SESSION, JSON.stringify(session));

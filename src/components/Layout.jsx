@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Users, Calendar, MessageSquare, LogOut, Shield } from 'lucide-react';
+import { Home, Users, Calendar, MessageSquare, LogOut, Shield, DollarSign } from 'lucide-react';
 
 const Layout = ({ children, currentTab, setCurrentTab, user, onLogout }) => {
   const realtorName = user?.user_metadata?.full_name || 'Corretor/a';
@@ -8,6 +8,7 @@ const Layout = ({ children, currentTab, setCurrentTab, user, onLogout }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Painel Geral', icon: <Home size={18} /> },
     { id: 'leads', label: 'Leads & Funil', icon: <Users size={18} /> },
+    { id: 'commissions', label: 'Vendas & Comissões', icon: <DollarSign size={18} /> },
     { id: 'visits', label: 'Agenda de Visitas', icon: <Calendar size={18} /> },
     { id: 'whatsapp_templates', label: 'Modelos WhatsApp', icon: <MessageSquare size={18} /> },
   ];

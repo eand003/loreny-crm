@@ -128,7 +128,7 @@ begin
         new.raw_user_meta_data->>'phone',
         new.raw_user_meta_data->>'company',
         coalesce((new.raw_user_meta_data->>'commission_rate')::numeric, 5.00),
-        'admin',
+        coalesce(new.raw_user_meta_data->>'role', 'broker'),
         'active'
     );
 

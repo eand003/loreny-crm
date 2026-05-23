@@ -4,6 +4,7 @@ import AuthGuard from './components/AuthGuard';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import Leads from './components/Leads';
+import Commissions from './components/Commissions';
 import Visits from './components/Visits';
 import WhatsAppTemplates from './components/WhatsAppTemplates';
 
@@ -89,6 +90,12 @@ function App() {
       case 'whatsapp_templates':
         return (
           <WhatsAppTemplates 
+            user={user} 
+          />
+        );
+      case 'commissions':
+        return (
+          <Commissions 
             user={user} 
           />
         );

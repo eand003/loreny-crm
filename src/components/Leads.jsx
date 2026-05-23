@@ -90,9 +90,41 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     try {
       const { data, error } = await supabase.from('whatsapp_templates').select('*');
       if (error) throw error;
-      setWaTemplates(data || []);
-      if (data && data.length > 0) {
-        setSelectedWaTemplate(data[0]);
+
+      if ((!data || data.length === 0) && user?.id) {
+        // Safe auto-backfill for existing accounts or mock database
+        const defaults = [
+          {
+            owner_id: user.id,
+            title: 'Apresentação e Primeiro Contato 🏠',
+            description: 'Mensagem de boas-vindas logo após o lead demonstrar interesse.',
+            text_content: 'Olá, {nome}! Tudo bem? Sou o/a {corretor}, especialista de imóveis da Loreny Imóveis. 🙋‍♀️' + '\n\n' + 'Vi que você está buscando um(a) {imovel} na região de {regiao} na faixa de orçamento de {valor}. Tenho algumas opções excelentes selecionadas para o seu perfil. Podermos conversar por ligação rápida de 3 minutos hoje às 17h?'
+          },
+          {
+            owner_id: user.id,
+            title: 'Confirmação de Visitação 🗓️',
+            description: 'Para enviar um dia antes ou horas antes da visita agendada.',
+            text_content: 'Olá, {nome}! Tudo certo para nossa visita de amanhã? 🚀' + '\n\n' + 'Ficou agendado para o dia {data_visita} às {hora_visita} no imóvel {imovel}.' + '\n\n' + 'Endereço ou Ponto de encontro: {regiao}.' + '\n\n' + 'Caso tenha algum imprevisto, me avise por aqui! Abraços!'
+          },
+          {
+            owner_id: user.id,
+            title: 'Acompanhamento de Proposta 📝',
+            description: 'Follow-up de negociação para destravar propostas pendentes.',
+            text_content: 'Olá, {nome}! Tudo bem?' + '\n\n' + 'Passando para saber se teve a oportunidade de avaliar a proposta de {valor} enviada para o imóvel em {regiao}. O proprietário demonstrou abertura, mas precisamos formalizar os termos. Ficamos no aguardo de sua resposta para fecharmos esse excelente negócio! ✨'
+          }
+        ];
+
+        await supabase.from('whatsapp_templates').insert(defaults);
+        const { data: refetched } = await supabase.from('whatsapp_templates').select('*');
+        setWaTemplates(refetched || []);
+        if (refetched && refetched.length > 0) {
+          setSelectedWaTemplate(refetched[0]);
+        }
+      } else {
+        setWaTemplates(data || []);
+        if (data && data.length > 0) {
+          setSelectedWaTemplate(data[0]);
+        }
       }
     } catch (e) {
       console.error('Erro ao carregar templates de WhatsApp:', e);
@@ -456,20 +488,23 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
           <button 
             className={`badge ${statusFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
             onClick={() => setStatusFilter('')}
-            style={{ border: 'none', cursor: 'pointer' }}
+            style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
           >
-            Todos
+            Todos <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{leads.length}</span>
           </button>
-          {OPTIONS.STAGES.map(stage => (
-            <button 
-              key={stage.value}
-              className={`badge ${statusFilter === stage.value ? `badge-${stage.value}` : 'badge-no_fit'}`}
-              onClick={() => setStatusFilter(stage.value)}
-              style={{ border: 'none', cursor: 'pointer' }}
-            >
-              {stage.label}
-            </button>
-          ))}
+          {OPTIONS.STAGES.map(stage => {
+            const count = leads.filter(l => l.status === stage.value).length;
+            return (
+              <button 
+                key={stage.value}
+                className={`badge ${statusFilter === stage.value ? `badge-${stage.value}` : 'badge-no_fit'}`}
+                onClick={() => setStatusFilter(stage.value)}
+                style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+              >
+                {stage.label} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{count}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
