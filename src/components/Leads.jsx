@@ -26,6 +26,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLead, setEditingLead] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [properties, setProperties] = useState([]);
 
   // PDF Proposal Preview Modal states
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
@@ -66,8 +67,19 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     fetchLeads();
     fetchWaTemplates();
     fetchVisits();
+    fetchProperties();
     if (isManager) fetchProfiles();
   }, [user]);
+
+  const fetchProperties = async () => {
+    try {
+      const { data, error } = await supabase.from('properties').select('*').eq('is_deleted', false);
+      if (error) throw error;
+      setProperties(data || []);
+    } catch (e) {
+      console.error('Erro ao carregar imóveis para leads:', e);
+    }
+  };
 
   useEffect(() => {
     if (activeQuickAction === 'add-lead') {
@@ -936,8 +948,34 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label>Região / Bairro de Interesse *</label>
+            <div className="form-group" style={{ position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label>Região / Bairro de Interesse *</label>
+                {properties.length > 0 && (
+                  <select 
+                    onChange={(e) => {
+                      const propId = e.target.value;
+                      if (!propId) return;
+                      const selected = properties.find(p => p.id === propId);
+                      if (selected) {
+                        setFormData(prev => ({
+                          ...prev,
+                          region: selected.region,
+                          property_type: selected.property_type,
+                          budget: selected.price || prev.budget
+                        }));
+                      }
+                      e.target.value = ''; // reset dropdown
+                    }}
+                    style={{ width: 'auto', height: '24px', padding: '0 4px', fontSize: '11px', borderRadius: '4px', border: '1px solid var(--primary)', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer', backgroundColor: 'transparent' }}
+                  >
+                    <option value="">🔍 Vincular da Carteira</option>
+                    {properties.map(p => (
+                      <option key={p.id} value={p.id}>[{p.code}] {p.title}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
               <input 
                 type="text" 
                 name="region" 

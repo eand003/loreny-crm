@@ -23,6 +23,7 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
   // Filtro de corretores para gestores
   const [brokerFilter, setBrokerFilter] = useState('');
   const [profiles, setProfiles] = useState([]);
+  const [properties, setProperties] = useState([]);
 
   const realtorName = user?.user_metadata?.full_name || 'Corretor/a';
   const userRole = user?.user_metadata?.role || 'broker';
@@ -41,8 +42,19 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
     fetchVisits();
     fetchLeads();
     fetchWaTemplates();
+    fetchProperties();
     if (isManager) fetchProfiles();
   }, [user]);
+
+  const fetchProperties = async () => {
+    try {
+      const { data, error } = await supabase.from('properties').select('*').eq('is_deleted', false);
+      if (error) throw error;
+      setProperties(data || []);
+    } catch (e) {
+      console.error('Erro ao buscar imóveis para visitas:', e);
+    }
+  };
 
   const fetchProfiles = async () => {
     try {
@@ -762,8 +774,32 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead, activeS
             )}
           </div>
 
-          <div className="form-group">
-            <label>Identificação do Imóvel / Endereço *</label>
+          <div className="form-group" style={{ position: 'relative' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label>Identificação do Imóvel / Endereço *</label>
+              {properties.length > 0 && (
+                <select 
+                  onChange={(e) => {
+                    const propId = e.target.value;
+                    if (!propId) return;
+                    const selected = properties.find(p => p.id === propId);
+                    if (selected) {
+                      setFormData(prev => ({
+                        ...prev,
+                        property_details: `[${selected.code}] ${selected.title} - ${selected.region}`
+                      }));
+                    }
+                    e.target.value = ''; // reset dropdown
+                  }}
+                  style={{ width: 'auto', height: '24px', padding: '0 4px', fontSize: '11px', borderRadius: '4px', border: '1px solid var(--primary)', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer', backgroundColor: 'transparent' }}
+                >
+                  <option value="">🔍 Importar da Carteira</option>
+                  {properties.map(p => (
+                    <option key={p.id} value={p.id}>[{p.code}] {p.title}</option>
+                  ))}
+                </select>
+              )}
+            </div>
             <input 
               type="text" 
               name="property_details" 

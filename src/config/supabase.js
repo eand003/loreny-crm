@@ -17,7 +17,8 @@ const RE_TABLE_MAP = {
   'profiles':           're_profiles',
   'leads':              're_leads',
   'visits':             're_visits',
-  'whatsapp_templates': 're_whatsapp_templates'
+  'whatsapp_templates': 're_whatsapp_templates',
+  'properties':         're_properties'
 };
 
 function createReWrappedClient(client) {
@@ -49,7 +50,8 @@ if (isConfigured) {
     LEADS: 're_mock_leads',
     VISITS: 're_mock_visits',
     TEMPLATES: 're_mock_whatsapp_templates',
-    SESSION: 're_mock_session'
+    SESSION: 're_mock_session',
+    PROPERTIES: 're_mock_properties'
   };
 
   const getOrInit = (key, defaultVal) => {
@@ -140,6 +142,50 @@ if (isConfigured) {
       visit_datetime: '2026-05-23T14:30:00Z',
       notes: 'Cliente Bruno e esposa assistirão a visita. Mostrar área gourmet e os acabamentos em mármore.',
       status: 'Agendada',
+      created_at: new Date().toISOString(),
+      is_deleted: false
+    }
+  ]);
+
+  // Seed properties
+  getOrInit(MOCK_KEYS.PROPERTIES, [
+    {
+      id: 'prop-1',
+      owner_id: defaultRealtorId,
+      code: 'AP202',
+      title: 'Residencial Splendia',
+      property_type: 'Apartamento',
+      region: 'Jardim Botânico',
+      price: null,
+      commission_rate: 5.00,
+      owner_name: 'Construtora Splendia Incorporações',
+      owner_phone: '11977776666',
+      photos_url: 'https://drive.google.com/drive/folders/splendia-mock',
+      is_project: true,
+      typologies: [
+        { name: '2 Quartos (Suíte) - Varanda Gourmet', size: '64m²', price: 420000, status: 'Disponível' },
+        { name: '3 Suítes - Pé Direito Duplo', size: '110m²', price: 790000, status: 'Disponível' },
+        { name: 'Duplex Penthouse - Lazer Privativo', size: '185m²', price: 1350000, status: 'Reservado' }
+      ],
+      notes: 'Lançamento com previsão de entrega para Dezembro/2027. Excelente fluxo de entrada parcelado direto com a construtora.',
+      created_at: new Date().toISOString(),
+      is_deleted: false
+    },
+    {
+      id: 'prop-2',
+      owner_id: defaultRealtorId,
+      code: 'CA05',
+      title: 'Sobrado Contemporâneo Mobiliado',
+      property_type: 'Casa',
+      region: 'Zona Sul / Villaggio',
+      price: 1250000,
+      commission_rate: 6.00,
+      owner_name: 'Bruno dos Santos Ferreira',
+      owner_phone: '11988885555',
+      photos_url: 'https://drive.google.com/drive/folders/villaggio-sobrado',
+      is_project: false,
+      typologies: [],
+      notes: 'Casa seminova com 4 suítes, piscina aquecida com borda infinita, energia fotovoltaica instalada e marcenaria planejada premium em todos os ambientes.',
       created_at: new Date().toISOString(),
       is_deleted: false
     }
@@ -267,6 +313,7 @@ if (isConfigured) {
         case 'visits': storageKey = MOCK_KEYS.VISITS; break;
         case 'whatsapp_templates': storageKey = MOCK_KEYS.TEMPLATES; break;
         case 'profiles': storageKey = MOCK_KEYS.PROFILES; break;
+        case 'properties': storageKey = MOCK_KEYS.PROPERTIES; break;
         default: storageKey = table;
       }
 

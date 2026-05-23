@@ -8,6 +8,7 @@ import Commissions from './components/Commissions';
 import Visits from './components/Visits';
 import WhatsAppTemplates from './components/WhatsAppTemplates';
 import Settings from './components/Settings';
+import Properties from './components/Properties';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -101,6 +102,12 @@ function App() {
       case 'commissions':
         return (
           <Commissions 
+            user={user} 
+          />
+        );
+      case 'properties':
+        return (
+          <Properties 
             user={user} 
           />
         );
