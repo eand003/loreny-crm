@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loreny CRM v3 — Plataforma Imobiliária de Alto Padrão</title>
+    <!-- Google Fonts: Outfit e Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Cores de Luxo */
+            --bg-dark: #07101f;          /* Fundo Ultra Negro */
+            --indigo: #0b1a30;           /* Azul Marinho Premium */
+            --indigo-light: #112544;     /* Azul Marinho Médio */
+            --primary: #c59b27;          /* Ouro Quente */
+            --primary-hover: #a37f1c;     /* Ouro Escuro */
+            --primary-glow: rgba(197, 155, 39, 0.2);
+            --primary-light: rgba(197, 155, 39, 0.08);
+            
+            --white: #ffffff;
+            --gray-100: #f8fafc;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            
+            --status-won: #10b981;
+            --status-won-glow: rgba(16, 185, 129, 0.2);
+            --status-lost: #ef4444;
+            
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--gray-300);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(197, 155, 39, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* HEADER SETUP */
+        header {
+            background: rgba(11, 26, 48, 0.85);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px 40px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(12px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--white);
+        }
+
+        .logo-icon {
+            background: rgba(243, 198, 63, 0.1);
+            color: var(--primary);
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(243, 198, 63, 0.2);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .logo-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .logo-text span {
+            color: var(--primary);
+        }
+
+        nav {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--gray-400);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        nav a:hover {
+            color: var(--white);
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: var(--bg-dark);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            color: var(--bg-dark);
+        }
+
+        /* HERO SECTION */
+        .hero {
+            padding: 200px 24px 100px;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+        }
+
+        .badge-hero {
+            background: rgba(197, 155, 39, 0.1);
+            border: 1px solid rgba(197, 155, 39, 0.3);
+            color: var(--primary);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .badge-hero::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 56px;
+            font-weight: 900;
+            color: var(--white);
+            line-height: 1.15;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-title span {
+            color: var(--primary);
+            background: linear-gradient(135deg, #c59b27 0%, #f3c63f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--gray-400);
+            max-width: 800px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg-dark);
+            box-shadow: 0 8px 24px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(197, 155, 39, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* METRICS WRAPPER */
+        .metrics-container {
+            max-width: 1100px;
+            margin: 40px auto 100px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            padding: 0 24px;
+        }
+
+        .metric-card {
+            background: rgba(11, 26, 48, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .metric-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #c59b27 0%, #f3c63f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--gray-400);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* SECTION TEMPLATE */
+        .section {
+            padding: 100px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 60px;
+        }
+
+        .section-tag {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--white);
+            letter-spacing: -0.01em;
+        }
+
+        .section-title span {
+            color: var(--primary);
+        }
+
+        /* WHY USE SECTION (GRID) */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: rgba(11, 26, 48, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(197, 155, 39, 0.25);
+            background: rgba(11, 26, 48, 0.75);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            background: rgba(197, 155, 39, 0.1);
+            color: var(--primary);
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(197, 155, 39, 0.2);
+            margin-bottom: 8px;
+        }
+
+        .feature-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: var(--gray-400);
+            line-height: 1.7;
+        }
+
+        /* TAB INTERACTIVE SHOWROOM */
+        .showroom-box {
+            background: rgba(11, 26, 48, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            backdrop-filter: blur(12px);
+            margin-top: 40px;
+        }
+
+        .showroom-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 20px;
+        }
+
+        .showroom-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--gray-400);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .showroom-tab-btn.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid rgba(197, 155, 39, 0.3);
+        }
+
+        .showroom-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .showroom-content.active {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .show-text h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            color: var(--white);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .show-text p {
+            font-size: 15px;
+            color: var(--gray-400);
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .show-bullets {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .show-bullets li {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gray-300);
+        }
+
+        .show-bullets li::before {
+            content: '✓';
+            color: var(--status-won);
+            font-weight: 800;
+        }
+
+        .show-visual {
+            background: var(--indigo-light);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* DYNAMIC MOCK SIMULATOR ON WIDGET */
+        .mock-sim-header {
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+        .mock-sim-group {
+            margin-bottom: 14px;
+        }
+        .mock-sim-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--gray-400);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .mock-sim-input {
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--white);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+        }
+        .mock-sim-pill-badge {
+            background: var(--status-won-glow);
+            color: var(--status-won);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        /* WIDGET ROI CALCULATOR */
+        .roi-box {
+            background: linear-gradient(135deg, var(--indigo) 0%, var(--bg-dark) 100%);
+            border: 1px solid rgba(197, 155, 39, 0.2);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .roi-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .roi-slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--white);
+        }
+
+        .roi-slider-group input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary);
+            height: 6px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .roi-results {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+        }
+
+        .roi-res-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--primary);
+            margin: 10px 0;
+            background: linear-gradient(135deg, #c59b27 0%, #f3c63f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* CTA SECTION */
+        .cta {
+            background: linear-gradient(135deg, rgba(197, 155, 39, 0.08) 0%, rgba(11, 26, 48, 0.6) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-xl);
+            padding: 80px 40px;
+            text-align: center;
+            max-width: 1000px;
+            margin: 60px auto 100px;
+            position: relative;
+            backdrop-filter: blur(12px);
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* RESPONSIVENESS & ADVANCED MOBILE OPTIMIZATION */
+        @media (max-width: 850px) {
+            header {
+                padding: 12px 20px;
+                flex-direction: row; /* Mantém logo e botão alinhados na mesma linha */
+                justify-content: space-between;
+                gap: 0;
+            }
+            nav {
+                display: flex;
+                gap: 0;
+            }
+            nav a {
+                display: none; /* Oculta links de texto para evitar quebras de layout */
+            }
+            .nav-btn {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+            .logo-text {
+                font-size: 18px;
+            }
+            .logo-icon {
+                width: 36px;
+                height: 36px;
+            }
+            
+            /* Ajustes do Hero */
+            .hero {
+                padding: 130px 16px 50px;
+            }
+            .hero-title {
+                font-size: 32px;
+                line-height: 1.2;
+            }
+            .hero-subtitle {
+                font-size: 15px;
+                margin-bottom: 28px;
+                line-height: 1.7;
+            }
+            .btn {
+                width: 100%; /* Botões ocupam largura total no mobile para melhor clique */
+                justify-content: center;
+                padding: 14px 24px;
+                font-size: 14px;
+            }
+            .hero-actions {
+                flex-direction: column;
+                gap: 12px;
+                width: 100%;
+                max-width: 320px;
+                margin: 0 auto;
+            }
+
+            /* Métricas */
+            .metrics-container {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-bottom: 60px;
+            }
+            .metric-card {
+                padding: 24px;
+            }
+            .metric-val {
+                font-size: 36px;
+            }
+
+            /* Seções Gerais */
+            .section {
+                padding: 60px 16px;
+            }
+            .section-title {
+                font-size: 26px;
+                line-height: 1.3;
+            }
+            .section-header {
+                margin-bottom: 40px;
+            }
+
+            /* Grid de Recursos */
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .feature-card {
+                padding: 28px 24px;
+            }
+
+            /* Showroom - Desconstruído sequencialmente no Mobile */
+            .showroom-box {
+                padding: 24px 16px;
+            }
+            .showroom-tabs {
+                display: none !important; /* Oculta o seletor de abas no mobile para evitar que o usuário perca conteúdo */
+            }
+            .showroom-content {
+                display: grid !important; /* Força todos os módulos a ficarem visíveis sequencialmente */
+                grid-template-columns: 1fr !important;
+                gap: 28px !important;
+                margin-bottom: 48px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding-bottom: 48px;
+            }
+            .showroom-content:last-of-type {
+                border-bottom: none;
+                padding-bottom: 0;
+                margin-bottom: 0;
+            }
+            .show-text h3 {
+                font-size: 22px;
+                margin-bottom: 12px;
+            }
+            .show-text p {
+                font-size: 14px;
+                margin-bottom: 20px;
+            }
+            .show-visual {
+                padding: 20px 16px;
+            }
+
+            /* Simulador de ROI */
+            .roi-box {
+                grid-template-columns: 1fr;
+                padding: 24px 16px;
+                gap: 32px;
+            }
+            .roi-results {
+                padding: 24px 16px;
+            }
+            .roi-res-val {
+                font-size: 34px;
+            }
+
+            /* Seção CTA Inferior */
+            .cta {
+                padding: 48px 20px;
+                margin: 40px auto 60px;
+            }
+            .cta h2 {
+                font-size: 28px;
+                line-height: 1.25;
+            }
+            .cta p {
+                font-size: 14px;
+                margin-bottom: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- STYLISH HEADER -->
+    <header>
+        <a href="#" class="logo">
+            <div class="logo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <div class="logo-text">Loreny<span>CRM</span></div>
+        </a>
+        <nav>
+            <a href="#diferenciais">Diferenciais</a>
+            <a href="#showroom">Módulos</a>
+            <a href="#roi">Retorno (ROI)</a>
+            <button class="nav-btn" onclick="document.getElementById('cta').scrollIntoView();">Adotar Plataforma</button>
+        </nav>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="badge-hero">CRM Loreny Imóveis v3 • A Revolução Imobiliária</div>
+        <h1 class="hero-title">O CRM de Alto Padrão para <span>Corretores de Elite</span></h1>
+        <p class="hero-subtitle">
+            Diga adeus a planilhas caóticas e sistemas genéricos lentos. Experimente uma plataforma de negócios imobiliários de alto padrão, rápida no celular, focada em produtividade operacional, controle de comissões e fechamento ágil de vendas.
+        </p>
+        <div class="hero-actions">
+            <a href="https://api.whatsapp.com/send?phone=5565999106415&text=Olá!%20Gostaria%20de%20conversar%20sobre%20o%20CRM%20Loreny%20Imóveis%20v3%20e%20saber%20como%20adotar%20a%20plataforma." target="_blank" class="btn btn-primary">
+                Começar Agora
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a href="#showroom" class="btn btn-secondary">Conhecer Recursos</a>
+        </div>
+    </section>
+
+    <!-- METRICS WRAPPER -->
+    <div class="metrics-container">
+        <div class="metric-card">
+            <div class="metric-val">+35%</div>
+            <div class="metric-label">Eficiência de Fechamento</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-val">100%</div>
+            <div class="metric-label">Privacidade dos Leads (RLS)</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-val">1 Clique</div>
+            <div class="metric-label">Agenda Google & WhatsApp</div>
+        </div>
+    </div>
+
+    <!-- DIFFERENTIALS SECTION -->
+    <section class="section" id="diferenciais">
+        <div class="section-header">
+            <span class="section-tag">POR QUE A LORENY?</span>
+            <h2 class="section-title">A Diferença Entre um CRM Comum e uma <span>Máquina de Vendas</span></h2>
+        </div>
+
+        <div class="features-grid">
+            <!-- Feature 1 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </div>
+                <h3 class="feature-name">Simuladores Bancários Embutidos</h3>
+                <p class="feature-desc">Esqueça aplicativos de terceiros para simular financiamentos habitacionais. Com as regras atualizadas da Caixa Econômica, simule SAC/PRICE, entradas e a renda mensal mínima direto no CRM em campo.</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h3 class="feature-name">Total Privacidade de Leads (RLS)</h3>
+                <p class="feature-desc">Segurança robusta de nível enterprise. A governança do banco de dados (Row Level Security do PostgreSQL) isola totalmente os leads. Um corretor nunca enxerga o cliente do outro.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                </div>
+                <h3 class="feature-name">Acelerador de WhatsApp</h3>
+                <p class="feature-desc">Contate clientes e agende follow-ups de forma extremamente rápida. Use templates predefinidos que puxam variáveis como o nome do lead e horários com um clique.</p>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <h3 class="feature-name">Google Calendar Sem Esforço</h3>
+                <p class="feature-desc">Integração leve e imediata. Agende visitas imobiliárias no CRM e sincronize com a sua agenda pessoal do Google no celular em apenas um clique, sem configurações chatas.</p>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <h3 class="feature-name">Controle Financeiro e Ponderado</h3>
+                <p class="feature-desc">Defina metas de comissão e acompanhe o VGV do funil. O sistema calcula o rendimento realista ponderado de acordo com a probabilidade real de fechamento por estágio.</p>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                </div>
+                <h3 class="feature-name">Histórico Unificado do Lead</h3>
+                <p class="feature-desc">Linha do tempo consolidada por cliente. Visualize visitas concluídas, agendamentos futuros, interações e anotações cronológicas centralizadas em uma única tela fluida.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAB SHOWROOM SECTION -->
+    <section class="section" id="showroom">
+        <div class="section-header">
+            <span class="section-tag">SHOWROOM INTERATIVO</span>
+            <h2 class="section-title">Explore os <span>Módulos de Elite</span> por Dentro</h2>
+        </div>
+
+        <div class="showroom-box">
+            <div class="showroom-tabs">
+                <button class="showroom-tab-btn active" onclick="switchShowroomTab(0)">🏦 Simulador Habitacional</button>
+                <button class="showroom-tab-btn" onclick="switchShowroomTab(1)">📆 Agenda Unificada</button>
+                <button class="showroom-tab-btn" onclick="switchShowroomTab(2)">📈 Relatório & Metas</button>
+                <button class="showroom-tab-btn" onclick="switchShowroomTab(3)">💬 Whatsapp Instantâneo</button>
+            </div>
+
+            <!-- Tab 0: Simulador -->
+            <div class="showroom-content active">
+                <div class="show-text">
+                    <h3>🏦 Simulador de Crédito Habitacional</h3>
+                    <p>
+                        Dê respostas instantâneas ao seu cliente durante a vistoria de um imóvel. O simulador Caixa/Privado do Loreny CRM permite estimar parcelas no sistema de amortização SAC ou Tabela Price, garantindo segurança na simulação de crédito.
+                    </p>
+                    <ul class="show-bullets">
+                        <li>Sugestão automática da entrada de 20%</li>
+                        <li>Validação de renda real baseada na regra bancária de 30%</li>
+                        <li>Feedback visual de Renda Aprovada (Verde) ou Insuficiente (Vermelho)</li>
+                        <li>Alternância de prazos (até 35 anos) e taxas excelentes de mercado</li>
+                    </ul>
+                </div>
+                <div class="show-visual">
+                    <div class="mock-sim-header">
+                        <strong style="color: var(--white); font-family: 'Outfit'; font-size: 15px;">🏦 Simulação Caixa SAC / PRICE</strong>
+                    </div>
+                    <div class="mock-sim-group">
+                        <label>VALOR DO IMÓVEL</label>
+                        <input class="mock-sim-input" type="text" value="R$ 500.000,00" disabled>
+                    </div>
+                    <div class="mock-sim-group">
+                        <label>ENTRADA MÍNIMA DE 20%</label>
+                        <input class="mock-sim-input" type="text" value="R$ 100.000,00" disabled>
+                    </div>
+                    <div style="margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                            <span>Parcela Inicial (SAC):</span>
+                            <strong style="color: var(--primary);">R$ 4.277,78</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 8px;">
+                            <span>Renda Mínima Exigida (30%):</span>
+                            <strong style="color: #3b82f6;">R$ 14.259,26</strong>
+                        </div>
+                        <div class="mock-sim-pill-badge">✓ CRÉDITO ALTAMENTE VIÁVEL</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 1: Agenda -->
+            <div class="showroom-content">
+                <div class="show-text">
+                    <h3>📆 Agenda & Atividades Unificada</h3>
+                    <p>
+                        Todas as suas obrigações mapeadas em um único lugar. O CRM consolida os compromissos diários de visitas físicas e as tarefas cruciais de ligações de retorno de clientes (follow-up).
+                    </p>
+                    <ul class="show-bullets">
+                        <li>Filtros refinados em abas arredondadas e amigáveis</li>
+                        <li>Marcação de follow-up concluído ou remarcado em 1 clique</li>
+                        <li>Pesquisa instantânea com autocomplete na listagem de leads</li>
+                        <li>Status visual em amarelo destacando atividades urgentes e atrasadas</li>
+                    </ul>
+                </div>
+                <div class="show-visual">
+                    <div class="mock-sim-header" style="display: flex; gap: 8px;">
+                        <span style="background: var(--primary-light); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">Visitas (4)</span>
+                        <span style="background: rgba(255,255,255,0.05); color: var(--gray-400); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">Follow-ups (3)</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                        <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: var(--radius-sm); border-left: 3px solid var(--primary); display: flex; justify-content: space-between;">
+                            <div>
+                                <strong style="font-size:13px; color: #fff;">Visita: Carlos Eduardo</strong>
+                                <div style="font-size:11px; color: var(--gray-400);">Casa de Rua em Alphaville • Hoje, 14h</div>
+                            </div>
+                            <span style="color: var(--primary); font-size:11px; font-weight: 700;">Google Cal 📅</span>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: var(--radius-sm); border-left: 3px solid #f59e0b; display: flex; justify-content: space-between;">
+                            <div>
+                                <strong style="font-size:13px; color: #fff;">Follow-up: Marina Silva</strong>
+                                <div style="font-size:11px; color: var(--gray-400);">Ligar para alinhar proposta • Atrasado!</div>
+                            </div>
+                            <span style="color: #f59e0b; font-size:11px; font-weight: 700;">⚠️ URGENTE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Financeiro -->
+            <div class="showroom-content">
+                <div class="show-text">
+                    <h3>📊 Gestão de Vendas & Metas Financeiras</h3>
+                    <p>
+                        Mantenha seu foco nas metas comerciais e saiba exatamente quanto dinheiro você tem para receber no pipeline. A ferramenta ajuda a rastrear a sua comissão líquida de vendas.
+                    </p>
+                    <ul class="show-bullets">
+                        <li>Rastreador de metas de faturamento salvo no próprio navegador</li>
+                        <li>Expectativa realista por estágio (pipeline ponderado)</li>
+                        <li>Calculadora de comissões líquidas descontando parcerias e tributos</li>
+                        <li>Filtros e ordenação imediata por maior orçamento</li>
+                    </ul>
+                </div>
+                <div class="show-visual">
+                    <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: var(--radius-sm); margin-top: 10px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                            <span>Meta Mensal de Vendas:</span>
+                            <strong style="color: #fff;">R$ 30.000,00</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                            <span style="color: var(--status-won);">🏆 Comissão Confirmada (25%)</span>
+                            <strong>R$ 7.500,00</strong>
+                        </div>
+                        <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; margin-bottom: 12px;">
+                            <div style="width: 25%; height: 100%; background: var(--status-won);"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                            <span style="color: var(--primary);">📈 Previsão Ponderada (65%)</span>
+                            <strong>R$ 19.500,00</strong>
+                        </div>
+                        <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+                            <div style="width: 65%; height: 100%; background: var(--primary);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Whatsapp -->
+            <div class="showroom-content">
+                <div class="show-text">
+                    <h3>💬 Whatsapp Instantâneo com Variáveis</h3>
+                    <p>
+                        Chega de copiar e colar mensagens ou esquecer de preencher dados cruciais. O motor de templates do Loreny CRM gera links diretos contendo a mensagem perfeitamente preenchida.
+                    </p>
+                    <ul class="show-bullets">
+                        <li>Substituição automática das tags do cliente como `{nome}`</li>
+                        <li>Preenchimento automático do dia e horário da visita no texto</li>
+                        <li>Disparo em 1 clique direcionando diretamente ao WhatsApp Web/App</li>
+                        <li>Modelos rápidos de Boas-vindas, Confirmação e Follow-up</li>
+                    </ul>
+                </div>
+                <div class="show-visual">
+                    <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-sm); padding: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size: 11px; color: var(--gray-400); margin-bottom: 8px;">PREVIEW DO TEMPLATE:</div>
+                        <div style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid var(--status-won); padding: 12px; border-radius: 4px; color: #fff; font-size: 12px; line-height: 1.5; font-family: monospace;">
+                            Olá, Carlos! Tudo bem? Aqui é o corretor Eduardo. Confirmando nossa visita ao Apartamento em Alphaville agendada para Amanhã às 15h. Podemos confirmar?
+                        </div>
+                        <button class="btn btn-primary" style="margin-top: 14px; width: 100%; padding: 10px; font-size: 12px; border-radius: var(--radius-sm);">
+                            💬 Enviar Mensagem via WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ROI INTERACTIVE CALCULATOR -->
+    <section class="section" id="roi">
+        <div class="section-header">
+            <span class="section-tag">SIMULADOR DE ROI</span>
+            <h2 class="section-title">Calcule Seus Ganhos com a <span>Plataforma</span></h2>
+        </div>
+
+        <div class="roi-box">
+            <div class="roi-inputs">
+                <h3 style="color: var(--white); font-family: 'Outfit'; margin-bottom: 12px;">Simulação de Comissionamento</h3>
+                <p style="font-size: 14px; color: var(--gray-400); margin-bottom: 16px;">Arraste os seletores abaixo para visualizar sua projeção real de faturamento bruto e líquido estimado usando o CRM Loreny v3.</p>
+                
+                <div class="roi-slider-group">
+                    <label>
+                        <span>VGV TOTAL DO IMÓVEL</span>
+                        <strong id="vgv-val" style="color: var(--primary);">R$ 600.000</strong>
+                    </label>
+                    <input type="range" id="slider-vgv" min="100000" max="5000000" step="50000" value="600000" oninput="updateROICalc()">
+                </div>
+
+                <div class="roi-slider-group">
+                    <label>
+                        <span>TAXA DE COMISSÃO (%)</span>
+                        <strong id="rate-val" style="color: var(--primary);">5.0%</strong>
+                    </label>
+                    <input type="range" id="slider-rate" min="1" max="10" step="0.5" value="5" oninput="updateROICalc()">
+                </div>
+            </div>
+            
+            <div class="roi-results">
+                <span style="font-size: 12px; color: var(--gray-400); text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">SUA COMISSÃO ESTIMADA</span>
+                <div class="roi-res-val" id="roi-commission">R$ 30.000,00</div>
+                <p style="font-size: 12px; color: var(--gray-400); margin-top: 10px; line-height: 1.4;">
+                    Com a eficiência e lembretes de follow-up do Loreny CRM, corretores aumentam o fechamento de propostas em média de 25% a 35%.
+                </p>
+                <div style="border-top: 1px solid rgba(255,255,255,0.05); margin-top: 20px; padding-top: 16px; display: flex; justify-content: space-around; font-size: 13px;">
+                    <div>
+                        <span style="display:block; color: var(--gray-400);">Split Imobiliária (50%)</span>
+                        <strong id="roi-split">R$ 15.000,00</strong>
+                    </div>
+                    <div>
+                        <span style="display:block; color: var(--gray-400);">Líquido no Bolso (PJ 6%)</span>
+                        <strong id="roi-liquid" style="color: var(--status-won);">R$ 14.100,00</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="cta" id="cta">
+        <h2 style="font-family: 'Outfit'; font-size: 42px; color: var(--white); margin-bottom: 16px; font-weight: 800;">
+            Leve Sua Carreira Imobiliária ao Próximo Nível
+        </h2>
+        <p style="color: var(--gray-400); max-width: 700px; margin: 0 auto 32px; font-size: 16px;">
+            Fale conosco diretamente pelo WhatsApp para agendar uma demonstração, tirar dúvidas sobre o deploy ou entender como licenciar essa plataforma inovadora de VGV de alto padrão para sua imobiliária.
+        </p>
+        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+            <a href="https://api.whatsapp.com/send?phone=5565999106415&text=Olá!%20Gostaria%20de%20conversar%20sobre%20o%20CRM%20Loreny%20Imóveis%20v3%20e%20saber%20como%20adotar%20a%20plataforma." target="_blank" class="btn btn-primary">
+                💬 Conversar no WhatsApp
+            </a>
+            <a href="manual_crm.html" class="btn btn-secondary" target="_blank">Ler Manual Técnico</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer style="background: #040912; padding: 40px 24px; text-align: center; font-size: 13px; color: var(--gray-500); border-top: 1px solid rgba(255,255,255,0.03);">
+        <p style="margin: 0;">&copy; 2026 CRM Loreny Imóveis. Desenvolvido para Corretores Autônomos de Elite e Imobiliárias de Alto Padrão.</p>
+    </footer>
+
+    <!-- INTERACTIVE SCRIPTS -->
+    <script>
+        function switchShowroomTab(tabIndex) {
+            const tabs = document.querySelectorAll('.showroom-tab-btn');
+            const contents = document.querySelectorAll('.showroom-content');
+            
+            tabs.forEach((tab, index) => {
+                if (index === tabIndex) {
+                    tab.classList.add('active');
+                    contents[index].classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                    contents[index].classList.remove('active');
+                }
+            });
+        }
+
+        function updateROICalc() {
+            const vgv = parseFloat(document.getElementById('slider-vgv').value);
+            const rate = parseFloat(document.getElementById('slider-rate').value);
+            
+            // Format labels
+            document.getElementById('vgv-val').innerText = 'R$ ' + vgv.toLocaleString('pt-BR');
+            document.getElementById('rate-val').innerText = rate.toFixed(1) + '%';
+            
+            // Projections
+            const totalCommission = vgv * (rate / 100);
+            const partnerSplit = totalCommission * 0.50;
+            const liquidPocket = partnerSplit * 0.94; // PJ standard tax deduction
+            
+            // Render outputs
+            document.getElementById('roi-commission').innerText = 'R$ ' + totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('roi-split').innerText = 'R$ ' + partnerSplit.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('roi-liquid').innerText = 'R$ ' + liquidPocket.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Initialize ROI calc on load
+        window.onload = function() {
+            updateROICalc();
+        }
+    </script>
+</body>
+</html>
