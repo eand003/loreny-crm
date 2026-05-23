@@ -161,7 +161,7 @@ const Commissions = ({ user }) => {
       </div>
 
       {/* SUB-TABS SELECTOR */}
-      <div className="flex gap-2" style={{ marginBottom: '20px', borderBottom: '1px solid var(--gray-200)', paddingBottom: '10px', overflowX: 'auto' }}>
+      <div className="flex gap-2 no-scrollbar" style={{ marginBottom: '20px', borderBottom: '1px solid var(--gray-200)', paddingBottom: '10px', overflowX: 'auto' }}>
         <button 
           className={`tab-btn`}
           onClick={() => setActiveSubTab('report')}

@@ -835,3 +835,50 @@ button {
     padding: 40px 40px 40px 40px;
   }
 }
+
+/* =========================================================================
+   PREMIUM MOBILE RESPONSIVENESS AND PWA POLISH
+   ========================================================================= */
+@media (max-width: 575px) {
+  /* Stack form rows vertically on small screens for spacious typing space */
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  /* Soften general margins on mobile */
+  .container {
+    padding: 0 16px;
+  }
+}
+
+/* Hide native scrollbars for horizontal list sliders (Réguas de Filtro / Tabs) */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  -webkit-overflow-scrolling: touch; /* Butter-smooth momentum scrolling on iOS */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Butter-smooth active tap states for touch feedback */
+.nav-item:active, 
+.action-btn:active, 
+.btn:active, 
+.tab-btn:active, 
+.mobile-card:active {
+  transform: scale(0.975);
+  opacity: 0.9;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+@media (max-width: 480px) {
+  /* Maximize viewport real estate inside modals/bottom sheets */
+  .modal-content {
+    padding: 20px 16px;
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+  }
+}
+

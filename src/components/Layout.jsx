@@ -123,7 +123,7 @@ const Layout = ({ children, currentTab, setCurrentTab, user, onLogout }) => {
 
       {/* MAIN CONTAINER */}
       <main className="main-content">
-        <div style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: '80px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
           {children}
         </div>
       </main>
@@ -204,13 +204,15 @@ const Layout = ({ children, currentTab, setCurrentTab, user, onLogout }) => {
           bottom: 0;
           left: 0;
           right: 0;
-          height: 64px;
+          height: calc(64px + env(safe-area-inset-bottom, 0px));
+          padding-bottom: env(safe-area-inset-bottom, 0px);
           background-color: #0a1424;
           border-top: 1px solid rgba(255, 255, 255, 0.05);
           z-index: 999;
           justify-content: space-around;
           align-items: center;
-          padding: 0 8px;
+          padding-left: 8px;
+          padding-right: 8px;
         }
         .mobile-nav-item {
           display: flex;
@@ -239,7 +241,7 @@ const Layout = ({ children, currentTab, setCurrentTab, user, onLogout }) => {
           }
           .main-content {
             margin-left: 0;
-            padding: 16px;
+            padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)) 16px;
           }
           .mobile-nav {
             display: flex;
