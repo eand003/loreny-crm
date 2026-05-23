@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Plus, Edit2, Trash2, Check, AlertTriangle, Users, MapPin } from 'lucide-react';
 import { supabase } from '../config/supabase';
-import { formatDate, formatDateTime } from '../utils/helpers';
+import { formatDate, formatDateTime, getGoogleCalendarUrl } from '../utils/helpers';
 import Modal from './UI/Modal';
 
 const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead }) => {
@@ -259,6 +259,15 @@ const Visits = ({ user, preselectedLeadForVisit, onClearPreselectedLead }) => {
                 <div style={{ display: 'flex', gap: '6px' }}>
                   {v.status === 'Agendada' && (
                     <>
+                      <a 
+                        href={getGoogleCalendarUrl(v, v.leadName)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="action-btn"
+                        style={{ color: 'var(--primary)', borderColor: 'rgba(197, 155, 39, 0.2)', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none', fontSize: '12px' }}
+                      >
+                        📅 Calendar
+                      </a>
                       <button 
                         onClick={() => handleStatusChange(v, 'Realizada')}
                         className="action-btn"

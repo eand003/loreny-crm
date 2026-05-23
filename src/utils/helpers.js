@@ -134,6 +134,34 @@ export const matchPropertyType = (leadType, filterType) => {
   return lead === filter || lead.includes(filter) || filter.includes(lead);
 };
 
+/**
+ * Gera um link template do Google Calendar para o agendamento
+ */
+export const getGoogleCalendarUrl = (visit, leadName) => {
+  if (!visit) return '';
+  
+  const title = encodeURIComponent(`Visita: ${leadName} 🔑`);
+  
+  // Formatar datas para o padrão compact do Google Calendar (YYYYMMDDTHHMMSSZ)
+  const startDt = new Date(visit.visit_datetime);
+  const endDt = new Date(startDt.getTime() + 60 * 60 * 1000); // Duração padrão de 1 hora
+  
+  const formatCalDate = (date) => {
+    try {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    } catch (e) {
+      return '';
+    }
+  };
+  
+  const dates = `${formatCalDate(startDt)}/${formatCalDate(endDt)}`;
+  
+  const details = encodeURIComponent(`Cliente: ${leadName}\nImóvel: ${visit.property_details}\nObservações: ${visit.notes || 'Sem observações adicionais.'}\n\nAgendado via CRM Loreny Imóveis v3.`);
+  const location = encodeURIComponent(visit.property_details || 'Região de Interesse');
+  
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
+};
+
 // CRM Global Select Options
 export const OPTIONS = {
   PROPERTY_TYPES: [

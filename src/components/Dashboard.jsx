@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Home, Users, Calendar, DollarSign, Plus, MapPin, Phone, ChevronRight } from 'lucide-react';
 import { supabase } from '../config/supabase';
-import { formatCurrency, formatDate, formatDateTime, compileWhatsAppTemplate } from '../utils/helpers';
+import { formatCurrency, formatDate, formatDateTime, compileWhatsAppTemplate, getGoogleCalendarUrl } from '../utils/helpers';
 import Modal from './UI/Modal';
 
 const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
@@ -278,8 +278,25 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
                       "{visit.notes}"
                     </div>
                   )}
-                  {visit.leadPhone && (
-                    <div className="flex justify-end" style={{ marginTop: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '10px' }}>
+                    <a 
+                      href={getGoogleCalendarUrl(visit, visit.leadName)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex align-center gap-1"
+                      style={{ 
+                        fontSize: '12px', 
+                        color: 'var(--primary)', 
+                        fontWeight: 600, 
+                        textDecoration: 'none', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '4px' 
+                      }}
+                    >
+                      <span>📅 Google Calendar</span>
+                    </a>
+                    {visit.leadPhone && (
                       <button 
                         onClick={() => handleOpenWaModal(visit)}
                         className="flex align-center gap-1"
@@ -297,10 +314,10 @@ const Dashboard = ({ user, onQuickAction, setCurrentTab }) => {
                         }}
                       >
                         <Phone size={12} />
-                        Confirmar via WhatsApp
+                        Confirmar WhatsApp
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
