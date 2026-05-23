@@ -235,12 +235,14 @@ export const OPTIONS = {
 /**
  * Abre uma nova janela e gera uma proposta imobiliária premium em PDF prontinha para impressão/salvamento.
  */
-export const generateProposalPDF = (lead, realtorName = '', realtorEmail = '', realtorPhone = '', realtorCompany = '') => {
+export const generateProposalPDF = (lead, realtorName = '', realtorEmail = '', realtorPhone = '', realtorCompany = '', customTitle = '', customSubtitle = '') => {
   const history = parseNotesToHistory(lead.notes);
-  const formattedBudget = lead.budget ? formatCurrency(lead.budget) : 'Não especificado';
+  const formattedBudget = lead.budget ? (typeof lead.budget === 'number' ? formatCurrency(lead.budget) : (isNaN(parseFloat(lead.budget)) ? lead.budget : formatCurrency(parseFloat(lead.budget)))) : 'Não especificado';
   const realtor = realtorName || 'Loreny Corretora';
   const company = realtorCompany || 'Loreny Imóveis';
   const dateStr = new Date().toLocaleDateString('pt-BR');
+  const title = customTitle || 'Proposta Comercial';
+  const subtitle = customSubtitle || 'Ficha de Interesse Cadastral';
 
   const historyHtml = history.length === 0
     ? '<p style="color: #64748b; font-style: italic; font-size: 13px;">Nenhum registro de atendimento cadastrado.</p>'
@@ -439,8 +441,8 @@ export const generateProposalPDF = (lead, realtorName = '', realtorEmail = '', r
             Loreny<span>Imóveis</span>
           </div>
           <div class="header-title">
-            <h1>Proposta Comercial</h1>
-            <p>Ficha de Interesse Cadastral • Emissão: ${dateStr}</p>
+            <h1>${title}</h1>
+            <p>${subtitle} • Emissão: ${dateStr}</p>
           </div>
         </div>
 

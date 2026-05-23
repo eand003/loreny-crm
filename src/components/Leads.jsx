@@ -26,6 +26,23 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLead, setEditingLead] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // PDF Proposal Preview Modal states
+  const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
+  const [proposalData, setProposalData] = useState({
+    title: 'Proposta Comercial',
+    subtitle: 'Ficha de Interesse Cadastral',
+    name: '',
+    phone: '',
+    property_type: 'Apartamento',
+    region: '',
+    budget: '',
+    notes: '',
+    realtorName: '',
+    realtorCompany: '',
+    realtorPhone: '',
+    realtorEmail: ''
+  });
   
   // Form fields matching Real Estate CRM
   const [formData, setFormData] = useState({
@@ -239,6 +256,51 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
       next_action_date: lead.next_action_date || ''
     });
     setIsModalOpen(true);
+  };
+
+  const handleOpenProposalModal = (lead) => {
+    setProposalData({
+      title: 'Proposta Comercial',
+      subtitle: 'Ficha de Interesse Cadastral',
+      name: lead.name || '',
+      phone: lead.phone || '',
+      property_type: lead.property_type || 'Apartamento',
+      region: lead.region || '',
+      budget: lead.budget || '',
+      notes: lead.notes || '',
+      realtorName: user?.user_metadata?.full_name || 'Corretora Loreny',
+      realtorCompany: user?.user_metadata?.company || 'Loreny Imóveis',
+      realtorPhone: user?.user_metadata?.phone || '',
+      realtorEmail: user?.email || ''
+    });
+    setIsProposalModalOpen(true);
+  };
+
+  const handleProposalInputChange = (e) => {
+    const { name, value } = e.target;
+    setProposalData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleGenerateProposal = (e) => {
+    e.preventDefault();
+    const tempLead = {
+      name: proposalData.name,
+      phone: proposalData.phone,
+      property_type: proposalData.property_type,
+      region: proposalData.region,
+      budget: proposalData.budget,
+      notes: proposalData.notes
+    };
+    generateProposalPDF(
+      tempLead,
+      proposalData.realtorName,
+      proposalData.realtorEmail,
+      proposalData.realtorPhone,
+      proposalData.realtorCompany,
+      proposalData.title,
+      proposalData.subtitle
+    );
+    setIsProposalModalOpen(false);
   };
 
   const handleInputChange = (e) => {
@@ -748,13 +810,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                 )}
                 
                 <button 
-                  onClick={() => generateProposalPDF(
-                    ld, 
-                    user?.user_metadata?.full_name || '', 
-                    user?.email || '', 
-                    user?.user_metadata?.phone || '', 
-                    user?.user_metadata?.company || ''
-                  )} 
+                  onClick={() => handleOpenProposalModal(ld)} 
                   className="action-btn"
                   style={{ flex: '0 0 auto', width: '40px', padding: 0, justifyContent: 'center', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.2)' }}
                   title="Gerar Proposta PDF"
@@ -931,13 +987,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                 </label>
                 <button 
                   type="button"
-                  onClick={() => generateProposalPDF(
-                    editingLead, 
-                    user?.user_metadata?.full_name || '', 
-                    user?.email || '', 
-                    user?.user_metadata?.phone || '', 
-                    user?.user_metadata?.company || ''
-                  )}
+                  onClick={() => handleOpenProposalModal(editingLead)}
                   className="btn btn-outline"
                   style={{ 
                     height: '28px', 
@@ -1067,6 +1117,212 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
           <button type="submit" disabled={loading} className="btn btn-primary btn-large">
             {loading ? 'Salvando...' : editingLead ? 'Salvar Alterações' : 'Criar Lead'}
           </button>
+        </form>
+      </Modal>
+
+      {/* MODAL PARA REVISAR E AJUSTAR DADOS DA PROPOSTA PDF */}
+      <Modal 
+        isOpen={isProposalModalOpen} 
+        onClose={() => setIsProposalModalOpen(false)} 
+        title="Visualizar & Ajustar Proposta Comercial 📄"
+      >
+        <form onSubmit={handleGenerateProposal}>
+          <div style={{ 
+            backgroundColor: 'rgba(16, 185, 129, 0.04)', 
+            border: '1px solid rgba(16, 185, 129, 0.15)', 
+            padding: '12px 16px', 
+            borderRadius: 'var(--radius-md)', 
+            marginBottom: '20px', 
+            fontSize: '13px', 
+            color: 'var(--gray-700)',
+            lineHeight: '1.4'
+          }}>
+            ✨ <strong>Personalização Temporária:</strong> Os ajustes feitos nesta tela servem exclusivamente para a geração deste PDF. Nenhuma informação será salva permanentemente na sua base de dados principal, permitindo que você personalize propostas sob medida para cada cliente sem poluir o histórico.
+          </div>
+
+          {/* DOCUMENT HEADER DETAILS */}
+          <div style={{ marginBottom: '18px', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px' }}>
+            <h4 style={{ fontSize: '13px', textTransform: 'uppercase', color: 'var(--primary)', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '12px' }}>
+              🎨 Layout & Títulos do Documento
+            </h4>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Título Principal</label>
+                <input 
+                  type="text" 
+                  name="title" 
+                  value={proposalData.title} 
+                  onChange={handleProposalInputChange} 
+                  placeholder="Ex: Proposta Comercial"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Subtítulo / Descritivo</label>
+                <input 
+                  type="text" 
+                  name="subtitle" 
+                  value={proposalData.subtitle} 
+                  onChange={handleProposalInputChange} 
+                  placeholder="Ex: Ficha de Interesse Cadastral"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* CLIENT DETAILS */}
+          <div style={{ marginBottom: '18px', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px' }}>
+            <h4 style={{ fontSize: '13px', textTransform: 'uppercase', color: 'var(--primary)', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '12px' }}>
+              👤 Informações do Cliente (Lead)
+            </h4>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Nome do Cliente</label>
+                <input 
+                  type="text" 
+                  name="name" 
+                  value={proposalData.name} 
+                  onChange={handleProposalInputChange} 
+                  placeholder="Ex: Ana Paula"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Celular / WhatsApp</label>
+                <input 
+                  type="tel" 
+                  name="phone" 
+                  value={proposalData.phone} 
+                  onChange={handleProposalInputChange} 
+                  placeholder="Ex: 11999998888"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Tipo de Imóvel</label>
+                <select name="property_type" value={proposalData.property_type} onChange={handleProposalInputChange}>
+                  {OPTIONS.PROPERTY_TYPES.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Região / Bairro</label>
+                <input 
+                  type="text" 
+                  name="region" 
+                  value={proposalData.region} 
+                  onChange={handleProposalInputChange} 
+                  placeholder="Ex: Jardim Botânico"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Orçamento Limite (R$)</label>
+                <input 
+                  type="number" 
+                  name="budget" 
+                  value={proposalData.budget} 
+                  onChange={handleProposalInputChange} 
+                  placeholder="Ex: 750000"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* REALTOR DETAILS */}
+          <div style={{ marginBottom: '18px', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px' }}>
+            <h4 style={{ fontSize: '13px', textTransform: 'uppercase', color: 'var(--primary)', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '12px' }}>
+              🤝 Dados do Consultor Técnico
+            </h4>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Nome do Consultor</label>
+                <input 
+                  type="text" 
+                  name="realtorName" 
+                  value={proposalData.realtorName} 
+                  onChange={handleProposalInputChange} 
+                  placeholder="Ex: Corretora Loreny"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Imobiliária / Empresa</label>
+                <input 
+                  type="text" 
+                  name="realtorCompany" 
+                  value={proposalData.realtorCompany} 
+                  onChange={handleProposalInputChange} 
+                  placeholder="Ex: Loreny Imóveis"
+                  required
+                />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Celular de Contato</label>
+                <input 
+                  type="tel" 
+                  name="realtorPhone" 
+                  value={proposalData.realtorPhone} 
+                  onChange={handleProposalInputChange} 
+                  placeholder="Ex: 11999997777"
+                />
+              </div>
+              <div className="form-group">
+                <label>E-mail de Contato</label>
+                <input 
+                  type="email" 
+                  name="realtorEmail" 
+                  value={proposalData.realtorEmail} 
+                  onChange={handleProposalInputChange} 
+                  placeholder="Ex: consultor@imoveis.com"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* HISTORICAL NOTES/TIMELINE */}
+          <div style={{ marginBottom: '24px' }}>
+            <h4 style={{ fontSize: '13px', textTransform: 'uppercase', color: 'var(--primary)', fontWeight: 700, letterSpacing: '0.5px', marginBottom: '6px' }}>
+              📜 Linha do Tempo & Anotações do Atendimento
+            </h4>
+            <p style={{ color: 'var(--gray-400)', fontSize: '11px', marginBottom: '10px' }}>
+              As notas abaixo serão renderizadas na timeline da proposta. Edite o texto mantendo o padrão <code>[DD/MM/AAAA hh:mm] - Nota</code> se desejar que sejam detectadas como marcos cronológicos ou reescreva livremente.
+            </p>
+            <textarea 
+              name="notes" 
+              value={proposalData.notes} 
+              onChange={handleProposalInputChange} 
+              placeholder="Ex: [23/05/2026 14:00] - Apresentação das opções..."
+              rows={5}
+              style={{ fontFamily: 'monospace', fontSize: '12px', lineHeight: '1.5' }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <button 
+              type="button" 
+              onClick={() => setIsProposalModalOpen(false)} 
+              className="btn btn-outline"
+              style={{ flex: 1, height: '44px', fontWeight: 600 }}
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              className="btn btn-primary"
+              style={{ flex: 2, height: '44px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              <FileText size={18} />
+              <span>Gerar e Imprimir Proposta PDF 📄</span>
+            </button>
+          </div>
         </form>
       </Modal>
 
