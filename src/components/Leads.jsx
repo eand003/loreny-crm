@@ -21,6 +21,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   const [selectedPropertyFilter, setSelectedPropertyFilter] = useState('');
   const [temperatureFilter, setTemperatureFilter] = useState('');
   const [leadSourceFilter, setLeadSourceFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const [profiles, setProfiles] = useState([]);              // lista de corretores para o filtro
   const [visits, setVisits] = useState([]);
   const [newTimelineNote, setNewTimelineNote] = useState('');
@@ -75,6 +76,14 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   const realtorName = user?.user_metadata?.full_name || 'Corretora Loreny';
   const userRole = user?.user_metadata?.role || 'broker';
   const isManager = userRole === 'manager' || userRole === 'admin';
+
+  const activeFiltersCount = 
+    (statusFilter ? 1 : 0) +
+    (propertyTypeFilter ? 1 : 0) +
+    (brokerFilter ? 1 : 0) +
+    (selectedPropertyFilter ? 1 : 0) +
+    (temperatureFilter ? 1 : 0) +
+    (leadSourceFilter ? 1 : 0);
 
   useEffect(() => {
     fetchLeads();
@@ -700,184 +709,449 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
 
       {/* SEARCH AND FILTERS BAR */}
       <div className="search-filter-bar flex-col gap-2" style={{ display: 'flex', marginBottom: '24px' }}>
-        <div className="search-input-wrapper">
-          <Search size={16} />
-          <input 
-            type="text" 
-            placeholder="Buscar por cliente, região, tipo de imóvel..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        {/* FILTRO POR CORRETOR — visível apenas para gerente e admin */}
-        {isManager && profiles.length > 0 && (
-          <div className="filter-row no-scrollbar">
-            <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-              <Filter size={14} /> Corretor:
-            </span>
-            <button
-              className={`badge ${brokerFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
-              onClick={() => setBrokerFilter('')}
-              style={{ border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
-            >
-              Todos ({leads.length})
-            </button>
-            {profiles.map(p => {
-              const count = leads.filter(l => l.owner_id === p.id).length;
-              if (count === 0) return null;
-              return (
-                <button
-                  key={p.id}
-                  className={`badge ${brokerFilter === p.id ? 'badge-new' : 'badge-no_fit'}`}
-                  onClick={() => setBrokerFilter(brokerFilter === p.id ? '' : p.id)}
-                  style={{ border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
-                >
-                  👤 {p.full_name || p.email} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0,0,0,0.08)', padding: '1px 5px', borderRadius: '8px', marginLeft: '4px' }}>{count}</span>
-                </button>
-              );
-            })}
+        <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+          <div className="search-input-wrapper" style={{ flex: 1, marginBottom: 0 }}>
+            <Search size={16} />
+            <input 
+              type="text" 
+              placeholder="Buscar por cliente, região, tipo de imóvel..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
-        )}
-        
-        <div className="filter-row no-scrollbar">
-          <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-            <Filter size={14} /> Estágio Funil:
-          </span>
           <button 
-            className={`badge ${statusFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
-            onClick={() => setStatusFilter('')}
-            style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+            type="button"
+            onClick={() => setShowFilters(!showFilters)} 
+            className="btn btn-outline" 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px', 
+              height: '42px',
+              padding: '0 16px',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '13px',
+              fontWeight: 600,
+              backgroundColor: showFilters ? 'var(--primary-light)' : 'rgba(255, 255, 255, 0.02)',
+              color: showFilters ? 'var(--primary)' : 'var(--gray-300)',
+              border: showFilters ? '1px solid var(--primary)' : '1px solid var(--border-color)',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
+            }}
           >
-            Todos <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{leads.length}</span>
+            <Filter size={16} />
+            <span>Filtros {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ''}</span>
           </button>
-          {OPTIONS.STAGES.map(stage => {
-            const count = leads.filter(l => l.status === stage.value).length;
-            return (
-              <button 
-                key={stage.value}
-                className={`badge ${statusFilter === stage.value ? `badge-${stage.value}` : 'badge-no_fit'}`}
-                onClick={() => setStatusFilter(stage.value)}
-                style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
-              >
-                {stage.label} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{count}</span>
-              </button>
-            );
-          })}
         </div>
 
-        <div className="filter-row no-scrollbar">
-          <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-            <Filter size={14} /> Tipo de Imóvel:
-          </span>
-          <button 
-            className={`badge ${propertyTypeFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
-            onClick={() => setPropertyTypeFilter('')}
-            style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
-          >
-            Todos <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{leads.length}</span>
-          </button>
-          {OPTIONS.PROPERTY_TYPES.map(type => {
-            const count = leads.filter(l => matchPropertyType(l.property_type, type)).length;
-            return (
-              <button 
-                key={type}
-                className={`badge ${propertyTypeFilter === type ? 'badge-new' : 'badge-no_fit'}`}
-                onClick={() => setPropertyTypeFilter(type)}
-                style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
-              >
-                {type} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{count}</span>
-              </button>
-            );
-          })}
-        </div>
+        {/* Active Filter Chips Summary */}
+        {activeFiltersCount > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--gray-500)', fontWeight: 600 }}>Filtros ativos:</span>
+            
+            {statusFilter && (
+              <span className={`badge badge-${statusFilter}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', padding: '2px 8px', border: 'none' }}>
+                Estágio: {OPTIONS.STAGES.find(s => s.value === statusFilter)?.label}
+                <span onClick={() => setStatusFilter('')} style={{ cursor: 'pointer', fontWeight: 800, marginLeft: '4px', fontSize: '9px' }}>✕</span>
+              </span>
+            )}
+            
+            {propertyTypeFilter && (
+              <span className="badge badge-new" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', padding: '2px 8px', border: 'none' }}>
+                Imóvel: {propertyTypeFilter}
+                <span onClick={() => setPropertyTypeFilter('')} style={{ cursor: 'pointer', fontWeight: 800, marginLeft: '4px', fontSize: '9px' }}>✕</span>
+              </span>
+            )}
 
-        <div className="filter-row no-scrollbar">
-          <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-            <Filter size={14} /> Temperatura:
-          </span>
-          <button 
-            className={`badge ${temperatureFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
-            onClick={() => setTemperatureFilter('')}
-            style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
-          >
-            Todos <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{leads.length}</span>
-          </button>
-          {OPTIONS.TEMPERATURES.map(temp => {
-            const count = leads.filter(l => (l.temperature || 'warm') === temp.value).length;
-            return (
-              <button 
-                key={temp.value}
-                className={`badge ${temperatureFilter === temp.value ? temp.badgeClass : 'badge-no_fit'}`}
-                onClick={() => setTemperatureFilter(temperatureFilter === temp.value ? '' : temp.value)}
-                style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
-              >
-                🔥 {temp.label} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{count}</span>
-              </button>
-            );
-          })}
-        </div>
+            {temperatureFilter && (
+              <span className={`badge ${OPTIONS.TEMPERATURES.find(t => t.value === temperatureFilter)?.badgeClass}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', padding: '2px 8px', border: 'none' }}>
+                🔥 {OPTIONS.TEMPERATURES.find(t => t.value === temperatureFilter)?.label}
+                <span onClick={() => setTemperatureFilter('')} style={{ cursor: 'pointer', fontWeight: 800, marginLeft: '4px', fontSize: '9px' }}>✕</span>
+              </span>
+            )}
 
-        <div className="filter-row no-scrollbar">
-          <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-            <Filter size={14} /> Origem:
-          </span>
-          <button 
-            className={`badge ${leadSourceFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
-            onClick={() => setLeadSourceFilter('')}
-            style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
-          >
-            Todos <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{leads.length}</span>
-          </button>
-          {OPTIONS.LEAD_SOURCES.map(source => {
-            const count = leads.filter(l => (l.lead_source || 'Manual') === source).length;
-            return (
-              <button 
-                key={source}
-                className={`badge ${leadSourceFilter === source ? 'badge-new' : 'badge-no_fit'}`}
-                onClick={() => setLeadSourceFilter(leadSourceFilter === source ? '' : source)}
-                style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
-              >
-                📢 {source} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{count}</span>
-              </button>
-            );
-          })}
-        </div>
+            {leadSourceFilter && (
+              <span className="badge badge-new" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', padding: '2px 8px', border: 'none' }}>
+                Origem: {leadSourceFilter}
+                <span onClick={() => setLeadSourceFilter('')} style={{ cursor: 'pointer', fontWeight: 800, marginLeft: '4px', fontSize: '9px' }}>✕</span>
+              </span>
+            )}
 
-        {properties.length > 0 && (
-          <div className="filter-row no-scrollbar">
-            <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-              <Filter size={14} /> Empreendimento:
-            </span>
+            {brokerFilter && (
+              <span className="badge badge-new" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', padding: '2px 8px', border: 'none' }}>
+                Corretor: {getBrokerName(brokerFilter)}
+                <span onClick={() => setBrokerFilter('')} style={{ cursor: 'pointer', fontWeight: 800, marginLeft: '4px', fontSize: '9px' }}>✕</span>
+              </span>
+            )}
+
+            {selectedPropertyFilter && (
+              <span className="badge badge-new" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '10px', padding: '2px 8px', border: 'none' }}>
+                🏢 {properties.find(p => p.id === selectedPropertyFilter)?.code}
+                <span onClick={() => setSelectedPropertyFilter('')} style={{ cursor: 'pointer', fontWeight: 800, marginLeft: '4px', fontSize: '9px' }}>✕</span>
+              </span>
+            )}
+
             <button 
-              className={`badge ${selectedPropertyFilter === '' ? 'badge-new' : 'badge-no_fit'}`}
-              onClick={() => setSelectedPropertyFilter('')}
-              style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+              type="button"
+              onClick={() => {
+                setStatusFilter('');
+                setPropertyTypeFilter('');
+                setTemperatureFilter('');
+                setLeadSourceFilter('');
+                setBrokerFilter('');
+                setSelectedPropertyFilter('');
+              }}
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: 'var(--primary)', 
+                fontSize: '11px', 
+                fontWeight: 700, 
+                cursor: 'pointer',
+                marginLeft: '8px',
+                textDecoration: 'underline'
+              }}
             >
-              Todos <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{leads.length}</span>
+              Limpar Todos
             </button>
-            {properties.map(p => {
-              const count = leads.filter(l => {
-                const qCode = p.code.toLowerCase();
-                const notes = (l.notes || '').toLowerCase();
-                const region = (l.region || '').toLowerCase();
-                return notes.includes(qCode) || region.includes(qCode);
-              }).length;
-              
-              return (
-                <button 
-                  key={p.id}
-                  className={`badge ${selectedPropertyFilter === p.id ? 'badge-new' : 'badge-no_fit'}`}
-                  onClick={() => setSelectedPropertyFilter(selectedPropertyFilter === p.id ? '' : p.id)}
-                  style={{ border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
-                >
-                  🏢 {p.code} - {p.title.length > 15 ? p.title.substring(0, 15) + '...' : p.title} <span style={{ fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(0, 0, 0, 0.08)', padding: '1px 5px', borderRadius: '8px' }}>{count}</span>
-                </button>
-              );
-            })}
           </div>
         )}
 
+        {/* Collapsible Advanced Filters Panel */}
+        {showFilters && (
+          <div style={{ 
+            marginTop: '12px', 
+            padding: '20px', 
+            borderRadius: 'var(--radius-md)', 
+            backgroundColor: 'var(--white)', 
+            border: '1px solid var(--gray-200)',
+            boxShadow: 'var(--shadow-md)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+              gap: '16px',
+              width: '100%'
+            }}>
+              {/* 1. Estágio Funil */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: '11px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Filter size={12} /> Estágio Funil
+                  </label>
+                  {statusFilter && (
+                    <button
+                      type="button"
+                      onClick={() => setStatusFilter('')}
+                      style={{ fontSize: '10px', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                    >
+                      Limpar
+                    </button>
+                  )}
+                </div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: statusFilter ? 'var(--primary-light)' : 'var(--white)',
+                    border: statusFilter ? '1.5px solid var(--primary)' : '1px solid var(--gray-300)',
+                    color: 'var(--gray-800)',
+                    fontSize: '13px',
+                    fontFamily: 'Inter, sans-serif',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    fontWeight: statusFilter ? 600 : 400
+                  }}
+                >
+                  <option value="">Todos ({leads.length})</option>
+                  {OPTIONS.STAGES.map(stage => {
+                    const count = leads.filter(l => l.status === stage.value).length;
+                    return (
+                      <option key={stage.value} value={stage.value}>
+                        {stage.label} ({count})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* 2. Tipo de Imóvel */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: '11px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Filter size={12} /> Tipo de Imóvel
+                  </label>
+                  {propertyTypeFilter && (
+                    <button
+                      type="button"
+                      onClick={() => setPropertyTypeFilter('')}
+                      style={{ fontSize: '10px', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                    >
+                      Limpar
+                    </button>
+                  )}
+                </div>
+                <select
+                  value={propertyTypeFilter}
+                  onChange={(e) => setPropertyTypeFilter(e.target.value)}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: propertyTypeFilter ? 'var(--primary-light)' : 'var(--white)',
+                    border: propertyTypeFilter ? '1.5px solid var(--primary)' : '1px solid var(--gray-300)',
+                    color: 'var(--gray-800)',
+                    fontSize: '13px',
+                    fontFamily: 'Inter, sans-serif',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    fontWeight: propertyTypeFilter ? 600 : 400
+                  }}
+                >
+                  <option value="">Todos ({leads.length})</option>
+                  {OPTIONS.PROPERTY_TYPES.map(type => {
+                    const count = leads.filter(l => matchPropertyType(l.property_type, type)).length;
+                    return (
+                      <option key={type} value={type}>
+                        {type} ({count})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* 3. Temperatura */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: '11px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Filter size={12} /> Temperatura
+                  </label>
+                  {temperatureFilter && (
+                    <button
+                      type="button"
+                      onClick={() => setTemperatureFilter('')}
+                      style={{ fontSize: '10px', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                    >
+                      Limpar
+                    </button>
+                  )}
+                </div>
+                <select
+                  value={temperatureFilter}
+                  onChange={(e) => setTemperatureFilter(e.target.value)}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: temperatureFilter ? 'var(--primary-light)' : 'var(--white)',
+                    border: temperatureFilter ? '1.5px solid var(--primary)' : '1px solid var(--gray-300)',
+                    color: 'var(--gray-800)',
+                    fontSize: '13px',
+                    fontFamily: 'Inter, sans-serif',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    fontWeight: temperatureFilter ? 600 : 400
+                  }}
+                >
+                  <option value="">Todos ({leads.length})</option>
+                  {OPTIONS.TEMPERATURES.map(temp => {
+                    const count = leads.filter(l => (l.temperature || 'warm') === temp.value).length;
+                    return (
+                      <option key={temp.value} value={temp.value}>
+                        {temp.label} ({count})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* 4. Origem */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: '11px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Filter size={12} /> Origem do Lead
+                  </label>
+                  {leadSourceFilter && (
+                    <button
+                      type="button"
+                      onClick={() => setLeadSourceFilter('')}
+                      style={{ fontSize: '10px', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                    >
+                      Limpar
+                    </button>
+                  )}
+                </div>
+                <select
+                  value={leadSourceFilter}
+                  onChange={(e) => setLeadSourceFilter(e.target.value)}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: leadSourceFilter ? 'var(--primary-light)' : 'var(--white)',
+                    border: leadSourceFilter ? '1.5px solid var(--primary)' : '1px solid var(--gray-300)',
+                    color: 'var(--gray-800)',
+                    fontSize: '13px',
+                    fontFamily: 'Inter, sans-serif',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    fontWeight: leadSourceFilter ? 600 : 400
+                  }}
+                >
+                  <option value="">Todos ({leads.length})</option>
+                  {OPTIONS.LEAD_SOURCES.map(source => {
+                    const count = leads.filter(l => (l.lead_source || 'Manual') === source).length;
+                    return (
+                      <option key={source} value={source}>
+                        {source} ({count})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* 5. Empreendimento */}
+              {properties.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Filter size={12} /> Empreendimento
+                    </label>
+                    {selectedPropertyFilter && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPropertyFilter('')}
+                        style={{ fontSize: '10px', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                      >
+                        Limpar
+                      </button>
+                    )}
+                  </div>
+                  <select
+                    value={selectedPropertyFilter}
+                    onChange={(e) => setSelectedPropertyFilter(e.target.value)}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: 'var(--radius-sm)',
+                      backgroundColor: selectedPropertyFilter ? 'var(--primary-light)' : 'var(--white)',
+                      border: selectedPropertyFilter ? '1.5px solid var(--primary)' : '1px solid var(--gray-300)',
+                      color: 'var(--gray-800)',
+                      fontSize: '13px',
+                      fontFamily: 'Inter, sans-serif',
+                      outline: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      fontWeight: selectedPropertyFilter ? 600 : 400
+                    }}
+                  >
+                    <option value="">Todos ({leads.length})</option>
+                    {properties.map(p => {
+                      const count = leads.filter(l => {
+                        const qCode = p.code.toLowerCase();
+                        const notes = (l.notes || '').toLowerCase();
+                        const region = (l.region || '').toLowerCase();
+                        return notes.includes(qCode) || region.includes(qCode);
+                      }).length;
+                      return (
+                        <option key={p.id} value={p.id}>
+                          {p.code} - {p.title.length > 15 ? p.title.substring(0, 15) + '...' : p.title} ({count})
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              )}
+
+              {/* 6. Corretor (Somente para Manager/Admin) */}
+              {isManager && profiles.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Filter size={12} /> Corretor Vinculado
+                    </label>
+                    {brokerFilter && (
+                      <button
+                        type="button"
+                        onClick={() => setBrokerFilter('')}
+                        style={{ fontSize: '10px', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                      >
+                        Limpar
+                      </button>
+                    )}
+                  </div>
+                  <select
+                    value={brokerFilter}
+                    onChange={(e) => setBrokerFilter(e.target.value)}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: 'var(--radius-sm)',
+                      backgroundColor: brokerFilter ? 'var(--primary-light)' : 'var(--white)',
+                      border: brokerFilter ? '1.5px solid var(--primary)' : '1px solid var(--gray-300)',
+                      color: 'var(--gray-800)',
+                      fontSize: '13px',
+                      fontFamily: 'Inter, sans-serif',
+                      outline: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      fontWeight: brokerFilter ? 600 : 400
+                    }}
+                  >
+                    <option value="">Todos ({leads.length})</option>
+                    {profiles.map(p => {
+                      const count = leads.filter(l => l.owner_id === p.id).length;
+                      return (
+                        <option key={p.id} value={p.id}>
+                          👤 {p.full_name || p.email} ({count})
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              )}
+            </div>
+            
+            {/* Resumo e Ações Rápidas de Limpeza */}
+            {activeFiltersCount > 0 && (
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'flex-end', 
+                paddingTop: '10px', 
+                borderTop: '1px solid var(--gray-200)',
+                marginTop: '4px'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStatusFilter('');
+                    setPropertyTypeFilter('');
+                    setTemperatureFilter('');
+                    setLeadSourceFilter('');
+                    setBrokerFilter('');
+                    setSelectedPropertyFilter('');
+                  }}
+                  style={{
+                    color: 'var(--primary)',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    background: 'none',
+                    border: 'none',
+                    textDecoration: 'underline',
+                    padding: 0
+                  }}
+                >
+                  Limpar todos os filtros
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* LEADS LIST CARDS */}
