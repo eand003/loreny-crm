@@ -348,3 +348,12 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
   - **Atualização em Lote Segura**: Localiza todos os leads ativos no banco de dados Supabase (e LocalStorage Mock) que contêm a tag antiga de forma case-insensitive e substitui com precisão cirúrgica a tag antiga pelo novo código (`[Imóvel: AP303]`).
   - **Zero Quebras ou Desconexões**: O lead permanece perfeitamente vinculado à propriedade, renderiza o badge correto no card com o novo nome/código em tempo real, e responde perfeitamente aos filtros avançados de empreendimento.
 
+### 27. Alternância Tátil Rápida de Temperatura do Lead [NOVO] [x]
+- **O Problema**: Para alterar a temperatura (engajamento) de um lead (de `Quente` para `Frio` ou `Morno`), o corretor precisava abrir o modal de edição clicando em "Editar Lead", rolar até o campo de seletor de temperatura, abrir o dropdown, selecionar a nova opção, rolar até o fim e salvar. Um processo com mais de 5 interações manuais lento para uso contínuo no celular.
+- **A Solução**: Criamos um atalho de **Alternância Tátil Rápida (Toggle)** no componente [Leads.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Leads.jsx), tornando o badge de temperatura de cada card diretamente clicável.
+- **Recursos**:
+  - **Micro-interação de Ciclo**: Clicar no badge rotaciona a temperatura instantaneamente em um ciclo previsível: `Morno (warm) ➔ Quente (hot) ➔ Frio (cold) ➔ Morno (warm)`.
+  - **Atualização Otimista (Optimistic UI)**: A interface reage de forma imediata (em menos de 10ms) atualizando o visual do card na tela e o contador dinâmico de filtros antes mesmo de concluir a chamada à rede.
+  - **Sincronização em Segundo Plano**: A gravação do novo valor na tabela de leads do banco de dados (Supabase ou Mock local) é processada de forma assíncrona, proporcionando uma experiência de altíssima performance.
+  - **Dica de Uso Visual**: Ao passar o cursor ou pressionar no celular, o badge exibe o cursor do tipo `pointer` com dicas explicativas em tooltip.
+

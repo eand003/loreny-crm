@@ -467,6 +467,34 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     setCurrentTab('visits');
   };
 
+  const handleToggleTemperature = async (lead) => {
+    const currentTemp = lead.temperature || 'warm';
+    let nextTemp = 'warm';
+    if (currentTemp === 'warm') {
+      nextTemp = 'hot';
+    } else if (currentTemp === 'hot') {
+      nextTemp = 'cold';
+    } else {
+      nextTemp = 'warm';
+    }
+
+    try {
+      // Atualização otimista e instantânea de estado local
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, temperature: nextTemp } : l));
+
+      const { error } = await supabase
+        .from('leads')
+        .update({ temperature: nextTemp })
+        .eq('id', lead.id);
+
+      if (error) throw error;
+    } catch (e) {
+      // Reverte se houver erro
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, temperature: currentTemp } : l));
+      alert('Erro ao atualizar a temperatura do lead: ' + e.message);
+    }
+  };
+
   // OPEN WHATSAPP CHOOSE & EDIT MODAL
   const handleOpenWaModal = (lead) => {
     setActiveWaLead(lead);
@@ -1237,17 +1265,25 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                     {(() => {
                       const tempObj = OPTIONS.TEMPERATURES.find(t => t.value === ld.temperature) || OPTIONS.TEMPERATURES[1];
                       return (
-                        <span className={`badge ${tempObj.badgeClass}`} style={{
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          borderRadius: '5px',
-                          padding: '2px 8px',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          border: 'none',
-                          lineHeight: 1
-                        }}>
+                        <span 
+                          onClick={() => handleToggleTemperature(ld)}
+                          className={`badge ${tempObj.badgeClass}`} 
+                          style={{
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            borderRadius: '5px',
+                            padding: '2px 8px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            border: 'none',
+                            lineHeight: 1,
+                            cursor: 'pointer',
+                            userSelect: 'none',
+                            transition: 'all 0.15s ease'
+                          }}
+                          title="Clique para alternar temperatura (Quente ➔ Frio ➔ Morno)"
+                        >
                           🔥 {tempObj.label}
                         </span>
                       );
