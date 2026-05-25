@@ -99,6 +99,7 @@ Acompanhamento detalhado do desenvolvimento do novo CRM de alto padrão para Cor
 - `[x]` Validar empacotamento completo de produção executando `npm run build`.
 - `[x]` Otimizar a régua de filtros de leads, convertendo o layout poluído de 5 linhas em um Painel de Filtros Avançados retrátil (Collapsible) com resumo dinâmico de filtros ativos (chips) e botão de limpeza rápida.
 - `[x]` Desenvolver alternância tátil rápida (Toggle) de temperatura no card de lead via clique direto no badge, dotado de atualização otimista (Optimistic UI Update) e sincronização assíncrona com banco de dados.
+- `[x]` Exibir a data de entrada (created_at) do lead no card principal com badge minimalista e ícone de calendário.
 
 
 

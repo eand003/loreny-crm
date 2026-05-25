@@ -357,3 +357,11 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
   - **Sincronização em Segundo Plano**: A gravação do novo valor na tabela de leads do banco de dados (Supabase ou Mock local) é processada de forma assíncrona, proporcionando uma experiência de altíssima performance.
   - **Dica de Uso Visual**: Ao passar o cursor ou pressionar no celular, o badge exibe o cursor do tipo `pointer` com dicas explicativas em tooltip.
 
+### 28. Exibição da Data de Entrada (Cadastro) do Lead no Card [NOVO] [x]
+- **O Problema**: A data de entrada (cadastro) do lead no sistema é registrada no banco de dados (`created_at`), mas essa informação estratégica não era exibida em nenhum local da interface do usuário nos cards de leads, impossibilitando que os corretores soubessem quando o cliente foi captado sem acessar o banco de dados.
+- **A Solução**: Implementamos a renderização visual da data de criação no componente [Leads.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Leads.jsx).
+- **Recursos**:
+  - **Badge de Calendário Minimalista**: Adicionado um badge estilizado (`📅 DD/MM/AAAA`) na esteira de metadados de cada lead, posicionado lado a lado com os badges de Origem (`📢 Canal`) e de Temperatura (`🔥 Prioridade`).
+  - **Processamento Seguro**: Utiliza a função helper `formatDate` e tratamento robusto para fatiar strings de data ISO (`created_at.substring(0, 10)`), tratando fallbacks automáticos para dados legados sem data.
+  - **Legibilidade Aprimorada**: A inclusão da data permite ao corretor identificar leads antigos pendentes de follow-up com extrema facilidade e rapidez.
+

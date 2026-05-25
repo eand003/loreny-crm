@@ -1262,6 +1262,21 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                       📢 {ld.lead_source || 'Manual'}
                     </span>
 
+                    <span style={{
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      color: '#4b5563',
+                      backgroundColor: 'rgba(75, 85, 99, 0.06)',
+                      border: '1px solid rgba(75, 85, 99, 0.15)',
+                      borderRadius: '5px',
+                      padding: '2px 8px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }} title="Data de entrada do lead no sistema">
+                      📅 {ld.created_at ? formatDate(ld.created_at.substring(0, 10)) : 'Sem data'}
+                    </span>
+
                     {(() => {
                       const tempObj = OPTIONS.TEMPERATURES.find(t => t.value === ld.temperature) || OPTIONS.TEMPERATURES[1];
                       return (
