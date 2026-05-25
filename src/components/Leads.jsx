@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Target, Search, Filter, Phone, Calendar, Plus, Edit2, CheckCircle2, AlertCircle, Trash2, Send, MessageSquare, Upload, FileText, Copy } from 'lucide-react';
+import { Target, Search, Filter, Phone, Calendar, Plus, Edit2, CheckCircle2, AlertCircle, Trash2, Send, MessageSquare, Upload, Download, FileText, Copy } from 'lucide-react';
 import { supabase } from '../config/supabase';
 import { getLeadStatusLabel, formatDate, formatCurrency, compileWhatsAppTemplate, OPTIONS, matchPropertyType, parseNotesToHistory, generateProposalPDF } from '../utils/helpers';
 import Modal from './UI/Modal';
@@ -697,6 +697,87 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     }
   };
 
+  const handleExportCSV = () => {
+    if (filteredLeads.length === 0) {
+      alert('Não há leads disponíveis com os filtros aplicados para exportar.');
+      return;
+    }
+
+    const confirmExport = window.confirm(`Deseja exportar os ${filteredLeads.length} leads atualmente visíveis na tela para um arquivo CSV?`);
+    if (!confirmExport) return;
+
+    try {
+      // Definindo os cabeçalhos padrão em português
+      const headers = [
+        'Nome',
+        'WhatsApp/Telefone',
+        'E-mail',
+        'Tipo de Imóvel',
+        'Região de Interesse',
+        'Orçamento Pretendido',
+        'Estágio Funil',
+        'Origem do Lead',
+        'Tipo de Negócio',
+        'Temperatura',
+        'Próxima Ação',
+        'Data Retorno',
+        'Observações/Histórico',
+        'Data Cadastro'
+      ];
+
+      // Mapeando as linhas
+      const rows = filteredLeads.map(l => [
+        l.name || '',
+        l.phone || '',
+        l.email || '',
+        l.property_type || '',
+        l.region || '',
+        l.budget || '',
+        getLeadStatusLabel(l.status),
+        l.lead_source || 'Manual',
+        l.lead_type || 'Compra',
+        OPTIONS.TEMPERATURES.find(t => t.value === l.temperature)?.label || 'Morno',
+        l.next_action || '',
+        l.next_action_date || '',
+        l.notes || '',
+        l.created_at ? l.created_at.substring(0, 10) : ''
+      ]);
+
+      // Função utilitária para escapar campos textuais com aspas e evitar quebras de vírgulas
+      const escapeCSVField = (field) => {
+        if (field === null || field === undefined) return '""';
+        const str = String(field);
+        // Dobra as aspas duplas internas para escapar no formato CSV padrão
+        const escaped = str.replace(/"/g, '""');
+        return `"${escaped}"`;
+      };
+
+      const csvContent = [
+        headers.map(escapeCSVField).join(','),
+        ...rows.map(row => row.map(escapeCSVField).join(','))
+      ].join('\n');
+
+      // Inclui a marcação BOM (Byte Order Mark) UTF-8 no início do arquivo para que
+      // o Microsoft Excel reconheça perfeitamente a acentuação em português (á, é, õ, ç).
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      const now = new Date();
+      const dateStr = now.toISOString().substring(0, 10);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `leads_loreny_crm_${dateStr}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      alert(`Sucesso! ${filteredLeads.length} leads foram exportados com sucesso.`);
+    } catch (e) {
+      alert('Erro ao exportar CSV: ' + e.message);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between align-center" style={{ marginBottom: '20px' }}>
@@ -728,6 +809,23 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
             onChange={(e) => handleImportCSV(e.target.files[0])} 
             style={{ display: 'none' }} 
           />
+          <button 
+            onClick={handleExportCSV} 
+            className="btn btn-outline" 
+            style={{ 
+              fontFamily: 'Inter, sans-serif', 
+              fontWeight: 600, 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px',
+              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              color: 'var(--gray-300)',
+              border: '1px solid var(--border-color)'
+            }}
+          >
+            <Download size={18} />
+            <span>Exportar CSV</span>
+          </button>
           <button onClick={handleOpenAddModal} className="btn btn-primary" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>
             <Plus size={18} />
             <span>Cadastrar Lead</span>
