@@ -188,11 +188,44 @@ const Properties = ({ user }) => {
       };
 
       if (editingProperty) {
+        const oldCode = editingProperty.code.toUpperCase().trim();
+        const newCode = payload.code;
+
+        // 1. Atualizar o imóvel no banco
         const { error } = await supabase
           .from('properties')
           .update(payload)
           .eq('id', editingProperty.id);
         if (error) throw error;
+
+        // 2. Se o código do imóvel mudou, propaga a alteração para todos os leads vinculados
+        if (oldCode !== newCode) {
+          try {
+            const { data: leadsToUpdate, error: leadsError } = await supabase
+              .from('leads')
+              .select('id, notes')
+              .eq('is_deleted', false);
+              
+            if (!leadsError && leadsToUpdate) {
+              // Regex tolerante case-insensitive para capturar [Imóvel: oldCode] de forma segura
+              const escapedOldCode = oldCode.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+              const tagRegex = new RegExp(`\\[im[óo]vel:\\s*${escapedOldCode}\\]`, 'i');
+              
+              for (const lead of leadsToUpdate) {
+                if (lead.notes && tagRegex.test(lead.notes)) {
+                  const updatedNotes = lead.notes.replace(tagRegex, `[Imóvel: ${newCode}]`);
+                  await supabase
+                    .from('leads')
+                    .update({ notes: updatedNotes })
+                    .eq('id', lead.id);
+                }
+              }
+            }
+          } catch (e) {
+            console.error('Erro ao propagar alteração de código de imóvel para os leads:', e);
+          }
+        }
+
         alert('Imóvel atualizado com sucesso na carteira!');
       } else {
         const { error } = await supabase
