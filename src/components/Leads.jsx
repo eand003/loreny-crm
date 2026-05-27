@@ -495,6 +495,27 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     }
   };
 
+  const handleUpdateLeadStatus = async (lead, newStatus) => {
+    const oldStatus = lead.status;
+    if (oldStatus === newStatus) return;
+
+    try {
+      // Atualização otimista e instantânea de estado local
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, status: newStatus } : l));
+
+      const { error } = await supabase
+        .from('leads')
+        .update({ status: newStatus })
+        .eq('id', lead.id);
+
+      if (error) throw error;
+    } catch (e) {
+      // Reverte se houver erro
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, status: oldStatus } : l));
+      alert('Erro ao atualizar o estágio do lead: ' + e.message);
+    }
+  };
+
   // OPEN WHATSAPP CHOOSE & EDIT MODAL
   const handleOpenWaModal = (lead) => {
     setActiveWaLead(lead);
@@ -1403,9 +1424,42 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                     })()}
                   </div>
                 </div>
-                <span className={`badge badge-${ld.status}`}>
-                  {getLeadStatusLabel(ld.status)}
-                </span>
+                <select
+                  value={ld.status}
+                  onChange={(e) => handleUpdateLeadStatus(ld, e.target.value)}
+                  className={`badge badge-${ld.status}`}
+                  style={{
+                    border: 'none',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: 700,
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
+                    MozAppearance: 'none',
+                    padding: '4px 10px',
+                    textAlign: 'center',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 'auto',
+                    height: 'auto',
+                    margin: 0,
+                    fontSize: '11px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    lineHeight: '1.2',
+                    userSelect: 'none',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title="Clique para mudar o estágio do lead rapidamente"
+                >
+                  {OPTIONS.STAGES.map(stage => (
+                    <option key={stage.value} value={stage.value} style={{ backgroundColor: '#ffffff', color: '#1e293b', textTransform: 'none', fontWeight: 500 }}>
+                      {stage.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex justify-between" style={{ fontSize: '13px', color: 'var(--gray-600)', marginBottom: '10px' }}>

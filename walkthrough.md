@@ -132,6 +132,10 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
 - A seção de Follow-up no Dashboard serve como um hub ativo de tarefas, lembrando o corretor de reaquecer negociações frias de forma proativa.
 - A nova Ação Rápida **Novo Retorno** permite estruturar retornos de negociação e follow-ups em menos de 5 segundos diretamente na tela inicial do sistema.
 - A **Agenda & Atividades** unificada reúne no mesmo lugar visitas a imóveis e ligações de retorno de follow-up, centralizando toda a organização diária do corretor e melhorando drasticamente o fluxo de trabalho.
+- **Segurança Supabase Restaurada**: Sem erros de loop ou recursão infinita RLS, garantindo integridade robusta de dados em produção.
+- **Hierarquia de Permissões Blindada**: Novos usuários nascem seguros como `broker`, vendo apenas seus próprios registros, a menos que sejam explicitamente promovidos a gestores no banco de dados.
+- **Formulários Robustos**: Cadastro e edições de leads totalmente tolerantes a campos em branco e opcionais (como datas e e-mails), salvando com sucesso absoluto.
+- **Painel Gerencial Consolidado**: Gestores agora controlam e filtram a rotina de atividades (visitas e ligações de follow-up) de cada corretor em 1 clique na agenda corporativa.
 
 ### 11. Correção de Recursão Infinita em Políticas RLS do Supabase [x]
 - **O Problema**: Ao salvar ou ler registros como leads, o Supabase retornava o erro: `infinite recursion detected in policy for relation "re_profiles"`. Isso acontecia porque a política RLS da tabela `re_profiles` consultava a si mesma (`(select role from public.re_profiles...)`) para verificar o cargo do usuário ativo (`auth.uid()`), disparando um loop de verificação infinito.
@@ -154,7 +158,7 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
   - Todas as políticas que verificavam cargos agora chamam `public.get_user_role()`, eliminando o erro de recursão e assegurando o controle de acesso correto para gestores e corretores.
 
 ### 12. Fix de Segurança: Papel Padrão 'broker' em Novos Cadastros [x]
-- **O Problema**: Ao cadastrar uma conta nova na interface pública, o usuário deveria ter o papel de corretor (`broker`). Contudo, o perfil no banco era criado com `role = 'admin'`, permitindo acesso ilimitado a todos os leads. Isso ocorria porque a coluna `role` na tabela `re_profiles` possuía o padrão `default 'admin'` herdado de estruturas legadas, e falhas ou ausências na passagem de metadados no gatilho faziam o banco atribuir o maior privilégio por padrão.
+- **O Problema**: Ao cadastrar uma conta nova na interface pública, o usuário deveria ter o papel de corretor (`broker`). Contudo, o perfil no banco era criado com `role = 'admin'`, permitindo acesso ilimitado a todos os leads. Isso ocorreu porque a coluna `role` na tabela `re_profiles` possuía o padrão `default 'admin'` herdado de estruturas legadas, e falhas ou ausências na passagem de metadados no gatilho faziam o banco atribuir o maior privilégio por padrão.
 - **A Solução**:
   - Atualizamos a tabela no esquema principal [supabase_schema.sql](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/supabase_schema.sql) definindo o valor default da coluna `role` como `'broker'`.
   - Criamos o script corretivo [supabase_fix_signup_role.sql](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/supabase_fix_signup_role.sql) contendo a alteração direta da coluna (`ALTER TABLE ... SET DEFAULT 'broker'`) e a recriação da função do gatilho `public.handle_new_user()` para blindar qualquer brecha.
@@ -181,7 +185,7 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
 - **Recursos**:
   - **Identificação Automática**: O componente detecta se o usuário ativo é gestor (`isManager = true`) e carrega a lista de corretores (`re_profiles`) do banco Supabase.
   - **Filtro em Tempo Real**: Adiciona a régua horizontal deslizante `👤 Corretor:` no topo. Clicar em um corretor filtra instantaneamente a listagem de **📆 Visitas Imobiliárias** e de **📞 Contatos & Follow-up**.
-  - **Contadores Inteligentes**: Os botões do filtro exibem selos numéricos dinâmicos que mostram exatamente a quantidade de tarefas agendadas sob a responsabilidade de cada corretor (e o total do filtro) dependendo da sub-tab ativa no momento, atualizando-se de forma instantânea.
+  - **Contadores Inteligentes**: Os botões do filtro exibem selos numéricos dinâmicos que mostram exatamente a quantidade de tarefas agendadas sob a responsabilidade de cada corretor (e o total do filtro) dependendo da sub-tab activa no momento, atualizando-se de forma instantânea.
 
 ---
 
@@ -197,6 +201,7 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
 - **Hierarquia de Permissões Blindada**: Novos usuários nascem seguros como `broker`, vendo apenas seus próprios registros, a menos que sejam explicitamente promovidos a gestores no banco de dados.
 - **Formulários Robustos**: Cadastro e edições de leads totalmente tolerantes a campos em branco e opcionais (como datas e e-mails), salvando com sucesso absoluto.
 - **Painel Gerencial Consolidado**: Gestores agora controlam e filtram a rotina de atividades (visitas e ligações de follow-up) de cada corretor em 1 clique na agenda corporativa.
+- **Ecossistema Premium Concluído**: O CRM Loreny Imóveis v3 atinge o patamar de **SaaS de alto padrão**, dotado de controle de perfil autônomo, monitoramento visual de performance de equipe para gestores e geração de propostas profissionais em PDF para compartilhamento instantâneo.
 
 ### 15. Recursos Premium da Etapa 10 (Meu Perfil, Performance da Equipe e PDF) [x]
 - **Meu Perfil & Configurações**:
@@ -218,7 +223,7 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
 ## 🎉 Estado da Aplicação e Feedback Operacional
 - A aba **Gestão de Vendas & Metas Financeiras** tornou-se um hub estratégico interativo de alto valor agregado, organizando relatórios, metas persistentes de comissão, simuladores de fechamento de parcerias imobiliárias e simuladores bancários Caixa de financiamento habitacional de ponta.
 - O contador de leads ajuda no planejamento operacional imediato da rotina diária do time de vendas.
-- O modal de confirmação na Dashboard acelera a rotina de visitas físicas, permitindo confirmar agendas com 1 clique diretamente na tela principal sem trocar de aba.
+- O modal de confirmação na Dashboard acorda a rotina de visitas físicas, permitindo confirmar agendas com 1 clique diretamente na tela principal sem trocar de aba.
 - O seletor de cliente por autocomplete torna o agendamento de visitas extremamente prático e fluido.
 - A seção de Follow-up no Dashboard serve como um hub ativo de tarefas, lembrando o corretor de reaquecer negociações frias de forma proativa.
 - A nova Ação Rápida **Novo Retorno** permite estruturar retornos de negociação e follow-ups em menos de 5 segundos diretamente na tela inicial do sistema.
@@ -245,7 +250,7 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
 - **A Solução**: Implementamos o recurso de cópia rápida formatada de alta definição no [Leads.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Leads.jsx).
 - **Recursos**:
   - **Botão de Ação Rápida de Um Clique**: Adicionado o botão "Copiar Ficha" (ícone `Copy` da Lucide) em duas áreas do CRM: na barra de ações rápidas de cada card de lead e no cabeçalho do histórico de acompanhamento do cliente.
-  - **Formatação Rica com Emojis**: O texto copiado para a área de transferência do celular ou computador é gerado com formatação em negrito markdown e emojis temáticos, pronto para ser colado e lido perfeitamente no WhatsApp.
+  - **Formatação Rica com Emojis**: O texto copiado para a área de transferência del celular ou computador é gerado com formatação em negrito markdown e emojis temáticos, pronto para ser colado e lido perfeitamente no WhatsApp.
   - **Template Gerado**:
     ```text
     🔑 *Ficha de Interesse do Cliente — [Imobiliária do Corretor]*
@@ -271,6 +276,7 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
   - **Empilhamento de Formulários Inteligente**: Formulários em `.form-row` agora empilham seus campos verticalmente em tela cheia de forma 100% responsiva em telas menores que **576px**, fornecendo espaço amplo de digitação e visualização limpa.
   - **Réguas de Filtro com Deslizamento Smooth e Sem Scrollbars**: Adicionada a classe premium `.no-scrollbar` que oculta as barras de rolagem nativas de navegadores em réguas horizontais de filtros e abas, ao mesmo tempo que injeta aceleração de hardware por toque (`-webkit-overflow-scrolling: touch`) para um deslizar de dedos leve e fluido como um aplicativo nativo da App Store ou Play Store.
   - **Efeito de Toque Ativo (Feedback Tátil)**: Botões, cartões de lead e links contam agora com estados `:active` integrados de micro-escala (`transform: scale(0.975)`), transmitindo feedback tátil suave a cada toque do usuário.
+
 ### 19. Carteira Digital de Imóveis (Meus Imóveis Beta) [NOVO] [x]
 - **O Problema**: Corretores gastavam muito tempo redigitando as informações de seus imóveis captados (regiões, valores, comissões) sempre que iam cadastrar um lead interessado ou agendar uma visita imobiliária física. E empreendimentos/lançamentos multifamiliares com múltiplos tamanhos e preços não eram suportados no CRM de forma nativa e estruturada.
 - **A Solução**: Criamos um módulo completo de portfólio e carteira digital ([Properties.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Properties.jsx)) 100% integrado ao CRM.
@@ -279,26 +285,30 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
   - **Gerenciador de Tipologias/Plantas**: Em modo Empreendimento, o corretor pode gerenciar dinamicamente uma lista de plantas, metragens, preços de tabela e status de disponibilidade (🟢 Disponível, 🟡 Reservado, 🔴 Vendido) usando um construtor de arrays JSONB persistente.
   - **WhatsApp Quick Brochure ("Copiar Ficha")**: Um gerador sofisticado que formata um panfleto digital completo do imóvel em Markdown com emojis e detalhes de contato do corretor, pronto para ser colado e compartilhado instantaneamente no WhatsApp.
   - **Integração Sem Costuras (Leads & Visitas)**: Criamos seletores de auto-preenchimento no formulário de Leads (aba "Região de Interesse") e Visitas (aba "Identificação do Imóvel"), puxando os dados da carteira ativa com apenas 1 clique e eliminando digitação manual, mantendo **100% de retrocompatibilidade** sem exigir alterações em outras tabelas do banco de dados.
+
 ### 20. Filtro Dinâmico por Empreendimento/Imóvel na Aba de Leads [NOVO] [x]
 - **O Problema**: Após cadastrar imóveis em seu portfólio digital (como o lançamento Residencial Splendia ou um sobrado avulso), o corretor não tinha uma forma simples de filtrar instantaneamente quais leads estavam interessados em determinado empreendimento/lançamento ou captação específica. Além disso, títulos de propriedades com nomes genéricos (como "Casa" ou "Sobrado") causavam falsos positivos ao filtrar os leads por texto, e os cards dos leads não mostravam de forma visual se estavam vinculados a algum imóvel específico da carteira.
 - **A Solução**: Implementamos um sistema de **Filtro Inteligente de Empreendimento** em [Leads.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Leads.jsx) com correspondência por código de altíssima precisão e exibição de badges dinâmicos nos cards dos leads.
 - **Recursos**:
   - **Régua de Filtros Deslizante**: Nova régua horizontal premium deslizante (estilo `.no-scrollbar` sem barra de rolagem nativa) que lista dinamicamente todas as captações do corretor (ex: `AP202 - Residencial Splendia`) com selos/badges indicando o número real de leads interessados em cada uma delas.
   - **Marcação Automática por Tag**: Ao utilizar a funcionalidade "🔍 Vincular da Carteira" no cadastro ou edição de um lead, o sistema agora gera e insere a tag `[Imóvel: CODIGO_IMOVEL]` automaticamente na primeira linha do campo de observações (`notes`) de forma transparente.
-  - **Pesquisa por Código de Alta Precisão (Zero Falso Positivos)**: O filtro foi refinado para buscar unicamente pelo código único do imóvel (ex: `AP202` ou `CA05`) nos campos de anotações e região do lead. Isso impede que nomes comuns ou palavras soltas gerem correspondências errôneas ou exibam contatos incorretos.
-  - **Badge de Imóvel Vinculado no Card de Lead**: Criamos um badge premium em ouro e azul-marinho (`🏢 Imóvel: Residencial Splendia (AP202)`) posicionado lado a lado com o badge do corretor responsável dentro do card de cada cliente. Esse badge é extraído dinamicamente a partir das anotações e exibe o título atualizado e código do imóvel em tempo real, fornecendo controle visual impecável.### 21. Réguas de Filtro Responsivas e Inteligentes (Wrap no Desktop & Deslizamento no Mobile) [NOVO] [x]
+  - **Pesquisa por Código de Alta Precisão (Zero Falso Positivos)**: O filtro foi refinado para buscar unicamente pelo código único do imóvel (ex: `AP202` ou `CA05`) nos campos de anotações e região del lead. Isso impede que nomes comuns ou palavras soltas gerem correspondências errôneas ou exibam contatos incorretos.
+  - **Badge de Imóvel Vinculado no Card de Lead**: Criamos um badge premium em ouro e azul-marinho (`🏢 Imóvel: Residencial Splendia (AP202)`) posicionado lado a lado com o badge do corretor responsável dentro do card de cada cliente. Esse badge é extraído dinamicamente a partir das anotações e exibe o título atualizado e código do imóvel em tempo real, fornecendo controle visual impecável.
+
+### 21. Réguas de Filtro Responsivas e Inteligentes (Wrap no Desktop & Deslizamento no Mobile) [NOVO] [x]
 - **O Problema**: No mobile, a rolagem horizontal das réguas de filtros e sub-abas é ideal pois maximiza a usabilidade de tela estreita. No entanto, no desktop (onde não há gestos de arrasto e os scrollbars nativos estavam ocultados pela classe `.no-scrollbar`), os usuários de mouse convencional tinham extrema dificuldade para rolar a barra e acessar as opções de filtro cortadas.
 - **A Solução**: Criamos a classe CSS responsiva `.filter-row` em [index.css](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/index.css) e a aplicamos uniformemente em todos os filtros e seletores de sub-abas do CRM nas abas [Leads.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Leads.jsx), [Visits.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Visits.jsx) e [Properties.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Properties.jsx).
 - **Recursos**:
   - **Wrap Dinâmico no Desktop**: Em telas com largura maior ou igual a **768px**, a classe desativa a rolagem horizontal e ativa a quebra de linha flexível (`flex-wrap: wrap; overflow-x: visible;`). Isso faz com que todos os filtros e badges fiquem 100% visíveis, organizados e clicáveis na tela ao mesmo tempo, sem necessidade de rolagem.
   - **Deslizamento Suave no Mobile**: Em telas menores de 768px, a classe mantém automaticamente a rolagem por toque (`overflow-x: auto; -webkit-overflow-scrolling: touch;`), garantindo o melhor dos dois mundos.
   - **Código Limpo**: A centralização dessa lógica na folha de estilos removeu dezenas de propriedades e inline-styles duplicados no código React, tornando o ecossistema infinitamente mais limpo e padronizado.
+
 ### 22. Sincronização de Alta Reatividade & Regex Tolerante a Variações [NOVO] [x]
 - **O Problema**: Ao cadastrar um novo imóvel e imediatamente tentar vinculá-lo a um lead na aba de Leads, os dados em memória do CRM podiam ficar defasados, impedindo a exibição do novo imóvel no seletor de "Vincular da Carteira" sem que houvesse um F5. Além disso, se o corretor editasse a tag manual de forma imperfeita no campo de observações (como escrever `[imovel: SPL]` em minúsculo ou sem acento), a expressão regular original falhava e o badge sumia do card.
 - **A Solução**: Implementamos a reatualização sob demanda (Fresh-fetching) em tempo real e redefinimos o mecanismo regex para tolerância absoluta a variações textuais.
 - **Recursos**:
   - **Fresh-load em Abertura de Modal**: Injetamos a chamada de carregamento `fetchProperties()` (e `fetchLeads()` na aba de visitas) diretamente nos gatilhos de abertura de modais (`handleOpenAddModal` e `handleOpenEditModal`) de Leads e Visitas. Assim, no exato segundo em que o formulário de cadastro abre, o sistema puxa a lista de captações diretamente do banco de dados, garantindo que o imóvel recém-criado na outra aba apareça instantaneamente.
-  - **Regex Ultra-Robusto com Tolerância a Variações**: O leitor de tags do card de leads foi aprimorado para a expressão regular `/\[im[óo]vel:\s*([^\]]+)\]/i`. Esta expressão é:
+  - **Regex Ultra-Robusto com Tolerância a Variações**: O leitor de tags del card de leads foi aprimorado para a expressão regular `/\[im[óo]vel:\s*([^\]]+)\]/i`. Esta expressão é:
     - **Case-Insensitive** (bandeira `i`): Aceita `Imóvel`, `imovel`, `IMOVEL`, etc.
     - **Accent-Tolerant** (`[óo]`): Aceita com ou sem acentuação no "o".
     - **Spaces-Supportive** (`[^\]]+`): Extrai códigos com espaços (ex: `[Imóvel: AP 123]`) perfeitamente, e realiza um `.trim()` para eliminar espaços em branco residuais, garantindo que a associação nunca falhe por digitação ou formatação humana.
@@ -341,7 +351,7 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
   - **Botão Centralizado de Reset**: Atalho inferior integrado "Limpar todos os filtros" para limpar todas as seleções em 1 clique.
 
 ### 26. Sincronização Inteligente e Integridade de Código de Imóvel [NOVO] [x]
-- **O Problema**: A carteira de imóveis e os leads estão vinculados por meio de uma tag de texto (`[Imóvel: CODIGO_IMOVEL]`) nas anotações (`notes`) de forma 100% retrocompatível. No entanto, se o corretor editasse o código de um imóvel cadastrado (ex: de `AP202` para `AP303`), a tag nas anotações do lead permanecia estática como `AP202`. Como consequência, o lead perdia o vínculo com o imóvel na listagem de leads, o badge do card sumia e o lead desaparecia completamente das buscas pelos filtros de empreendimento.
+- **O Problema**: A carteira de imóveis e os leads estão vinculados por meio de uma tag de texto (`[Imóvel: CODIGO_IMOVEL]`) nas anotações (`notes`) de forma 100% retrocompatível. No entanto, se o corretor editasse o código de um imóvel cadastrado (ex: de `AP202` para `AP303`), a tag nas anotações do lead permanecia estática como `AP202`. Como consequência, o lead perdia o vínculo com o imóvel na listagem de leads, o badge del card sumia e o lead desaparecia completamente das buscas pelos filtros de empreendimento.
 - **A Solução**: Implementamos um sistema de **sincronização reativa bidirecional** no componente [Properties.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Properties.jsx) ao salvar uma edição de imóvel.
 - **Recursos**:
   - **Propagação Automática de Código**: O CRM detecta se a propriedade sendo editada teve seu código alterado (`oldCode !== newCode`).
@@ -365,3 +375,19 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
   - **Processamento Seguro**: Utiliza a função helper `formatDate` e tratamento robusto para fatiar strings de data ISO (`created_at.substring(0, 10)`), tratando fallbacks automáticos para dados legados sem data.
   - **Legibilidade Aprimorada**: A inclusão da data permite ao corretor identificar leads antigos pendentes de follow-up com extrema facilidade e rapidez.
 
+### 29. Exportador de Leads para CSV Estruturado [NOVO] [x]
+- **O Problema**: A exportação e manipulação de relatórios de leads fora do ambiente do CRM era impossível, forçando os usuários a consultarem dados manualmente ou usarem o banco de dados diretamente. Além disso, a importação de CSVs funcionava, mas não havia uma via de exportação simétrica para backup ou análise em planilhas como Microsoft Excel ou Google Sheets. E as exportações comuns costumam quebrar caracteres acentuados da língua portuguesa (como "Estágio", "Ação", "Orçamento").
+- **A Solução**: Desenvolvemos um exportador inteligente e completo em [Leads.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Leads.jsx) integrado à régua de ações superiores.
+- **Recursos**:
+  - **Injeção de BOM UTF-8**: O exportador adiciona automaticamente a marca de ordem de byte UTF-8 (`\uFEFF`) no início do arquivo CSV. Isso instrui o Excel e o Sheets a abrirem o arquivo diretamente com o encoding correto, renderizando perfeitamente acentos, cedilhas e caracteres especiais em português (á, é, õ, ç).
+  - **Filtros Dinâmicos Respeitados**: O botão "Exportar CSV" exporta cirurgicamente a lista exata de leads atualmente exibida na tela com base nos filtros ativos aplicados (estágio, orçamento, corretor, empreendimento, temperatura), permitindo relatórios segmentados de altíssimo valor.
+  - **Mapeamento Amigável**: Mapeia todas as colunas operacionais para nomes amigáveis em português (Nome, WhatsApp, E-mail, Tipo de Imóvel, Região, Orçamento, Estágio, Origem, Temperatura, Próxima Ação, Data Retorno, Observações e Data Cadastro) com formatação limpa de valores e datas.
+
+### 30. Alteração Rápida de Estágio do Funil (Clickable Stage Badge) [NOVO] [x]
+- **O Problema**: Para transicionar o lead entre as etapas do funil de vendas (ex: mover de `Contato Feito` para `Visita Agendada`), o corretor tinha que clicar no botão de edição de card, abrir o modal de formulário completo, selecionar o novo status, rolar o modal até o final e salvar o lead. Isso representava cliques e rolagem excessivos, especialmente em smartphones na rua.
+- **A Solução**: Transformamos o selo estático de estágio de lead no canto superior direito de cada card de lead em um seletor rápido e responsivo em [Leads.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Leads.jsx).
+- **Recursos**:
+  - **Seletor Badge Disfarçado**: O selo estático foi substituído por um `<select>` nativo com estilo invisível (`appearance: none`, custom border/shadows/padding). Ele mantém 100% da estética original de alto luxo do selo colorido arredondado, mas é totalmente clicável e interativo.
+  - **Mudança em 2 Toques**: Clicar no selo abre o menu suspenso ou a folha de escolha nativa do sistema operacional (iOS/Android/Windows), permitindo escolher qualquer um dos 7 estágios do funil com apenas 2 toques rápidos.
+  - **Atualização Otimista da UI**: No momento em que um novo estágio é selecionado, o estado local React de `leads` é recalculado instantaneamente. O card atualiza sua pílula e os contadores de filtros no painel de filtros superior se atualizam na velocidade do pensamento.
+  - **Sincronização Assíncrona Inteligente**: O banco de dados Supabase é atualizado silenciosamente em segundo plano. Caso ocorra alguma falha na chamada, o estado anterior é restaurado de forma segura acompanhado de um aviso ao usuário, mantendo a integridade dos dados.
