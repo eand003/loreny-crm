@@ -102,4 +102,4 @@ Acompanhamento detalhado do desenvolvimento do novo CRM de alto padrão para Cor
 - `[x]` Exibir a data de entrada (created_at) do lead no card principal com badge minimalista e ícone de calendário.
 - `[x]` Desenvolver exportador de banco de dados para CSV estruturado em português, suportando filtragem dinâmica local e injeção de BOM UTF-8 para exibição correta de acentos no Excel.
 - `[x]` Desenvolver seletor rápido de estágio do lead (status) clicável no canto superior direito do card, dotado de atualização otimista (Optimistic UI Update) e sincronização com o Supabase.
-
+- `[x]` Desenvolver seletor de ordenação de leads no Painel de Filtros Avançados, suportando ordenação alfabética (A-Z e Z-A), orçamento (Maior/Menor) e data de entrada (Mais Recentes/Antigos) de forma altamente reativa in-memory.

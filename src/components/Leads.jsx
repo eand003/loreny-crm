@@ -21,6 +21,7 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
   const [selectedPropertyFilter, setSelectedPropertyFilter] = useState('');
   const [temperatureFilter, setTemperatureFilter] = useState('');
   const [leadSourceFilter, setLeadSourceFilter] = useState('');
+  const [sortBy, setSortBy] = useState('created_desc');
   const [showFilters, setShowFilters] = useState(false);
   const [profiles, setProfiles] = useState([]);              // lista de corretores para o filtro
   const [visits, setVisits] = useState([]);
@@ -155,9 +156,24 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
     if (leadSourceFilter !== '') {
       result = result.filter(l => (l.lead_source || 'Manual') === leadSourceFilter);
     }
+
+    // Aplicar Ordenação
+    if (sortBy === 'alphabetical_asc') {
+      result = [...result].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+    } else if (sortBy === 'alphabetical_desc') {
+      result = [...result].sort((a, b) => b.name.localeCompare(a.name, 'pt-BR'));
+    } else if (sortBy === 'budget_desc') {
+      result = [...result].sort((a, b) => (b.budget || 0) - (a.budget || 0));
+    } else if (sortBy === 'budget_asc') {
+      result = [...result].sort((a, b) => (a.budget || 0) - (b.budget || 0));
+    } else if (sortBy === 'created_asc') {
+      result = [...result].sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+    } else { // 'created_desc'
+      result = [...result].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    }
     
     setFilteredLeads(result);
-  }, [search, statusFilter, propertyTypeFilter, brokerFilter, selectedPropertyFilter, temperatureFilter, leadSourceFilter, leads, properties]);
+  }, [search, statusFilter, propertyTypeFilter, brokerFilter, selectedPropertyFilter, temperatureFilter, leadSourceFilter, sortBy, leads, properties]);
 
   const fetchLeads = async () => {
     try {
@@ -1261,6 +1277,48 @@ const Leads = ({ user, activeQuickAction, onClearQuickAction, setCurrentTab, set
                   </select>
                 </div>
               )}
+
+              {/* 7. Ordenar Por */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: '11px', color: 'var(--gray-500)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Search size={12} /> Ordenar por
+                  </label>
+                  {sortBy !== 'created_desc' && (
+                    <button
+                      type="button"
+                      onClick={() => setSortBy('created_desc')}
+                      style={{ fontSize: '10px', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                    >
+                      Padrão
+                    </button>
+                  )}
+                </div>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: sortBy !== 'created_desc' ? 'var(--primary-light)' : 'var(--white)',
+                    border: sortBy !== 'created_desc' ? '1.5px solid var(--primary)' : '1px solid var(--gray-300)',
+                    color: 'var(--gray-800)',
+                    fontSize: '13px',
+                    fontFamily: 'Inter, sans-serif',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    fontWeight: sortBy !== 'created_desc' ? 600 : 400
+                  }}
+                >
+                  <option value="created_desc">Mais Recentes (Padrão)</option>
+                  <option value="created_asc">Mais Antigos</option>
+                  <option value="alphabetical_asc">Nome (A-Z)</option>
+                  <option value="alphabetical_desc">Nome (Z-A)</option>
+                  <option value="budget_desc">Orçamento (Maior Primeiro)</option>
+                  <option value="budget_asc">Orçamento (Menor Primeiro)</option>
+                </select>
+              </div>
             </div>
             
             {/* Resumo e Ações Rápidas de Limpeza */}

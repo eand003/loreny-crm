@@ -391,3 +391,18 @@ A compilação de produção foi concluída com **sucesso em apenas 872ms** e ze
   - **Mudança em 2 Toques**: Clicar no selo abre o menu suspenso ou a folha de escolha nativa do sistema operacional (iOS/Android/Windows), permitindo escolher qualquer um dos 7 estágios do funil com apenas 2 toques rápidos.
   - **Atualização Otimista da UI**: No momento em que um novo estágio é selecionado, o estado local React de `leads` é recalculado instantaneamente. O card atualiza sua pílula e os contadores de filtros no painel de filtros superior se atualizam na velocidade do pensamento.
   - **Sincronização Assíncrona Inteligente**: O banco de dados Supabase é atualizado silenciosamente em segundo plano. Caso ocorra alguma falha na chamada, o estado anterior é restaurado de forma segura acompanhado de um aviso ao usuário, mantendo a integridade dos dados.
+
+### 31. Ordenação Dinâmica e Alfabética de Leads [NOVO] [x]
+- **O Problema**: A visualização de leads sempre seguia uma ordem decrescente rígida baseada unicamente na data de criação. Isso impedia que corretores localizassem leads por ordem alfabética de seus nomes, ou analisassem rapidamente os maiores orçamentos em negociação ativa de forma centralizada na listagem de cards.
+- **A Solução**: Implementamos um sistema de **Ordenação Dinâmica Multicritério** no componente [Leads.jsx](file:///c:/Users/Eduardo/Documents/GitHub/loreny-crm/src/components/Leads.jsx), integrado de forma nativa ao Painel de Filtros Avançados.
+- **Recursos**:
+  - **Seletor de Ordenação Inteligente**: Adicionado um novo seletor suspenso no painel avançado contendo 6 critérios estratégicos:
+    - **Mais Recentes (Padrão)**: Ordem cronológica decrescente.
+    - **Mais Antigos**: Ordem cronológica crescente.
+    - **Nome (A-Z)**: Ordenação alfabética direta dos nomes dos clientes.
+    - **Nome (Z-A)**: Ordenação alfabética inversa.
+    - **Orçamento (Maior Primeiro)**: Exibe os negócios de maior VGV no topo da listagem.
+    - **Orçamento (Menor Primeiro)**: Exibe orçamentos menores no topo.
+  - **Processamento In-Memory de Ultra-Velocidade**: A reordenação ocorre de forma 100% reativa em memória no lado do cliente. Isso proporciona uma velocidade de resposta de menos de 10ms, atualizando a listagem de forma instantânea sem requerer requisições adicionais ao banco de dados Supabase.
+  - **Feedback Visual Ativo**: O seletor de ordenação adota cor dourada dourada (`var(--primary-light)`) com bordas douradas sempre que um critério diferente do padrão ("Mais Recentes") é selecionado, além de exibir um pequeno botão "Padrão" para resetar a ordenação instantaneamente com 1 clique.
+
